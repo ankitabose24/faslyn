@@ -665,6 +665,138 @@ render_html(
     }
 
     /* -----------------------------------------------------------------------
+       RESPONSIVE MOBILE & TOUCH DESIGN SYSTEM (PHONES & TABLETS <= 768px)
+       ----------------------------------------------------------------------- */
+    @media (max-width: 768px) {
+        /* Optimize screen real estate: eliminate excess desktop margins */
+        .main .block-container {
+            padding: 0.85rem 0.65rem 2.5rem 0.65rem !important;
+            max-width: 100% !important;
+        }
+
+        /* Top Header on mobile: vertical stack with flexible spacing */
+        .top-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding-bottom: 10px !important;
+        }
+        .greeting-title {
+            font-size: 1.4rem !important;
+            line-height: 1.25 !important;
+        }
+        .greeting-subtitle {
+            font-size: 0.82rem !important;
+        }
+        .header-user-pill {
+            width: 100% !important;
+            justify-content: space-between !important;
+            box-sizing: border-box !important;
+            padding: 8px 14px !important;
+        }
+
+        /* Make multi-column grids collapse cleanly into touch-friendly full-width blocks */
+        div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 8px !important;
+        }
+
+        /* KPI cards on mobile: tactile, touch-spaced full-width cards */
+        .kpi-card {
+            padding: 14px 16px !important;
+            gap: 12px !important;
+            margin-bottom: 10px !important;
+            border-radius: 16px !important;
+        }
+        .kpi-val {
+            font-size: 1.45rem !important;
+        }
+        .kpi-label {
+            font-size: 0.78rem !important;
+        }
+
+        /* Section Cards & Impact Banners on mobile */
+        .dashboard-card {
+            padding: 16px !important;
+            border-radius: 16px !important;
+            margin-bottom: 12px !important;
+        }
+        .card-header-title {
+            font-size: 1.05rem !important;
+        }
+        .impact-banner {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+            padding: 16px !important;
+            border-radius: 16px !important;
+        }
+        .impact-chip {
+            width: 100% !important;
+            justify-content: flex-start !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Interactive Map Frame on mobile */
+        iframe {
+            min-height: 240px !important;
+            height: 250px !important;
+            border-radius: 14px !important;
+        }
+
+        /* Smooth horizontal scrollbar for tab navigation */
+        div[data-baseweb="tab-list"] {
+            overflow-x: auto !important;
+            flex-wrap: nowrap !important;
+            scrollbar-width: none !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-bottom: 4px !important;
+        }
+        div[data-baseweb="tab-list"]::-webkit-scrollbar {
+            display: none !important;
+        }
+        button[data-baseweb="tab"] {
+            white-space: nowrap !important;
+            padding: 8px 12px !important;
+            font-size: 0.88rem !important;
+        }
+
+        /* Touch-friendly buttons (Apple HIG / Android Material 48px touch targets) */
+        .stButton > button {
+            width: 100% !important;
+            min-height: 48px !important;
+            font-size: 0.95rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* Popover dropdowns on mobile */
+        div[data-testid="stPopoverBody"] {
+            max-width: 92vw !important;
+            width: 92vw !important;
+            left: 4vw !important;
+        }
+
+        /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
+        .stTextInput input, .stSelectbox div {
+            font-size: 16px !important;
+        }
+
+        /* Mobile-optimized sidebar toggle button */
+        button[data-testid="stSidebarCollapseButton"],
+        button[data-testid="baseButton-headerNoPadding"] {
+            background-color: rgba(255, 255, 255, 0.92) !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+            min-width: 40px !important;
+            min-height: 40px !important;
+        }
+    }
+
+    /* -----------------------------------------------------------------------
        LIGHT-COLORED 3D SPLASH LOADER
        ----------------------------------------------------------------------- */
     /* -----------------------------------------------------------------------
