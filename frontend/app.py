@@ -338,7 +338,7 @@ render_html(
         box-shadow: none !important;
     }
     
-    /* Secondary / Back Buttons */
+    /* Secondary / Back Buttons - Enhanced Presentable Style */
     .stButton > button[kind="secondary"],
     .stButton > button[data-testid="baseButton-secondary"] {
         background-color: #FFFFFF !important;
@@ -346,17 +346,21 @@ render_html(
         border: 1.5px solid #1B4D3E !important;
         font-weight: 700 !important;
         font-size: 0.85rem !important;
-        padding: 0.4rem 1.1rem !important;
+        padding: 0.38rem 1.15rem !important;
         border-radius: 9999px !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
-        transition: all 0.2s ease !important;
+        box-shadow: 0 1px 4px rgba(27, 77, 62, 0.08) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .stButton > button[kind="secondary"]:hover,
     .stButton > button[data-testid="baseButton-secondary"]:hover {
-        background-color: #F0FDF4 !important;
-        color: #143B2F !important;
-        border-color: #143B2F !important;
-        box-shadow: 0 2px 8px rgba(27, 77, 62, 0.15) !important;
+        background-color: #1B4D3E !important;
+        color: #FFFFFF !important;
+        border-color: #1B4D3E !important;
+        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.22) !important;
+        transform: translateY(-1px) !important;
     }
     
     /* Sidebar Styling */
@@ -579,7 +583,7 @@ with hdr_left:
             """
         )
     else:
-        b_c1, b_c2 = st.columns([1.8, 3.2], vertical_alignment="center")
+        b_c1, b_c2 = st.columns([1.5, 3.5], vertical_alignment="center")
         with b_c1:
             if st.button(_("back_to_home"), key="global_header_back", type="secondary", use_container_width=True):
                 navigate_back()
@@ -587,12 +591,12 @@ with hdr_left:
             current_title = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
             render_html(
                 f"""
-                <div style="padding-top: 4px;">
-                    <div style="font-size: 0.88rem; color: #6B7280; font-weight:600;">
-                        <span>🏠 {_('nav_home')}</span>
-                        <span style="margin: 0 6px; color:#9CA3AF;">›</span>
-                        <span style="color: #1B4D3E; font-weight:800;">{current_title}</span>
-                    </div>
+                <div style="display:flex; align-items:center; gap:8px; padding-left:6px;">
+                    <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">🏠 {_('nav_home')}</span>
+                    <span style="color:#9CA3AF; font-size:0.86rem;">›</span>
+                    <span style="background:#E8F5E9; color:#1B4D3E; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #C8E6C9;">
+                        {current_title}
+                    </span>
                 </div>
                 """
             )
@@ -638,6 +642,9 @@ with hdr_right:
             </div>
             """
         )
+
+if st.session_state.active_tab_id != "home":
+    render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
 
 # ===========================================================================
 # VIEW 1: HOME DASHBOARD (FULLY TRANSLATED)
@@ -1040,12 +1047,7 @@ if st.session_state.active_tab_id == "home":
 # VIEW 2: SATELLITE VIEW & GROUND TELEMETRY
 # ===========================================================================
 elif st.session_state.active_tab_id in ["farms", "sat"]:
-    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
-    with top_nav1:
-        if st.button(_("back_to_home"), key="back_sat_top", type="secondary", use_container_width=True):
-            navigate_back()
-    with top_nav2:
-        st.markdown(f"## 🛰️ {_('nav_sat')}")
+    st.markdown(f"## 🛰️ {_('nav_sat')}")
     st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
 
     col_hub_a, col_hub_b = st.columns([1, 2])
@@ -1123,12 +1125,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 # VIEW 3: AI INSIGHTS & MULTILINGUAL SPOKEN ADVISOR
 # ===========================================================================
 elif st.session_state.active_tab_id == "ai":
-    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
-    with top_nav1:
-        if st.button(_("back_to_home"), key="back_ai_top", type="secondary", use_container_width=True):
-            navigate_back()
-    with top_nav2:
-        st.markdown(f"## 🧠 {_('nav_ai')}")
+    st.markdown(f"## 🧠 {_('nav_ai')}")
     st.caption("Powered by xAI Grok API with fallback resilience for live demonstrations.")
 
     tab_voice, tab_vision = st.tabs(["🎙️ Spoken Oral Agro-Advisor", "🩺 Leaf Doctor (Disease Diagnostic)"])
@@ -1220,12 +1217,7 @@ elif st.session_state.active_tab_id == "ai":
 # VIEW 4: REGENERATIVE PLANNER
 # ===========================================================================
 elif st.session_state.active_tab_id == "regen":
-    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
-    with top_nav1:
-        if st.button(_("back_to_home"), key="back_regen_top", type="secondary", use_container_width=True):
-            navigate_back()
-    with top_nav2:
-        st.markdown(f"## 🔄 {_('nav_regen')}")
+    st.markdown(f"## 🔄 {_('nav_regen')}")
     st.caption("Replaces chemical monoculture with soil-nourishing companion rotations and organic amendments.")
 
     if st.button(_("gen_regen_plan"), type="primary"):
@@ -1285,12 +1277,7 @@ elif st.session_state.active_tab_id == "regen":
 # VIEW 5: BRICS KNOWLEDGE HUB (DPG & INTEROPERABILITY)
 # ===========================================================================
 elif st.session_state.active_tab_id in ["brics", "impact"]:
-    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
-    with top_nav1:
-        if st.button(_("back_to_home"), key="back_brics_top", type="secondary", use_container_width=True):
-            navigate_back()
-    with top_nav2:
-        st.markdown(f"## 🌐 {_('nav_brics')}")
+    st.markdown(f"## 🌐 {_('nav_brics')}")
     st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
@@ -1366,12 +1353,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
 # VIEW 6: SETTINGS
 # ===========================================================================
 elif st.session_state.active_tab_id == "settings":
-    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
-    with top_nav1:
-        if st.button(_("back_to_home"), key="back_settings_top", type="secondary", use_container_width=True):
-            navigate_back()
-    with top_nav2:
-        st.markdown(f"## ⚙️ {_('nav_settings')}")
+    st.markdown(f"## ⚙️ {_('nav_settings')}")
     st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
 
     s_col1, s_col2 = st.columns(2)
