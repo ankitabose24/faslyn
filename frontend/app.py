@@ -31,13 +31,20 @@ from backend.ai_service import (
     generate_crop_recommendation,
     generate_diagnosis,
 )
+import importlib
+import backend.config
+importlib.reload(backend.config)
 from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
+
 from backend.satellite_service import fetch_satellite_agroclimatology
 from backend.telemetry_service import fetch_soil_telemetry
-import importlib
+
 import backend.translations
 importlib.reload(backend.translations)
 from backend.translations import t
+
+import backend.geocoding
+importlib.reload(backend.geocoding)
 from backend.geocoding import geocode_location
 from frontend.tts import speak_text
 
