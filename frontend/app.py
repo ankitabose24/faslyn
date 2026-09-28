@@ -704,7 +704,7 @@ with st.sidebar:
     )
 
     current_label = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
-    all_labels = [v for _, v in nav_items]
+    all_labels = [label for tab_id, label in nav_items]
     current_index = all_labels.index(current_label) if current_label in all_labels else 0
 
     chosen_label = st.radio(
@@ -1379,7 +1379,7 @@ elif st.session_state.active_tab_id == "ai":
                 </div>
                 """
             )
-            col_rep, _ = st.columns([1, 4])
+            col_rep, _spacer = st.columns([1, 4])
             with col_rep:
                 if st.button("🔊 Replay Audio"):
                     st.session_state.trigger_speech = True
