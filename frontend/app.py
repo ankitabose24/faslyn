@@ -309,12 +309,26 @@ render_html(
         font-weight: 700 !important;
         border-radius: 9999px !important;
         padding: 0.45rem 1.4rem !important;
-        border: none !important;
+        border: 1px solid transparent !important;
         transition: all 0.2s ease !important;
     }
     .stButton > button:hover {
         background-color: #143B2F !important;
         box-shadow: 0 4px 14px rgba(27, 77, 62, 0.25) !important;
+    }
+    /* Click / Active state: Light Shade of Brown */
+    .stButton > button:active,
+    .stButton > button[data-testid="baseButton-primary"]:active {
+        background-color: #B5835A !important;
+        border-color: #9C683E !important;
+        color: #FFFFFF !important;
+        box-shadow: 0 2px 10px rgba(181, 131, 90, 0.45) !important;
+        transform: scale(0.98) !important;
+    }
+    .stButton > button:focus,
+    .stButton > button:focus-visible {
+        outline: 2px solid #B5835A !important;
+        box-shadow: 0 0 0 3px rgba(181, 131, 90, 0.35) !important;
     }
     
     /* Tertiary / View All Buttons */
@@ -333,9 +347,16 @@ render_html(
     }
     .stButton > button[kind="tertiary"]:hover,
     .stButton > button[data-testid="baseButton-tertiary"]:hover {
-        background-color: #E8F5E9 !important;
-        color: #0E2A21 !important;
+        background-color: #F8F3EE !important;
+        color: #7D4E27 !important;
         box-shadow: none !important;
+    }
+    .stButton > button[kind="tertiary"]:active,
+    .stButton > button[data-testid="baseButton-tertiary"]:active {
+        background-color: #EBDCCF !important;
+        color: #643916 !important;
+        border-radius: 8px !important;
+        transform: scale(0.97) !important;
     }
     
     /* Secondary / Back Buttons - Enhanced Presentable Style */
@@ -361,6 +382,77 @@ render_html(
         border-color: #1B4D3E !important;
         box-shadow: 0 4px 12px rgba(27, 77, 62, 0.22) !important;
         transform: translateY(-1px) !important;
+    }
+    .stButton > button[kind="secondary"]:active,
+    .stButton > button[data-testid="baseButton-secondary"]:active {
+        background-color: #B5835A !important;
+        color: #FFFFFF !important;
+        border-color: #9C683E !important;
+        box-shadow: 0 2px 8px rgba(181, 131, 90, 0.4) !important;
+        transform: scale(0.98) !important;
+    }
+
+    /* Notification Bell Popover Styling */
+    div[data-testid="stPopover"] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    div[data-testid="stPopover"] > button {
+        background-color: #FFFFFF !important;
+        color: #111827 !important;
+        border: 1.5px solid #E5E7EB !important;
+        border-radius: 9999px !important;
+        padding: 0.38rem 0.75rem !important;
+        font-size: 0.92rem !important;
+        font-weight: 700 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        cursor: pointer !important;
+    }
+    div[data-testid="stPopover"] > button:hover {
+        background-color: #F8F3EE !important;
+        border-color: #B5835A !important;
+        color: #7D4E27 !important;
+        box-shadow: 0 3px 8px rgba(181, 131, 90, 0.2) !important;
+    }
+    div[data-testid="stPopover"] > button:active {
+        background-color: #B5835A !important;
+        color: #FFFFFF !important;
+        border-color: #9C683E !important;
+        transform: scale(0.96) !important;
+    }
+    div[data-testid="stPopoverBody"] {
+        border-radius: 16px !important;
+        border: 1px solid #E5E7EB !important;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+        padding: 16px !important;
+    }
+
+    /* Radio button active/click selection styling */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
+        background-color: #F8F3EE !important;
+        border-radius: 8px !important;
+    }
+    div[data-testid="stRadio"] div[role="radiogroup"] > label:active {
+        background-color: #EBDCCF !important;
+        border-radius: 8px !important;
+    }
+    div[data-testid="stRadio"] label:has(input:checked) {
+        background-color: #F8F3EE !important;
+        border-radius: 8px !important;
+        color: #7D4E27 !important;
+        font-weight: 700 !important;
+    }
+    div[data-testid="stRadio"] input:checked + div {
+        border-color: #B5835A !important;
+        background-color: #B5835A !important;
+    }
+
+    /* Input focus styling */
+    input:focus, textarea:focus, select:focus {
+        border-color: #B5835A !important;
+        box-shadow: 0 0 0 2px rgba(181, 131, 90, 0.25) !important;
     }
     
     /* Sidebar Styling */
@@ -420,6 +512,39 @@ if "sample_label" not in st.session_state:
     st.session_state.sample_label = None
 if "nav_stack" not in st.session_state:
     st.session_state.nav_stack = ["home"]
+if "notifications" not in st.session_state:
+    st.session_state.notifications = [
+        {
+            "id": "alert_1",
+            "icon": "🔴",
+            "title_key": "alert_1_title",
+            "time_key": "alert_1_sub",
+            "desc": "Low soil moisture (0.24 m³/m³). Rain forecast low for next 7 days.",
+            "target": "sat",
+            "target_label": "🛰️ View Field",
+            "read": False,
+        },
+        {
+            "id": "alert_2",
+            "icon": "🟡",
+            "title_key": "alert_2_title",
+            "time_key": "alert_2_sub",
+            "desc": "Soil organic matter deficit detected. Topsoil amendment advised.",
+            "target": "regen",
+            "target_label": "🔄 View Plan",
+            "read": False,
+        },
+        {
+            "id": "alert_3",
+            "icon": "🔵",
+            "title_key": "alert_3_title",
+            "time_key": "alert_3_sub",
+            "desc": "Dry spell upcoming. Formulate spoken advisory with AI agro-advisor.",
+            "target": "ai",
+            "target_label": "🎙️ AI Advisory",
+            "read": False,
+        },
+    ]
 
 
 def _(key: str) -> str:
@@ -594,7 +719,7 @@ with hdr_left:
                 <div style="display:flex; align-items:center; gap:8px; padding-left:6px;">
                     <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">{_('nav_home')}</span>
                     <span style="color:#9CA3AF; font-size:0.86rem;">›</span>
-                    <span style="background:#E8F5E9; color:#1B4D3E; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #C8E6C9;">
+                    <span style="background:#F5EBE1; color:#7D4E27; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #E3D1C2;">
                         {current_title}
                     </span>
                 </div>
@@ -602,18 +727,55 @@ with hdr_left:
             )
 
 with hdr_right:
-    c_bell, c_lang, c_user = st.columns([1, 2.5, 3])
+    c_bell, c_lang, c_user = st.columns([1.1, 2.5, 3], vertical_alignment="center")
     with c_bell:
-        render_html(
-            """
-            <div style="display:flex; justify-content:center; align-items:center; height: 100%; padding-top: 14px;">
-                <div style="position:relative; cursor:pointer; font-size:22px;">
-                    🔔
-                    <span style="position:absolute; top:-2px; right:-2px; background:#EF4444; color:white; border-radius:50%; width:14px; height:14px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700;">1</span>
-                </div>
-            </div>
-            """
-        )
+        unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
+        bell_label = f"🔔 {unread_count}" if unread_count > 0 else "🔔"
+        with st.popover(bell_label, help=_("upcoming_alerts"), use_container_width=True):
+            st.markdown(f"#### 🔔 {_('upcoming_alerts')}")
+            if unread_count > 0:
+                st.caption(f"{unread_count} unread notifications")
+            else:
+                st.caption("All notifications read")
+
+            st.markdown("---")
+            for notif in st.session_state.notifications:
+                bg_col = "#FEF2F2" if "🔴" in notif["icon"] else ("#FFFBEB" if "🟡" in notif["icon"] else "#F0F9FF")
+                border_col = "#FECACA" if "🔴" in notif["icon"] else ("#FDE68A" if "🟡" in notif["icon"] else "#BAE6FD")
+                render_html(
+                    f"""
+                    <div style="background:{bg_col}; border:1px solid {border_col}; border-radius:10px; padding:10px; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight:700; font-size:0.84rem; color:#111827;">{_(notif['title_key'])}</span>
+                            <span style="font-size:0.7rem; color:#6B7280;">{_(notif['time_key'])}</span>
+                        </div>
+                        <div style="font-size:0.76rem; color:#4B5563; margin-top:4px;">{notif['desc']}</div>
+                    </div>
+                    """
+                )
+                col_b1, col_b2 = st.columns([1.8, 1.2])
+                with col_b1:
+                    if st.button(notif["target_label"], key=f"notif_act_{notif['id']}", use_container_width=True):
+                        notif["read"] = True
+                        navigate_to(notif["target"])
+                with col_b2:
+                    if not notif.get("read", False):
+                        if st.button("Mark read", key=f"notif_done_{notif['id']}", type="tertiary", use_container_width=True):
+                            notif["read"] = True
+                            st.rerun()
+
+            st.markdown("---")
+            c_all1, c_all2 = st.columns(2)
+            with c_all1:
+                if st.button("✓ Mark all read", key="notif_mark_all", use_container_width=True):
+                    for n in st.session_state.notifications:
+                        n["read"] = True
+                    st.rerun()
+            with c_all2:
+                if st.button("🔄 Reset alerts", key="notif_reset", type="tertiary", use_container_width=True):
+                    for n in st.session_state.notifications:
+                        n["read"] = False
+                    st.rerun()
     with c_lang:
         selected_language = st.selectbox(
             "Language",
