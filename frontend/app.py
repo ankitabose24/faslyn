@@ -302,94 +302,155 @@ render_html(
         border: 1px solid #E5E7EB;
     }
     
-    /* Primary Action Buttons */
-    .stButton > button {
-        background-color: #1B4D3E !important;
-        color: #FFFFFF !important;
-        font-weight: 700 !important;
+    /* Primary Action Buttons - Light Brown Theme with High Visibility Text */
+    .stButton > button,
+    button[data-testid="baseButton-primary"] {
+        background-color: #D4A373 !important;
+        border: 1.5px solid #C4925E !important;
         border-radius: 9999px !important;
         padding: 0.45rem 1.4rem !important;
-        border: 1px solid transparent !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 6px rgba(181, 131, 90, 0.2) !important;
     }
-    .stButton > button:hover {
-        background-color: #143B2F !important;
-        box-shadow: 0 4px 14px rgba(27, 77, 62, 0.25) !important;
+    .stButton > button *,
+    .stButton > button p,
+    .stButton > button div,
+    .stButton > button span,
+    button[data-testid="baseButton-primary"] *,
+    button[data-testid="baseButton-primary"] p,
+    button[data-testid="baseButton-primary"] div,
+    button[data-testid="baseButton-primary"] span {
+        color: #1E1208 !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
+    .stButton > button:hover,
+    button[data-testid="baseButton-primary"]:hover {
+        background-color: #C89664 !important;
+        border-color: #B5804D !important;
+        box-shadow: 0 4px 14px rgba(181, 131, 90, 0.35) !important;
+        transform: translateY(-1px) !important;
+    }
+    .stButton > button:hover *,
+    button[data-testid="baseButton-primary"]:hover * {
+        color: #110A03 !important;
     }
     /* Click / Active state: Light Shade of Brown */
     .stButton > button:active,
     .stButton > button[data-testid="baseButton-primary"]:active {
-        background-color: #B5835A !important;
+        background-color: #B57F4D !important;
         border-color: #9C683E !important;
-        color: #FFFFFF !important;
-        box-shadow: 0 2px 10px rgba(181, 131, 90, 0.45) !important;
+        box-shadow: 0 2px 8px rgba(181, 131, 90, 0.45) !important;
         transform: scale(0.98) !important;
     }
+    .stButton > button:active *,
+    button[data-testid="baseButton-primary"]:active * {
+        color: #FFFFFF !important;
+    }
     .stButton > button:focus,
-    .stButton > button:focus-visible {
-        outline: 2px solid #B5835A !important;
-        box-shadow: 0 0 0 3px rgba(181, 131, 90, 0.35) !important;
+    .stButton > button:focus-visible,
+    button[data-testid="baseButton-primary"]:focus,
+    button[data-testid="baseButton-primary"]:focus-visible {
+        outline: 2px solid #C4925E !important;
+        box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.4) !important;
     }
     
     /* Tertiary / View All Buttons */
     .stButton > button[kind="tertiary"],
     .stButton > button[data-testid="baseButton-tertiary"] {
         background-color: transparent !important;
-        color: #1B4D3E !important;
-        font-weight: 700 !important;
-        font-size: 0.82rem !important;
-        padding: 4px 10px !important;
         border: none !important;
         box-shadow: none !important;
         text-align: right !important;
         justify-content: flex-end !important;
         display: inline-flex !important;
+        padding: 4px 10px !important;
+    }
+    .stButton > button[kind="tertiary"] *,
+    .stButton > button[data-testid="baseButton-tertiary"] * {
+        color: #7D4E27 !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
     }
     .stButton > button[kind="tertiary"]:hover,
     .stButton > button[data-testid="baseButton-tertiary"]:hover {
         background-color: #F8F3EE !important;
-        color: #7D4E27 !important;
         box-shadow: none !important;
+    }
+    .stButton > button[kind="tertiary"]:hover *,
+    .stButton > button[data-testid="baseButton-tertiary"]:hover * {
+        color: #4A280F !important;
     }
     .stButton > button[kind="tertiary"]:active,
     .stButton > button[data-testid="baseButton-tertiary"]:active {
         background-color: #EBDCCF !important;
-        color: #643916 !important;
         border-radius: 8px !important;
         transform: scale(0.97) !important;
+    }
+    .stButton > button[kind="tertiary"]:active *,
+    .stButton > button[data-testid="baseButton-tertiary"]:active * {
+        color: #2E1504 !important;
     }
     
     /* Secondary / Back Buttons - Enhanced Presentable Style */
     .stButton > button[kind="secondary"],
     .stButton > button[data-testid="baseButton-secondary"] {
         background-color: #FFFFFF !important;
-        color: #1B4D3E !important;
-        border: 1.5px solid #1B4D3E !important;
-        font-weight: 700 !important;
-        font-size: 0.85rem !important;
-        padding: 0.38rem 1.15rem !important;
+        border: 1.5px solid #D4A373 !important;
+        font-size: 0.88rem !important;
+        padding: 0.42rem 1.25rem !important;
         border-radius: 9999px !important;
-        box-shadow: 0 1px 4px rgba(27, 77, 62, 0.08) !important;
+        box-shadow: 0 1px 4px rgba(181, 131, 90, 0.1) !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .stButton > button[kind="secondary"] *,
+    .stButton > button[kind="secondary"] p,
+    .stButton > button[data-testid="baseButton-secondary"] *,
+    .stButton > button[data-testid="baseButton-secondary"] p {
+        color: #633811 !important;
+        font-weight: 700 !important;
+    }
     .stButton > button[kind="secondary"]:hover,
     .stButton > button[data-testid="baseButton-secondary"]:hover {
-        background-color: #1B4D3E !important;
-        color: #FFFFFF !important;
-        border-color: #1B4D3E !important;
-        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.22) !important;
+        background-color: #F8F3EE !important;
+        border-color: #B57F4D !important;
+        box-shadow: 0 4px 12px rgba(181, 131, 90, 0.2) !important;
         transform: translateY(-1px) !important;
+    }
+    .stButton > button[kind="secondary"]:hover *,
+    .stButton > button[data-testid="baseButton-secondary"]:hover * {
+        color: #3D2007 !important;
     }
     .stButton > button[kind="secondary"]:active,
     .stButton > button[data-testid="baseButton-secondary"]:active {
-        background-color: #B5835A !important;
-        color: #FFFFFF !important;
-        border-color: #9C683E !important;
+        background-color: #D4A373 !important;
+        border-color: #B57F4D !important;
         box-shadow: 0 2px 8px rgba(181, 131, 90, 0.4) !important;
         transform: scale(0.98) !important;
+    }
+    .stButton > button[kind="secondary"]:active *,
+    .stButton > button[data-testid="baseButton-secondary"]:active * {
+        color: #1E1208 !important;
+    }
+
+    /* Tabs Styling */
+    button[data-baseweb="tab"] {
+        font-weight: 600 !important;
+        color: #4B5563 !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #633811 !important;
+        font-weight: 700 !important;
+        border-bottom-color: #C49A6C !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] * {
+        color: #633811 !important;
+    }
+    div[data-baseweb="tab-highlight"] {
+        background-color: #C49A6C !important;
     }
 
     /* Notification Bell Popover Styling */
@@ -549,7 +610,10 @@ if "notifications" not in st.session_state:
 
 def _(key: str) -> str:
     """Translate string key into active session language."""
-    return t(key, st.session_state.current_language)
+    val = t(key, st.session_state.current_language)
+    if val == "back_to_home":
+        return "← Back to Dashboard"
+    return val
 
 
 def navigate_to(tab_id: str):
