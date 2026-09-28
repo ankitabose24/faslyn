@@ -317,6 +317,27 @@ render_html(
         box-shadow: 0 4px 14px rgba(27, 77, 62, 0.25) !important;
     }
     
+    /* Tertiary / View All Buttons */
+    .stButton > button[kind="tertiary"],
+    .stButton > button[data-testid="baseButton-tertiary"] {
+        background-color: transparent !important;
+        color: #1B4D3E !important;
+        font-weight: 700 !important;
+        font-size: 0.82rem !important;
+        padding: 4px 10px !important;
+        border: none !important;
+        box-shadow: none !important;
+        text-align: right !important;
+        justify-content: flex-end !important;
+        display: inline-flex !important;
+    }
+    .stButton > button[kind="tertiary"]:hover,
+    .stButton > button[data-testid="baseButton-tertiary"]:hover {
+        background-color: #E8F5E9 !important;
+        color: #0E2A21 !important;
+        box-shadow: none !important;
+    }
+    
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #F8FAF7 !important;
@@ -451,6 +472,7 @@ with st.sidebar:
         "Navigation",
         all_labels,
         index=current_index,
+        key=f"nav_radio_{st.session_state.active_tab_id}",
         label_visibility="collapsed",
     )
     new_tab_id = label_to_id.get(chosen_label, "home")
@@ -622,16 +644,13 @@ if st.session_state.active_tab_id == "home":
     mid_left, mid_right = st.columns([2, 1])
 
     with mid_left:
-        render_html(
-            f"""
-            <div class="dashboard-card" style="margin-bottom: 0px;">
-                <div class="card-header-row">
-                    <h3 class="card-header-title">{_('my_fields')}</h3>
-                    <span class="view-all-link">{_('interactive_map')}</span>
-                </div>
-            </div>
-            """
-        )
+        mf_c1, mf_c2 = st.columns([3, 1], vertical_alignment="center")
+        with mf_c1:
+            render_html(f'<h3 class="card-header-title">{_("my_fields")}</h3>')
+        with mf_c2:
+            if st.button(_("view_all"), key="btn_view_all_fields", type="tertiary", use_container_width=True):
+                st.session_state.active_tab_id = "sat"
+                st.rerun()
 
         col_map_inner, col_detail_inner = st.columns([1.35, 1])
 
@@ -724,14 +743,17 @@ if st.session_state.active_tab_id == "home":
                 st.rerun()
 
     with mid_right:
+        ai_c1, ai_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        with ai_c1:
+            render_html(f'<h3 class="card-header-title">{_("ai_insights")}</h3>')
+        with ai_c2:
+            if st.button(_("view_all"), key="btn_view_all_ai", type="tertiary", use_container_width=True):
+                st.session_state.active_tab_id = "ai"
+                st.rerun()
+
         render_html(
             f"""
-            <div class="dashboard-card">
-                <div class="card-header-row">
-                    <h3 class="card-header-title">{_('ai_insights')}</h3>
-                    <span class="view-all-link">{_('view_all')}</span>
-                </div>
-                
+            <div class="dashboard-card" style="margin-top: 4px;">
                 <div style="background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 14px; padding: 14px; margin-bottom: 16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
                         <span style="font-weight:700; color:#DC2626; font-size:0.92rem; display:flex; align-items:center; gap:6px;">
@@ -771,14 +793,17 @@ if st.session_state.active_tab_id == "home":
     col_ov, col_act, col_alt = st.columns(3)
 
     with col_ov:
+        fo_c1, fo_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        with fo_c1:
+            render_html(f'<h3 class="card-header-title">{_("farm_overview")}</h3>')
+        with fo_c2:
+            if st.button(_("view_all"), key="btn_view_all_fo", type="tertiary", use_container_width=True):
+                st.session_state.active_tab_id = "farms"
+                st.rerun()
+
         render_html(
             f"""
             <div class="dashboard-card" style="height: 100%;">
-                <div class="card-header-row">
-                    <h3 class="card-header-title">{_('farm_overview')}</h3>
-                    <span class="view-all-link">{_('view_all')}</span>
-                </div>
-                
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
                         <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
@@ -845,14 +870,17 @@ if st.session_state.active_tab_id == "home":
                 st.rerun()
 
     with col_alt:
+        ua_c1, ua_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        with ua_c1:
+            render_html(f'<h3 class="card-header-title">{_("upcoming_alerts")}</h3>')
+        with ua_c2:
+            if st.button(_("view_all"), key="btn_view_all_alerts", type="tertiary", use_container_width=True):
+                st.session_state.active_tab_id = "ai"
+                st.rerun()
+
         render_html(
             f"""
             <div class="dashboard-card" style="height: 100%;">
-                <div class="card-header-row">
-                    <h3 class="card-header-title">{_('upcoming_alerts')}</h3>
-                    <span class="view-all-link">{_('view_all')}</span>
-                </div>
-                
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FEF2F2; border-radius:10px;">
                         <div>
@@ -935,6 +963,12 @@ if st.session_state.active_tab_id == "home":
         </div>
         """
     )
+
+    if st.button(f"🌱 {_('gen_regen_plan')}", key="btn_banner_regen_all", use_container_width=True):
+        st.session_state.active_tab_id = "regen"
+        st.rerun()
+
+    st.write("")
 
     render_html(
         f"""
