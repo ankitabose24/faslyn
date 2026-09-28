@@ -31,7 +31,7 @@ from backend.ai_service import (
     generate_crop_recommendation,
     generate_diagnosis,
 )
-from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES
+from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
 from backend.satellite_service import fetch_satellite_agroclimatology
 from backend.telemetry_service import fetch_soil_telemetry
 import importlib
@@ -904,18 +904,26 @@ if st.session_state.active_tab_id == "home":
     water_pct = int(min(100, max(15, (live_root_wetness / 0.65) * 100)))
     veg_pct = int(min(98, max(25, ((live_solar / 22.0) * 45) + (water_pct * 0.50))))
 
-    # Compute dynamic health scores for the 4 regional farm fields
-    f1_health = int(min(98, max(45, 42 + (live_moisture * 120) + (live_root_wetness * 35))))
-    f2_health = int(min(95, max(40, 48 + (live_root_wetness * 60) - (max(0, live_soil_temp - 32) * 2))))
-    f3_health = int(min(98, max(25, (soil_pct * 0.45 + water_pct * 0.40 + veg_pct * 0.15))))
-    f4_health = int(min(96, max(45, 50 + (live_moisture * 95) + (live_precip * 2.5))))
+    # Pull tailored fields for the selected agricultural region/hub
+    hub_key = st.session_state.selected_hub_name
+    template_fields = REGIONAL_FIELDS.get(hub_key, list(REGIONAL_FIELDS.values())[0])
 
-    fields_data = [
-        {"name": "Field 01", "crop": _("rice"), "area": "1.2 ha", "score": f1_health, "icon": "🌾"},
-        {"name": "Field 02", "crop": _("maize"), "area": "0.8 ha", "score": f2_health, "icon": "🌽"},
-        {"name": "Field 03", "crop": _("rice"), "area": "1.1 ha", "score": f3_health, "icon": "🌾"},
-        {"name": "Field 04", "crop": _("veg"), "area": "0.6 ha", "score": f4_health, "icon": "🥬"},
-    ]
+    fields_data = []
+    for idx, tf in enumerate(template_fields):
+        # Calculate dynamic health score from live telemetry & regional stress bias
+        base_score = (soil_pct * 0.45 + water_pct * 0.40 + veg_pct * 0.15)
+        score = int(min(98, max(22, base_score * tf.get("stress_bias", 0.85) + (idx * 4 - 5))))
+        
+        # Localized crop name if available, otherwise crop_en
+        crop_label = _(tf["crop_key"]) if tf["crop_key"] in ["rice", "maize", "veg"] else tf["crop_en"]
+        
+        fields_data.append({
+            "name": tf["name"],
+            "crop": crop_label,
+            "area": tf["area"],
+            "score": score,
+            "icon": tf["icon"],
+        })
 
     for f in fields_data:
         if f["score"] >= 70:
@@ -1040,16 +1048,31 @@ if st.session_state.active_tab_id == "home":
                 control_scale=False,
             )
 
-            d = 0.005
-            p1 = [[center_lat + d, center_lon - d], [center_lat + 2*d, center_lon], [center_lat + d, center_lon + d/2]]
-            p2 = [[center_lat, center_lon], [center_lat + d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d]]
-            p3 = [[center_lat - d, center_lon - d/2], [center_lat, center_lon], [center_lat - 1.5*d, center_lon + d/3]]
-            p4 = [[center_lat - d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d], [center_lat - 2*d, center_lon + d]]
-
-            folium.Polygon(locations=p1, color=fields_data[0]["dot_color"], fill=True, fill_color=fields_data[0]["dot_color"], fill_opacity=0.6, tooltip="Field 01").add_to(m)
-            folium.Polygon(locations=p2, color=fields_data[1]["dot_color"], fill=True, fill_color=fields_data[1]["dot_color"], fill_opacity=0.6, tooltip="Field 02").add_to(m)
-            folium.Polygon(locations=p3, color=fields_data[2]["dot_color"], fill=True, fill_color=fields_data[2]["dot_color"], fill_opacity=0.7, tooltip="Field 03").add_to(m)
-            folium.Polygon(locations=p4, color=fields_data[3]["dot_color"], fill=True, fill_color=fields_data[3]["dot_color"], fill_opacity=0.6, tooltip="Field 04").add_to(m)
+            import math
+            n_f = len(fields_data)
+            radius = 0.0055
+            for idx, fld in enumerate(fields_data):
+                angle = (2 * math.pi / n_f) * idx
+                lat_off = radius * math.cos(angle)
+                lon_off = radius * math.sin(angle)
+                f_lat = center_lat + lat_off
+                f_lon = center_lon + lon_off
+                d_lat = 0.002
+                d_lon = 0.0025
+                poly_pts = [
+                    [f_lat - d_lat * 0.7, f_lon - d_lon],
+                    [f_lat + d_lat, f_lon - d_lon * 0.6],
+                    [f_lat + d_lat * 0.8, f_lon + d_lon * 0.9],
+                    [f_lat - d_lat * 0.9, f_lon + d_lon * 0.7],
+                ]
+                folium.Polygon(
+                    locations=poly_pts,
+                    color=fld["dot_color"],
+                    fill=True,
+                    fill_color=fld["dot_color"],
+                    fill_opacity=0.65,
+                    tooltip=f"{fld['name']} • {fld['crop']} ({fld['score']}%)",
+                ).add_to(m)
 
             st_folium(m, height=275, use_container_width=True, key="dashboard_map")
 
@@ -1064,25 +1087,25 @@ if st.session_state.active_tab_id == "home":
             )
 
         with col_detail_inner:
-            f3 = fields_data[2]
+            focus_field = min(fields_data, key=lambda x: x["score"])
             render_html(
                 f"""
                 <div style="background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 16px; padding: 16px; height: 100%;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                        <h4 style="margin:0; font-weight:800; font-size:1.15rem; color:#111827;">{f3['name']}</h4>
-                        <span class="badge {f3['badge_class']}">{f3['badge_label']}</span>
+                        <h4 style="margin:0; font-weight:800; font-size:1.15rem; color:#111827;">{focus_field['name']}</h4>
+                        <span class="badge {focus_field['badge_class']}">{focus_field['badge_label']}</span>
                     </div>
                     <div style="font-size: 0.8rem; color:#4B5563; line-height: 1.6; margin-bottom: 12px;">
-                        <div>🌾 <b>{f3['crop']}</b> &nbsp;•&nbsp; 📍 <b>{active_hub_clean}</b></div>
+                        <div>{focus_field['icon']} <b>{focus_field['crop']}</b> &nbsp;•&nbsp; 📍 <b>{active_hub_clean}</b></div>
                         <div>📡 <b>{live_moisture:.2f} m³/m³</b> &nbsp;•&nbsp; ☀️ <b>{live_solar:.1f} MJ/m²</b></div>
                     </div>
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
                             <span>{_('field_health')} (Composite)</span>
-                            <span style="color:{f3['dot_color']}; font-weight:700;">{f3['score']}%</span>
+                            <span style="color:{focus_field['dot_color']}; font-weight:700;">{focus_field['score']}%</span>
                         </div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {f3['score']}%; background: {f3['dot_color']};"></div></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {focus_field['score']}%; background: {focus_field['dot_color']};"></div></div>
                     </div>
                     
                     <div class="metric-bar-container">
@@ -1170,53 +1193,26 @@ if st.session_state.active_tab_id == "home":
             if st.button(_("view_all"), key="btn_view_all_fo", type="tertiary", use_container_width=True):
                 navigate_to("sat")
 
+        cards_html = "".join([
+            f"""
+            <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+                <div style="display:flex; align-items:center; justify-content:space-between;">
+                    <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
+                        <span style="color:{f['dot_color']};">●</span> {f['name']}
+                    </span>
+                    <span style="font-size:0.75rem; font-weight:700; color:{f['dot_color']};">{f['score']}%</span>
+                </div>
+                <div class="badge {f['badge_class']}" style="margin:4px 0;">{f['badge_label']}</div>
+                <div style="font-size:0.75rem; color:#6B7280;">{f['icon']} {f['crop']} • {f['area']}</div>
+            </div>
+            """ for f in fields_data
+        ])
+
         render_html(
             f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                                <span style="color:{fields_data[0]['dot_color']};">●</span> {fields_data[0]['name']}
-                            </span>
-                            <span style="font-size:0.75rem; font-weight:700; color:{fields_data[0]['dot_color']};">{fields_data[0]['score']}%</span>
-                        </div>
-                        <div class="badge {fields_data[0]['badge_class']}" style="margin:4px 0;">{fields_data[0]['badge_label']}</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">{fields_data[0]['icon']} {fields_data[0]['crop']} • {fields_data[0]['area']}</div>
-                    </div>
-                    
-                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                                <span style="color:{fields_data[1]['dot_color']};">●</span> {fields_data[1]['name']}
-                            </span>
-                            <span style="font-size:0.75rem; font-weight:700; color:{fields_data[1]['dot_color']};">{fields_data[1]['score']}%</span>
-                        </div>
-                        <div class="badge {fields_data[1]['badge_class']}" style="margin:4px 0;">{fields_data[1]['badge_label']}</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">{fields_data[1]['icon']} {fields_data[1]['crop']} • {fields_data[1]['area']}</div>
-                    </div>
-                    
-                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                                <span style="color:{fields_data[2]['dot_color']};">●</span> {fields_data[2]['name']}
-                            </span>
-                            <span style="font-size:0.75rem; font-weight:700; color:{fields_data[2]['dot_color']};">{fields_data[2]['score']}%</span>
-                        </div>
-                        <div class="badge {fields_data[2]['badge_class']}" style="margin:4px 0;">{fields_data[2]['badge_label']}</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">{fields_data[2]['icon']} {fields_data[2]['crop']} • {fields_data[2]['area']}</div>
-                    </div>
-                    
-                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between;">
-                            <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                                <span style="color:{fields_data[3]['dot_color']};">●</span> {fields_data[3]['name']}
-                            </span>
-                            <span style="font-size:0.75rem; font-weight:700; color:{fields_data[3]['dot_color']};">{fields_data[3]['score']}%</span>
-                        </div>
-                        <div class="badge {fields_data[3]['badge_class']}" style="margin:4px 0;">{fields_data[3]['badge_label']}</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">{fields_data[3]['icon']} {fields_data[3]['crop']} • {fields_data[3]['area']}</div>
-                    </div>
+                    {cards_html}
                 </div>
             </div>
             """
