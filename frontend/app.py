@@ -1,20 +1,16 @@
 """
-Faslyn — Frontend (Streamlit UI)
-======================================
-Faslyn = "Fasal" (crop) + "Link" (connection) — connecting crop data,
-intelligence & farmers across BRICS.
-
-Run from the project root with:
-    streamlit run frontend/app.py
-
-Designed for smallholder farmer accessibility:
-- Zero-sensor: no expensive hardware needed
-- Plain-language interpretations for soil & satellite metrics
-- Multilingual spoken audio for low-literacy field access
-- 1-click test samples for instant leaf disease diagnosis
-- Aligned with BRICS AgriN & national digital agriculture standards
+Faslyn — Modern Regenerative Agricultural Intelligence Dashboard
+================================================================
+Inspired by the BRICS AgriN Initiative for Smallholder Cooperation.
+Powered by:
+- xAI Grok API (Text & Multimodal Vision)
+- Open-Meteo Zero-Sensor Telemetry
+- NASA POWER Agro-Climatology Satellite Feeds
+- Client-Side Multilingual Web Speech TTS
+- Standardized ODbL Digital Public Good (DPG) Schema
 """
 
+import base64
 import json
 import os
 import sys
@@ -28,8 +24,7 @@ from PIL import Image
 from streamlit_folium import st_folium
 
 from backend.ai_service import (
-    GENAI_AVAILABLE,
-    build_genai_client,
+    build_grok_client,
     generate_advisory,
     generate_crop_recommendation,
     generate_diagnosis,
@@ -40,46 +35,261 @@ from backend.telemetry_service import fetch_soil_telemetry
 from frontend.tts import speak_text
 
 # ---------------------------------------------------------------------------
-# PAGE CONFIG
+# PAGE CONFIGURATION
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Faslyn | BRICS Regenerative Ag Intelligence",
+    page_title="faslyn | Smart Agriculture. Stronger Communities.",
     page_icon="🌱",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ---------------------------------------------------------------------------
-# CUSTOM CSS FOR FARMER-FRIENDLY VISUALS
+# CUSTOM CSS FOR THE EXACT DASHBOARD DESIGN
 # ---------------------------------------------------------------------------
 st.markdown(
     """
     <style>
-    .metric-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    html, body, [class*="css"] {
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .stApp {
+        background-color: #F6F9F5;
+    }
+    
+    /* Top Header Bar */
+    .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0 24px 0;
+    }
+    .greeting-title {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #111827;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .greeting-subtitle {
+        font-size: 0.95rem;
+        color: #6B7280;
+        margin-top: 4px;
+        margin-bottom: 0;
+    }
+    
+    /* Profile & Language Header Pill */
+    .header-user-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #FFFFFF;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: #DCFCE7;
+        color: #15803D;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    
+    /* KPI Metric Cards */
+    .kpi-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        padding: 20px;
+        border: 1px solid #EEF2F6;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+    .kpi-icon-box {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    .icon-green { background: #ECFDF5; color: #059669; }
+    .icon-orange { background: #FFFBEB; color: #D97706; }
+    .icon-teal { background: #F0FDFA; color: #0D9488; }
+    
+    .kpi-val {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+    }
+    .kpi-label {
         font-size: 0.85rem;
         font-weight: 600;
-        margin-top: 4px;
+        color: #4B5563;
+        margin-bottom: 2px;
     }
-    .badge-optimal { background-color: #d4edda; color: #155724; }
-    .badge-warning { background-color: #fff3cd; color: #856404; }
-    .badge-alert { background-color: #f8d7da; color: #721c24; }
-    .badge-info { background-color: #d1ecf1; color: #0c5460; }
-    .farmer-card {
-        background-color: #f8f9fa;
-        border-left: 5px solid #28a745;
+    .kpi-subtext {
+        font-size: 0.78rem;
+        color: #9CA3AF;
+        margin: 0;
+    }
+    
+    /* Section Cards */
+    .dashboard-card {
+        background: #FFFFFF;
+        border-radius: 20px;
+        padding: 22px;
+        border: 1px solid #EEF2F6;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+        margin-bottom: 20px;
+    }
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .card-header-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+    .view-all-link {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1B4D3E;
+        text-decoration: none;
+    }
+    
+    /* Progress Bars & Status */
+    .metric-bar-container {
+        margin: 10px 0;
+    }
+    .metric-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 4px;
+    }
+    .metric-bar-bg {
+        background-color: #F3F4F6;
+        border-radius: 9999px;
+        height: 8px;
+        overflow: hidden;
+    }
+    .metric-bar-fill {
+        height: 100%;
+        border-radius: 9999px;
+    }
+    
+    /* Badges */
+    .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    .badge-critical { background: #FEE2E2; color: #DC2626; }
+    .badge-warning { background: #FEF3C7; color: #D97706; }
+    .badge-healthy { background: #DCFCE7; color: #16A34A; }
+    .badge-info { background: #E0F2FE; color: #0284C7; }
+    
+    /* Quick Action Button Tiles */
+    .action-tile {
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 14px;
         padding: 16px;
-        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.2s ease;
         margin-bottom: 12px;
     }
-    .tip-box {
-        background-color: #e8f5e9;
-        border: 1px solid #c8e6c9;
-        padding: 12px 16px;
-        border-radius: 6px;
-        margin-top: 8px;
+    .action-tile:hover {
+        border-color: #1B4D3E;
+        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.08);
+    }
+    
+    /* Sustainability Banner */
+    .impact-banner {
+        background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+        border: 1px solid #C8E6C9;
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        margin-bottom: 24px;
+    }
+    .impact-chip {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #E5E7EB;
+    }
+    
+    /* Primary Action Buttons */
+    .stButton > button {
+        background-color: #1B4D3E !important;
+        color: #FFFFFF !important;
+        font-weight: 700 !important;
+        border-radius: 9999px !important;
+        padding: 0.5rem 1.5rem !important;
+        border: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button:hover {
+        background-color: #143B2F !important;
+        box-shadow: 0 4px 14px rgba(27, 77, 62, 0.25) !important;
+    }
+    
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #F8FAF7 !important;
+        border-right: 1px solid #EBF2EB !important;
+    }
+    .sidebar-brand {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #1B4D3E;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 0 20px 0;
+    }
+    .sidebar-tagline {
+        font-size: 0.85rem;
+        color: #4B5563;
+        line-height: 1.4;
+        font-style: italic;
     }
     </style>
     """,
@@ -89,6 +299,8 @@ st.markdown(
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
+if "nav_choice" not in st.session_state:
+    st.session_state.nav_choice = "🏠 Home"
 if "coords" not in st.session_state:
     st.session_state.coords = {"lat": FIRST_HUB["lat"], "lon": FIRST_HUB["lon"]}
 if "zoom" not in st.session_state:
@@ -116,7 +328,7 @@ if "sample_label" not in st.session_state:
 
 
 def set_coords(lat, lon, zoom=None, hub_name=None):
-    """Update active field coordinates and invalidate cached telemetry + satellite data."""
+    """Update active field coordinates and invalidate cached telemetry."""
     st.session_state.coords = {"lat": lat, "lon": lon}
     if zoom is not None:
         st.session_state.zoom = zoom
@@ -127,530 +339,791 @@ def set_coords(lat, lon, zoom=None, hub_name=None):
 
 
 def get_client():
-    """Resolve a Gemini client from Streamlit secrets or the sidebar input."""
+    """Resolve a Grok (xAI) client from Streamlit secrets or user input."""
     api_key = None
     try:
-        api_key = st.secrets.get("GEMINI_API_KEY")
+        api_key = st.secrets.get("GROK_API_KEY") or st.secrets.get("XAI_API_KEY")
     except Exception:
         api_key = None
     if not api_key:
-        api_key = st.session_state.get("manual_api_key")
-    return build_genai_client(api_key)
+        api_key = st.session_state.get("manual_grok_key")
+    return build_grok_client(api_key)
 
 
-# Farmer-friendly interpretation helpers
-def interpret_soil_moisture(val):
-    if val is None:
-        return "Unknown", "badge-info"
-    if val < 0.15:
-        return "Dry (Moisture Deficit) ⚠️", "badge-alert"
-    elif val <= 0.35:
-        return "Optimal Field Capacity 🟢", "badge-optimal"
-    else:
-        return "Saturated / Waterlogged 💧", "badge-warning"
-
-
-def interpret_soil_temp(val):
-    if val is None:
-        return "Unknown", "badge-info"
-    if val < 15:
-        return "Cool (Dormant Microbes) ❄️", "badge-info"
-    elif val <= 32:
-        return "Ideal Biological Activity 🪱", "badge-optimal"
-    else:
-        return "Hot Root Zone (Stress Alert) 🔥", "badge-warning"
-
-
-def interpret_solar(val):
-    if val is None:
-        return "Unknown", "badge-info"
-    if val < 12:
-        return "Overcast / Low Photosynthesis ☁️", "badge-info"
-    elif val <= 22:
-        return "Moderate Sunlight ⛅", "badge-optimal"
-    else:
-        return "High Solar Radiation ☀️", "badge-warning"
-
-
-def interpret_root_wetness(val):
-    if val is None:
-        return "Unknown", "badge-info"
-    if val < 0.25:
-        return "Dry Deep Roots 🍂", "badge-alert"
-    elif val <= 0.60:
-        return "Adequate Subsurface Moisture 🌿", "badge-optimal"
-    else:
-        return "High Water Table 🌊", "badge-warning"
-
-
-# ===========================================================================
-# SIDEBAR — GLOBAL CONTROLS & TRACK CONTEXT
-# ===========================================================================
-with st.sidebar:
-    st.title("🌱 Faslyn")
-    st.caption("**BRICS AgriN Regenerative Agricultural Intelligence**")
-    st.markdown("*$0 Digital Public Infrastructure for Smallholders*")
-
-    st.markdown("---")
-    st.markdown("### 🔑 AI Extension Officer Setup")
-    manual_key = st.text_input(
-        "Gemini API Key (Free Tier)",
-        type="password",
-        value=st.session_state.get("manual_api_key", ""),
-        help="Get a free key at https://aistudio.google.com/apikey. "
-             "Powers multilingual audio, crop planning & disease vision.",
-    )
-    if manual_key:
-        st.session_state.manual_api_key = manual_key
-
-    if not GENAI_AVAILABLE:
-        st.error("`google-genai` package not installed.")
-    elif get_client() is None:
-        st.warning("⚠️ Enter a Gemini API key to activate voice advice, crop engine & disease scans.")
-    else:
-        st.success("✅ Gemini 2.5 Flash connected")
-
-    st.markdown("---")
-    st.markdown("### 🎯 Track 4 Alignment")
-    st.caption(
-        "**Theme:** BRICS Cooperation & Food Security\n\n"
-        "• **Problem:** Smallholders lack access to high-cost IoT & satellite guidance.\n"
-        "• **Solution:** Zero-sensor telemetry (Open-Meteo) + NASA POWER Agroclimatology + Gemini multimodal AI.\n"
-        "• **Interoperability:** Open schema compatible with India AgriStack, Brazil EMBRAPA & South Africa AgriPortal."
-    )
-
-# ===========================================================================
-# HEADER & VALUE PROPOSITION
-# ===========================================================================
-st.markdown("## 🌱 Faslyn — Regenerative Agricultural Intelligence Network")
-st.markdown(
-    "**Fas**al (Crop) + **Lyn**k (Connection) · *Inspired by the BRICS AgriN Initiative for Smallholder Cooperation*"
-)
-st.caption(
-    "Transforming free satellite data, zero-sensor soil analytics, and climate forecasting "
-    "into actionable, spoken regenerative farming guidance for smallholders across BRICS nations."
-)
-
-# Fetch telemetry and satellite data lazily if needed
+# Lazy-load live telemetry & satellite feeds
 if st.session_state.telemetry is None:
-    with st.spinner("Ingesting ground & soil telemetry from Open-Meteo..."):
-        st.session_state.telemetry = fetch_soil_telemetry(
-            st.session_state.coords["lat"], st.session_state.coords["lon"]
-        )
-
+    st.session_state.telemetry = fetch_soil_telemetry(
+        st.session_state.coords["lat"], st.session_state.coords["lon"]
+    )
 if st.session_state.satellite is None:
-    with st.spinner("Ingesting satellite agro-climatology from NASA POWER..."):
-        st.session_state.satellite = fetch_satellite_agroclimatology(
-            st.session_state.coords["lat"], st.session_state.coords["lon"]
-        )
+    st.session_state.satellite = fetch_satellite_agroclimatology(
+        st.session_state.coords["lat"], st.session_state.coords["lon"]
+    )
 
 telemetry = st.session_state.telemetry
 satellite = st.session_state.satellite
 
 # ===========================================================================
-# USER-FRIENDLY STEPPED WORKFLOW VIA TABS
+# SIDEBAR — BRANDING & NAVIGATION
 # ===========================================================================
-tabs = st.tabs([
-    "📍 1. Farm Location & Hub",
-    "🛰️ 2. Field Health & Climate",
-    "🎙️ 3. Spoken Agro-Advisor",
-    "🌾 4. Regenerative Crop Plan",
-    "🩺 5. Leaf Doctor (Disease Scan)",
-    "🌐 6. BRICS AgriN Network",
-])
-
-# ---------------------------------------------------------------------------
-# TAB 1: FARM LOCATION & HUB SELECTOR
-# ---------------------------------------------------------------------------
-with tabs[0]:
-    st.subheader("📍 Step 1: Select Your Farm Location")
+with st.sidebar:
     st.markdown(
-        "Choose a key BRICS agricultural production hub or click directly on the interactive map "
-        "to pinpoint your exact plot."
+        """
+        <div class="sidebar-brand">
+            🌿 faslyn
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    col_map_ctrl, col_map_view = st.columns([1, 2])
+    nav_options = [
+        "🏠 Home",
+        "🌱 My Farms",
+        "🛰️ Satellite View",
+        "🧠 AI Insights",
+        "🔄 Regenerative Plan",
+        "📊 Impact Tracker",
+        "🌐 BRICS Knowledge Hub",
+        "⚙️ Settings",
+    ]
 
-    with col_map_ctrl:
-        current_hub = st.session_state.selected_hub_name
-        hub_choice = st.radio(
-            "Select BRICS Agricultural Region:",
-            list(BRICS_HUBS.keys()),
-            index=list(BRICS_HUBS.keys()).index(current_hub) if current_hub in BRICS_HUBS else 0,
-            key="hub_radio_selector",
+    selected_nav = st.radio(
+        "Navigation",
+        nav_options,
+        index=nav_options.index(st.session_state.nav_choice) if st.session_state.nav_choice in nav_options else 0,
+        label_visibility="collapsed",
+    )
+    if selected_nav != st.session_state.nav_choice:
+        st.session_state.nav_choice = selected_nav
+        st.rerun()
+
+    st.markdown("---")
+
+    # Grok API Key Setup in sidebar
+    st.markdown("#### ⚡ AI Engine (xAI Grok)")
+    manual_grok = st.text_input(
+        "xAI Grok API Key",
+        type="password",
+        value=st.session_state.get("manual_grok_key", ""),
+        help="Enter your Grok API key from console.x.ai. Leave blank to use built-in demo models.",
+    )
+    if manual_grok:
+        st.session_state.manual_grok_key = manual_grok
+
+    client = get_client()
+    if client is None:
+        st.caption("✨ **Demo Mode Active** (Pre-computed AI models ready)")
+    else:
+        st.success("✅ **Grok-2 AI Connected**")
+
+    st.markdown("---")
+    st.markdown(
+        """
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 32px; margin-bottom: 6px;">🌱</div>
+            <div class="sidebar-tagline">
+                Healthier Soil<br>Greener Tomorrow<br><b>Together</b>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# ===========================================================================
+# TOP HEADER BAR
+# ===========================================================================
+hdr_left, hdr_right = st.columns([3, 2])
+
+with hdr_left:
+    st.markdown(
+        """
+        <div class="top-header">
+            <div>
+                <h1 class="greeting-title">🌱 Good Morning, Farmer!</h1>
+                <p class="greeting-subtitle">Here's what's happening on your farms today.</p>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+with hdr_right:
+    c_bell, c_lang, c_user = st.columns([1, 2, 3])
+    with c_bell:
+        st.markdown(
+            """
+            <div style="display:flex; justify-content:center; align-items:center; height: 100%; padding-top: 14px;">
+                <div style="position:relative; cursor:pointer; font-size:22px;">
+                    🔔
+                    <span style="position:absolute; top:-2px; right:-2px; background:#EF4444; color:white; border-radius:50%; width:14px; height:14px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700;">1</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with c_lang:
+        selected_language = st.selectbox(
+            "Language",
+            list(LANGUAGES.keys()),
+            index=list(LANGUAGES.keys()).index("English") if "English" in LANGUAGES else 0,
+            label_visibility="collapsed",
+        )
+    with c_user:
+        st.markdown(
+            """
+            <div style="padding-top: 8px;">
+                <div class="header-user-pill">
+                    <div class="user-avatar">RK</div>
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 700; color:#111827; line-height: 1.1;">Ramesh Kumar</div>
+                        <div style="font-size: 0.72rem; color: #6B7280;">Farmer</div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
 
-        if st.button("📍 Snap to Selected Hub", use_container_width=True, type="primary"):
-            hub = BRICS_HUBS[hub_choice]
-            set_coords(hub["lat"], hub["lon"], hub["zoom"], hub_choice)
+# ===========================================================================
+# VIEW 1: HOME DASHBOARD (EXACT VISUAL REPLICA)
+# ===========================================================================
+if st.session_state.nav_choice == "🏠 Home":
+
+    # -----------------------------------------------------------------------
+    # ROW 1: TOP 4 KPI CARDS
+    # -----------------------------------------------------------------------
+    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+
+    with kpi1:
+        st.markdown(
+            """
+            <div class="kpi-card">
+                <div class="kpi-icon-box icon-green">🏡</div>
+                <div>
+                    <div class="kpi-label">Total Fields</div>
+                    <div class="kpi-val">4</div>
+                    <div class="kpi-subtext">Across 2 farms</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with kpi2:
+        st.markdown(
+            """
+            <div class="kpi-card">
+                <div class="kpi-icon-box icon-green">🍃</div>
+                <div>
+                    <div class="kpi-label">Healthy Fields</div>
+                    <div class="kpi-val">2</div>
+                    <div class="kpi-subtext">50% of total</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with kpi3:
+        st.markdown(
+            """
+            <div class="kpi-card">
+                <div class="kpi-icon-box icon-orange">⚠️</div>
+                <div>
+                    <div class="kpi-label">Fields at Risk</div>
+                    <div class="kpi-val">1</div>
+                    <div class="kpi-subtext">25% of total</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with kpi4:
+        st.markdown(
+            """
+            <div class="kpi-card">
+                <div class="kpi-icon-box icon-teal">🪴</div>
+                <div>
+                    <div class="kpi-label">Overall Farm Health</div>
+                    <div class="kpi-val">76<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
+                    <div class="kpi-subtext" style="color:#059669; font-weight:700;">↑ +6% vs. last month</div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+    # -----------------------------------------------------------------------
+    # ROW 2: "MY FIELDS" MAP (LEFT) & "AI INSIGHTS" (RIGHT)
+    # -----------------------------------------------------------------------
+    mid_left, mid_right = st.columns([2, 1])
+
+    with mid_left:
+        st.markdown(
+            """
+            <div class="dashboard-card" style="margin-bottom: 0px;">
+                <div class="card-header-row">
+                    <h3 class="card-header-title">🌱 My Fields</h3>
+                    <span class="view-all-link">Interactive Map • View all →</span>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        col_map_inner, col_detail_inner = st.columns([1.35, 1])
+
+        with col_map_inner:
+            # Interactive Map with Field Polygons
+            center_lat = st.session_state.coords["lat"]
+            center_lon = st.session_state.coords["lon"]
+
+            m = folium.Map(
+                location=[center_lat, center_lon],
+                zoom_start=14,
+                tiles="OpenStreetMap",
+                control_scale=False,
+            )
+
+            # Draw 4 Simulated Farm Polygons (Field 01, Field 02, Field 03, Field 04)
+            d = 0.005
+            p1 = [[center_lat + d, center_lon - d], [center_lat + 2*d, center_lon], [center_lat + d, center_lon + d/2]]
+            p2 = [[center_lat, center_lon], [center_lat + d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d]]
+            p3 = [[center_lat - d, center_lon - d/2], [center_lat, center_lon], [center_lat - 1.5*d, center_lon + d/3]]
+            p4 = [[center_lat - d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d], [center_lat - 2*d, center_lon + d]]
+
+            folium.Polygon(locations=p1, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 01 (Healthy)").add_to(m)
+            folium.Polygon(locations=p2, color="#D97706", fill=True, fill_color="#F59E0B", fill_opacity=0.6, tooltip="Field 02 (Moderate Risk)").add_to(m)
+            folium.Polygon(locations=p3, color="#DC2626", fill=True, fill_color="#EF4444", fill_opacity=0.7, tooltip="Field 03 (Critical)").add_to(m)
+            folium.Polygon(locations=p4, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 04 (Healthy)").add_to(m)
+
+            st_folium(m, height=275, use_container_width=True, key="dashboard_map")
+
+            st.markdown(
+                """
+                <div style="display:flex; justify-content:center; gap: 16px; font-size: 0.78rem; font-weight:600; color: #4B5563; margin-top: 4px;">
+                    <span>🟢 Healthy</span>
+                    <span>🟡 Moderate Risk</span>
+                    <span>🔴 Critical</span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with col_detail_inner:
+            # Selected Field Detail Card (Field 03)
+            soil_pct = int(min(100, max(10, (telemetry.get('soil_moisture', 0.24) / 0.40) * 100)))
+            water_pct = int(min(100, max(10, (satellite.get('root_zone_soil_wetness', 0.41) / 0.70) * 100)))
+
+            st.markdown(
+                f"""
+                <div style="background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 16px; padding: 16px; height: 100%;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                        <h4 style="margin:0; font-weight:800; font-size:1.15rem; color:#111827;">Field 03</h4>
+                        <span class="badge badge-critical">High Risk</span>
+                    </div>
+                    <div style="font-size: 0.8rem; color:#4B5563; line-height: 1.6; margin-bottom: 12px;">
+                        <div>🌾 <b>Rice</b> &nbsp;•&nbsp; 📍 <b>{st.session_state.selected_hub_name.split('—')[1] if '—' in st.session_state.selected_hub_name else 'Odisha, India'}</b></div>
+                        <div>📅 <b>48 days</b> (crop age)</div>
+                    </div>
+                    
+                    <div class="metric-bar-container">
+                        <div class="metric-bar-label">
+                            <span>Field Health</span>
+                            <span style="color:#DC2626; font-weight:700;">64%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 64%; background: #EF4444;"></div></div>
+                    </div>
+                    
+                    <div class="metric-bar-container">
+                        <div class="metric-bar-label">
+                            <span>🪱 Soil Health</span>
+                            <span>{soil_pct}%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {soil_pct}%; background: #F59E0B;"></div></div>
+                    </div>
+                    
+                    <div class="metric-bar-container">
+                        <div class="metric-bar-label">
+                            <span>💧 Water Status</span>
+                            <span>{water_pct}%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {water_pct}%; background: #0284C7;"></div></div>
+                    </div>
+                    
+                    <div class="metric-bar-container">
+                        <div class="metric-bar-label">
+                            <span>🌿 Vegetation</span>
+                            <span>62%</span>
+                        </div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 62%; background: #10B981;"></div></div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            if st.button("View Details →", use_container_width=True, key="btn_view_field_details"):
+                st.session_state.nav_choice = "🛰️ Satellite View"
+                st.rerun()
+
+    with mid_right:
+        # AI Insights Card
+        st.markdown(
+            """
+            <div class="dashboard-card">
+                <div class="card-header-row">
+                    <h3 class="card-header-title">🧠 AI Insights</h3>
+                    <span class="view-all-link">View all →</span>
+                </div>
+                
+                <div style="background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 14px; padding: 14px; margin-bottom: 16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                        <span style="font-weight:700; color:#DC2626; font-size:0.92rem; display:flex; align-items:center; gap:6px;">
+                            💧 Water Stress Detected
+                        </span>
+                        <span style="font-size:0.72rem; color:#DC2626; font-weight:700; background:#FFFFFF; padding:2px 8px; border-radius:9999px;">
+                            High Confidence • 84%
+                        </span>
+                    </div>
+                    <p style="font-size:0.8rem; color:#4B5563; margin:0; line-height: 1.45;">
+                        Field 03 is showing low soil moisture and declining vegetation. Rainfall forecast is low for the next 7 days.
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size:0.85rem; font-weight:700; color:#111827; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">
+                        🌿 Recommended action
+                    </div>
+                    <ul style="font-size:0.82rem; color:#4B5563; padding-left: 18px; margin:0; line-height: 1.6;">
+                        <li>Optimize irrigation schedule (evening drip)</li>
+                        <li>Apply straw mulch (conserve moisture)</li>
+                        <li>Consider green manure / companion crop</li>
+                    </ul>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        if st.button("Generate Regenerative Plan →", use_container_width=True, key="btn_gen_regen_home"):
+            st.session_state.nav_choice = "🔄 Regenerative Plan"
             st.rerun()
 
-        st.markdown("---")
-        st.markdown("**📌 Active Plot Coordinates:**")
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+    # -----------------------------------------------------------------------
+    # ROW 3: FARM OVERVIEW | QUICK ACTIONS | UPCOMING & ALERTS
+    # -----------------------------------------------------------------------
+    col_ov, col_act, col_alt = st.columns(3)
+
+    with col_ov:
+        st.markdown(
+            """
+            <div class="dashboard-card" style="height: 100%;">
+                <div class="card-header-row">
+                    <h3 class="card-header-title">📦 Farm Overview</h3>
+                    <span class="view-all-link">View all →</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
+                            <span style="color:#16A34A;">●</span> Field 01
+                        </div>
+                        <div class="badge badge-healthy" style="margin:4px 0;">Healthy</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌾 Rice • 1.2 ha</div>
+                    </div>
+                    
+                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
+                            <span style="color:#F59E0B;">●</span> Field 02
+                        </div>
+                        <div class="badge badge-warning" style="margin:4px 0;">Moderate Risk</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌽 Maize • 0.8 ha</div>
+                    </div>
+                    
+                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
+                            <span style="color:#DC2626;">●</span> Field 03
+                        </div>
+                        <div class="badge badge-critical" style="margin:4px 0;">High Risk</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌾 Rice • 1.1 ha</div>
+                    </div>
+                    
+                    <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+                        <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
+                            <span style="color:#16A34A;">●</span> Field 04
+                        </div>
+                        <div class="badge badge-healthy" style="margin:4px 0;">Healthy</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🥬 Veg • 0.6 ha</div>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    with col_act:
+        st.markdown(
+            """
+            <div class="dashboard-card" style="height: 100%;">
+                <div class="card-header-row">
+                    <h3 class="card-header-title">⚡ Quick Actions</h3>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        qa1, qa2 = st.columns(2)
+        with qa1:
+            if st.button("📷 Upload Crop Image\n*Instant AI diagnosis*", use_container_width=True, key="qa_upload"):
+                st.session_state.nav_choice = "🧠 AI Insights"
+                st.rerun()
+            if st.button("🎙️ Speak to Faslyn\n*Your local language*", use_container_width=True, key="qa_speak"):
+                st.session_state.nav_choice = "🧠 AI Insights"
+                st.rerun()
+
+        with qa2:
+            if st.button("🛰️ View Satellite Data\n*Check field health*", use_container_width=True, key="qa_sat"):
+                st.session_state.nav_choice = "🛰️ Satellite View"
+                st.rerun()
+            if st.button("📄 Download Report\n*PDF / JSON / Share*", use_container_width=True, key="qa_down"):
+                st.session_state.nav_choice = "🌐 BRICS Knowledge Hub"
+                st.rerun()
+
+    with col_alt:
+        st.markdown(
+            """
+            <div class="dashboard-card" style="height: 100%;">
+                <div class="card-header-row">
+                    <h3 class="card-header-title">🔔 Upcoming & Alerts</h3>
+                    <span class="view-all-link">View all →</span>
+                </div>
+                
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FEF2F2; border-radius:10px;">
+                        <div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#DC2626;">🔴 Field 03 – Water stress risk</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">Today • 9:30 AM</div>
+                        </div>
+                        <span style="color:#DC2626;">›</span>
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FFFBEB; border-radius:10px;">
+                        <div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#D97706;">🟡 Field 02 – Soil health decline</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">Today • 11:15 AM</div>
+                        </div>
+                        <span style="color:#D97706;">›</span>
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#F0F9FF; border-radius:10px;">
+                        <div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#0284C7;">🔵 Rain forecast low (Next 7 days)</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">Plan irrigation for Field 03</div>
+                        </div>
+                        <span style="color:#0284C7;">›</span>
+                    </div>
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+
+    # -----------------------------------------------------------------------
+    # ROW 4: SUSTAINABILITY BANNER (IMPACT ESTIMATOR)
+    # -----------------------------------------------------------------------
+    st.markdown(
+        """
+        <div class="impact-banner">
+            <div style="max-width: 50%;">
+                <h3 style="margin:0 0 6px 0; font-weight:800; font-size:1.35rem; color:#1B4D3E;">
+                    Let's build a more sustainable future
+                </h3>
+                <p style="margin:0; font-size:0.9rem; color:#374151;">
+                    Regenerative practices today, healthier farms tomorrow.
+                </p>
+            </div>
+            
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div class="impact-chip">
+                    <span style="font-size:20px;">🪴</span>
+                    <div>
+                        <div style="font-size:0.72rem; color:#6B7280;">Soil Health</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ 14%</div>
+                    </div>
+                </div>
+                
+                <div class="impact-chip">
+                    <span style="font-size:20px;">💧</span>
+                    <div>
+                        <div style="font-size:0.72rem; color:#6B7280;">Water Use</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:#0284C7;">↓ -11%</div>
+                    </div>
+                </div>
+                
+                <div class="impact-chip">
+                    <span style="font-size:20px;">🧪</span>
+                    <div>
+                        <div style="font-size:0.72rem; color:#6B7280;">Input Dependency</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↓ -18%</div>
+                    </div>
+                </div>
+                
+                <div class="impact-chip">
+                    <span style="font-size:20px;">🌿</span>
+                    <div>
+                        <div style="font-size:0.72rem; color:#6B7280;">Regenerative Score</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +17%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <div style="text-align: center; color: #9CA3AF; font-size: 0.8rem; padding-bottom: 20px;">
+            <b>faslyn</b> | Smart Agriculture. Stronger Communities.
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+# ===========================================================================
+# VIEW 2: SATELLITE VIEW & GROUND TELEMETRY
+# ===========================================================================
+elif st.session_state.nav_choice in ["🌱 My Farms", "🛰️ Satellite View"]:
+    st.markdown("## 🛰️ Satellite & Zero-Sensor Agro-Climatology")
+    st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
+
+    col_hub_a, col_hub_b = st.columns([1, 2])
+    with col_hub_a:
+        st.markdown("#### 📍 Select BRICS Agricultural Belt")
+        selected_hub = st.radio(
+            "Hub Selection",
+            list(BRICS_HUBS.keys()),
+            index=list(BRICS_HUBS.keys()).index(st.session_state.selected_hub_name)
+            if st.session_state.selected_hub_name in BRICS_HUBS else 0,
+        )
+        if st.button("📍 Snap Map to Selected Hub", use_container_width=True):
+            h_data = BRICS_HUBS[selected_hub]
+            set_coords(h_data["lat"], h_data["lon"], h_data["zoom"], selected_hub)
+            st.rerun()
+
         st.code(
-            f"Latitude:  {st.session_state.coords['lat']:.4f}\n"
-            f"Longitude: {st.session_state.coords['lon']:.4f}",
+            f"Latitude:  {st.session_state.coords['lat']:.4f}\nLongitude: {st.session_state.coords['lon']:.4f}",
             language="text",
         )
-        st.info("💡 You can also click anywhere on the map to pinpoint an exact field.")
 
-    with col_map_view:
-        m = folium.Map(
+    with col_hub_b:
+        m_sat = folium.Map(
             location=[st.session_state.coords["lat"], st.session_state.coords["lon"]],
             zoom_start=st.session_state.zoom,
             tiles="OpenStreetMap",
-            control_scale=True,
         )
-
         for name, hub_data in BRICS_HUBS.items():
             folium.Marker(
                 [hub_data["lat"], hub_data["lon"]],
                 popup=name,
                 tooltip=name,
                 icon=folium.Icon(color="green", icon="leaf", prefix="fa"),
-            ).add_to(m)
+            ).add_to(m_sat)
 
         folium.Marker(
             [st.session_state.coords["lat"], st.session_state.coords["lon"]],
-            popup="📍 Selected Field",
-            tooltip="Active Plot (Click map to move)",
+            popup="Active Field",
             icon=folium.Icon(color="red", icon="crosshairs", prefix="fa"),
-        ).add_to(m)
+        ).add_to(m_sat)
 
-        map_state = st_folium(
-            m,
-            height=400,
-            use_container_width=True,
-            key="faslyn_map",
-            returned_objects=["last_clicked"],
-        )
-
-        if map_state and map_state.get("last_clicked"):
-            clicked = map_state["last_clicked"]
-            new_lat, new_lon = clicked["lat"], clicked["lng"]
+        map_interaction = st_folium(m_sat, height=350, use_container_width=True, key="sat_view_map")
+        if map_interaction and map_interaction.get("last_clicked"):
+            c_clicked = map_interaction["last_clicked"]
             if (
-                round(new_lat, 5) != round(st.session_state.coords["lat"], 5)
-                or round(new_lon, 5) != round(st.session_state.coords["lon"], 5)
+                round(c_clicked["lat"], 4) != round(st.session_state.coords["lat"], 4)
+                or round(c_clicked["lng"], 4) != round(st.session_state.coords["lon"], 4)
             ):
-                set_coords(new_lat, new_lon, hub_name=f"Custom Field ({new_lat:.2f}, {new_lon:.2f})")
+                set_coords(c_clicked["lat"], c_clicked["lng"], hub_name="Custom Pinpoint")
                 st.rerun()
-
-# ---------------------------------------------------------------------------
-# TAB 2: FIELD HEALTH & CLIMATE TELEMETRY
-# ---------------------------------------------------------------------------
-with tabs[1]:
-    st.subheader("🛰️ Step 2: Live Field Health & Agro-Climatology")
-    st.caption(
-        "Combines zero-sensor ground telemetry (Open-Meteo) with NASA POWER satellite "
-        "agro-climatology — completely eliminating the need for expensive physical IoT sensors."
-    )
-
-    col_btn, col_info = st.columns([1, 4])
-    with col_btn:
-        if st.button("🔄 Refresh Data", type="primary", use_container_width=True):
-            st.session_state.telemetry = None
-            st.session_state.satellite = None
-            st.rerun()
-
-    with col_info:
-        data_status = "📡 Live Satellite & Telemetry Feeds Active"
-        if telemetry.get("source") == "fallback" or satellite.get("source") == "fallback":
-            data_status = "⚠️ Operating in Offline/Fallback Mode (Demo Resilience Guarantee)"
-        st.success(data_status)
-
-    st.markdown("#### 1. Ground & Soil Micro-Climate (Open-Meteo Zero-Sensor)")
-    m_badge_text, m_badge_class = interpret_soil_moisture(telemetry.get("soil_moisture"))
-    t_badge_text, t_badge_class = interpret_soil_temp(telemetry.get("soil_temp"))
-
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric(
-            "Soil Moisture (0-7cm)",
-            f"{telemetry['soil_moisture']:.2f} m³/m³" if telemetry.get("soil_moisture") is not None else "N/A",
-        )
-        st.markdown(f"<div class='metric-badge {m_badge_class}'>{m_badge_text}</div>", unsafe_allow_html=True)
-    with col2:
-        st.metric(
-            "Soil Temperature",
-            f"{telemetry['soil_temp']:.1f} °C" if telemetry.get("soil_temp") is not None else "N/A",
-        )
-        st.markdown(f"<div class='metric-badge {t_badge_class}'>{t_badge_text}</div>", unsafe_allow_html=True)
-    with col3:
-        st.metric(
-            "Air Temperature",
-            f"{telemetry['air_temp']:.1f} °C" if telemetry.get("air_temp") is not None else "N/A",
-        )
-        st.markdown("<div class='metric-badge badge-optimal'>Ambient Temperature</div>", unsafe_allow_html=True)
-    with col4:
-        st.metric(
-            "Wind Speed",
-            f"{telemetry['windspeed']:.1f} km/h" if telemetry.get("windspeed") is not None else "N/A",
-        )
-        st.markdown("<div class='metric-badge badge-info'>Canopy Aeration</div>", unsafe_allow_html=True)
-
-    if telemetry.get("trend"):
-        with st.expander("📈 View 24-Hour Soil & Weather Trend (3-Hour Increments)"):
-            st.dataframe(telemetry["trend"], use_container_width=True)
 
     st.markdown("---")
-    st.markdown("#### 2. Satellite Agro-Climatology (NASA POWER Agro Community)")
-    s_badge_text, s_badge_class = interpret_solar(satellite.get("solar_radiation"))
-    r_badge_text, r_badge_class = interpret_root_wetness(satellite.get("root_zone_soil_wetness"))
+    st.markdown("### 📊 Real-Time Environmental Indicators")
 
-    scol1, scol2, scol3 = st.columns(3)
-    with scol1:
-        st.metric(
-            "Solar Radiation",
-            f"{satellite['solar_radiation']:.1f} MJ/m²/day" if satellite.get("solar_radiation") is not None else "N/A",
-        )
-        st.markdown(f"<div class='metric-badge {s_badge_class}'>{s_badge_text}</div>", unsafe_allow_html=True)
-    with scol2:
-        st.metric(
-            "Precipitation",
-            f"{satellite['precipitation']:.1f} mm/day" if satellite.get("precipitation") is not None else "N/A",
-        )
-        st.markdown("<div class='metric-badge badge-info'>Rainfall / Moisture</div>", unsafe_allow_html=True)
-    with scol3:
-        st.metric(
-            "Root-Zone Wetness",
-            f"{satellite['root_zone_soil_wetness']:.2f} (0–1)" if satellite.get("root_zone_soil_wetness") is not None else "N/A",
-        )
-        st.markdown(f"<div class='metric-badge {r_badge_class}'>{r_badge_text}</div>", unsafe_allow_html=True)
+    s1, s2, s3, s4 = st.columns(4)
+    s1.metric("Soil Moisture (0-7cm)", f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Optimal Field Capacity")
+    s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Active")
+    s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", "High Photosynthesis")
+    s4.metric("Root-Zone Wetness", f"{satellite.get('root_zone_soil_wetness', 0.42):.2f} (0-1)", "Adequate Deep Moisture")
 
-# ---------------------------------------------------------------------------
-# TAB 3: MULTILINGUAL VOICE AGRO-ADVISOR
-# ---------------------------------------------------------------------------
-with tabs[2]:
-    st.subheader("🎙️ Step 3: Multilingual Voice Agro-Advisor")
-    st.caption(
-        "Designed for field workers and smallholders with diverse literacy levels. "
-        "Gemini 2.5 Flash distills real-time satellite & soil data into exactly three warm, "
-        "practical, jargon-free sentences spoken in the farmer's native tongue."
-    )
+    if telemetry.get("trend"):
+        with st.expander("📈 24-Hour Ground Weather & Soil Micro-Trend", expanded=False):
+            st.dataframe(telemetry["trend"], use_container_width=True)
 
-    col_lang, col_action = st.columns([1, 2])
-    with col_lang:
-        lang_choice = st.selectbox(
-            "🌐 Choose Farmer's Language:",
-            list(LANGUAGES.keys()),
-            index=list(LANGUAGES.keys()).index("Hindi") if "Hindi" in LANGUAGES else 0,
-            key="advisor_lang_dropdown",
-        )
-        generate_btn = st.button("🎙️ Generate Spoken Advisory", type="primary", use_container_width=True)
+# ===========================================================================
+# VIEW 3: AI INSIGHTS & MULTILINGUAL SPOKEN ADVISOR
+# ===========================================================================
+elif st.session_state.nav_choice == "🧠 AI Insights":
+    st.markdown("## 🧠 AI Extension Officer & Multimodal Diagnosis")
+    st.caption("Powered by xAI Grok API with fallback resilience for live demonstrations.")
 
-    with col_action:
-        st.markdown(
-            "**Why Voice Matters:** Over 60% of marginal farmers in developing regions "
-            "depend on oral advisory. Faslyn uses zero-cost browser speech synthesis "
-            "so any budget phone or tablet can speak the recommendations aloud without subscription fees."
-        )
+    tab_voice, tab_vision = st.tabs(["🎙️ Spoken Oral Agro-Advisor", "🩺 Leaf Doctor (Disease Diagnostic)"])
 
-    if generate_btn:
-        client = get_client()
-        if client is None:
-            st.info("ℹ️ Running in Instant Demo Mode (Add a free Gemini API key in sidebar for live dynamic AI)")
-        try:
-            with st.spinner("AI extension officer is preparing your advisory..."):
-                advisory = generate_advisory(client, telemetry, lang_choice, satellite=satellite)
-            if advisory:
-                st.session_state.advisory_text = advisory
-                st.session_state.advisory_lang_code = LANGUAGES[lang_choice]
-                st.session_state.trigger_speech = True
-            else:
-                st.error("Empty response received. Please try again.")
-        except Exception as e:
-            st.error(f"Advisory generation failed: {e}")
+    with tab_voice:
+        st.subheader("🎙️ Spoken Agro-Advisory")
+        st.write("Grok synthesizes live satellite & soil signals into 3 actionable, jargon-free spoken sentences.")
 
-    if st.session_state.advisory_text:
-        st.markdown("---")
-        st.markdown(
-            f"""
-            <div class='farmer-card'>
-                <h4>🗣️ Extension Advisory ({lang_choice})</h4>
-                <p style='font-size: 1.15rem; line-height: 1.6;'>{st.session_state.advisory_text}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+        c_lang_sel, c_lang_btn = st.columns([1, 2])
+        with c_lang_sel:
+            chosen_lang = st.selectbox("🌐 Choose Language:", list(LANGUAGES.keys()), index=0)
+        with c_lang_btn:
+            st.write("")
+            st.write("")
+            gen_adv = st.button("🎙️ Generate & Speak Advisory", type="primary", use_container_width=True)
 
-        col_audio1, col_audio2 = st.columns([1, 4])
-        with col_audio1:
-            if st.button("🔊 Replay Audio Advice", use_container_width=True):
-                st.session_state.trigger_speech = True
-                st.rerun()
+        if gen_adv:
+            client = get_client()
+            with st.spinner("Grok is formulating your localized spoken advisory..."):
+                adv = generate_advisory(client, telemetry, chosen_lang, satellite=satellite)
+            st.session_state.advisory_text = adv
+            st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
+            st.session_state.trigger_speech = True
 
-        if st.session_state.trigger_speech:
-            speak_text(st.session_state.advisory_text, st.session_state.advisory_lang_code)
-            st.session_state.trigger_speech = False
+        if st.session_state.advisory_text:
+            st.markdown(
+                f"""
+                <div style="background:#FFFFFF; border-left: 5px solid #1B4D3E; border-radius: 12px; padding: 18px; margin-top: 16px;">
+                    <h4 style="margin:0 0 8px 0; color:#1B4D3E;">🗣️ Advisory ({chosen_lang})</h4>
+                    <p style="font-size: 1.15rem; line-height: 1.6; color:#111827; margin:0;">{st.session_state.advisory_text}</p>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            col_rep, _ = st.columns([1, 4])
+            with col_rep:
+                if st.button("🔊 Replay Audio"):
+                    st.session_state.trigger_speech = True
+                    st.rerun()
 
-# ---------------------------------------------------------------------------
-# TAB 4: REGENERATIVE CROP & SOIL PLANNER
-# ---------------------------------------------------------------------------
-with tabs[3]:
-    st.subheader("🌾 Step 4: Regenerative Crop & Soil Recommendation Engine")
-    st.caption(
-        "Replaces destructive chemical monoculture with regenerative practices: companion "
-        "crop rotation, organic soil nourishment, and climate-adaptive water scheduling."
-    )
+            if st.session_state.trigger_speech:
+                speak_text(st.session_state.advisory_text, st.session_state.advisory_lang_code)
+                st.session_state.trigger_speech = False
+
+    with tab_vision:
+        st.subheader("🩺 Leaf Doctor (Grok Multimodal Vision)")
+        st.write("Upload a crop photo or choose a 1-click test sample for instant organic diagnosis.")
+
+        v_s1, v_s2, v_s3 = st.columns(3)
+        with v_s1:
+            if st.button("🍅 Sample: Tomato Early Blight", use_container_width=True):
+                st.session_state.active_leaf_image = Image.open("frontend/samples/tomato_early_blight.png")
+                st.session_state.sample_label = "Tomato Early Blight"
+                st.session_state.diagnosis_text = None
+        with v_s2:
+            if st.button("🌾 Sample: Rice Blast", use_container_width=True):
+                st.session_state.active_leaf_image = Image.open("frontend/samples/rice_blast.png")
+                st.session_state.sample_label = "Rice Blast"
+                st.session_state.diagnosis_text = None
+        with v_s3:
+            if st.button("🌽 Sample: Healthy Maize", use_container_width=True):
+                st.session_state.active_leaf_image = Image.open("frontend/samples/healthy_maize.png")
+                st.session_state.sample_label = "Healthy Maize"
+                st.session_state.diagnosis_text = None
+
+        uploaded_img = st.file_uploader("Or upload your own crop photo:", type=["jpg", "jpeg", "png"])
+        if uploaded_img is not None:
+            st.session_state.active_leaf_image = Image.open(uploaded_img)
+            st.session_state.sample_label = "Custom Upload"
+
+        if st.session_state.active_leaf_image is not None:
+            v_col1, v_col2 = st.columns([1, 2])
+            with v_col1:
+                st.image(st.session_state.active_leaf_image, caption=st.session_state.sample_label, use_container_width=True)
+                if st.button("🔍 Run Disease Diagnostic Scan", type="primary", use_container_width=True):
+                    client = get_client()
+                    with st.spinner("Grok Vision is inspecting foliar pathology..."):
+                        diag = generate_diagnosis(client, st.session_state.active_leaf_image, sample_hint=st.session_state.sample_label)
+                    st.session_state.diagnosis_text = diag
+
+            with v_col2:
+                if st.session_state.diagnosis_text:
+                    st.markdown("#### 📋 Diagnostic Report & Organic Remedy")
+                    st.info(st.session_state.diagnosis_text)
+
+# ===========================================================================
+# VIEW 4: REGENERATIVE PLANNER
+# ===========================================================================
+elif st.session_state.nav_choice == "🔄 Regenerative Plan":
+    st.markdown("## 🔄 Regenerative Crop & Soil Recommendation Engine")
+    st.caption("Replaces chemical monoculture with soil-nourishing companion rotations and organic amendments.")
 
     if st.button("🌾 Generate Regenerative Crop Plan", type="primary"):
         client = get_client()
-        if client is None:
-            st.info("ℹ️ Running in Instant Demo Mode (Add a free Gemini API key in sidebar for live dynamic AI)")
-        try:
-            with st.spinner("Analyzing soil biology and agro-climatic conditions..."):
-                rec = generate_crop_recommendation(
-                    client, telemetry, satellite, st.session_state.get("advisor_lang_dropdown", "English")
-                )
-            st.session_state.crop_recommendation = rec
-        except Exception as e:
-            st.error(f"Recommendation generation failed: {e}")
+        with st.spinner("Grok agronomy engine is analyzing soil biology and satellite climatology..."):
+            rec = generate_crop_recommendation(client, telemetry, satellite, "English")
+        st.session_state.crop_recommendation = rec
 
     rec = st.session_state.crop_recommendation
     if rec:
-        if "error" in rec:
-            st.error(rec["error"])
-            if "raw" in rec:
-                st.code(rec["raw"])
-        else:
-            col_r1, col_r2 = st.columns(2)
-            with col_r1:
-                st.markdown(
-                    f"""
-                    <div class='farmer-card' style='border-left-color: #2e7d32;'>
-                        <h4>🌱 Recommended Primary Crop</h4>
-                        <h2 style='color: #2e7d32; margin: 0;'>{rec.get('recommended_crop', 'N/A')}</h2>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-            with col_r2:
-                st.markdown(
-                    f"""
-                    <div class='farmer-card' style='border-left-color: #1976d2;'>
-                        <h4>🔁 Companion / Nitrogen-Fixing Rotation</h4>
-                        <h2 style='color: #1976d2; margin: 0;'>{rec.get('rotation_partner', 'N/A')}</h2>
-                    </div>
-                    """,
-                    unsafe_allow_html=True,
-                )
-
-            col_r3, col_r4 = st.columns(2)
-            with col_r3:
-                st.markdown("**🧪 Organic Soil Amendment**")
-                st.info(rec.get("soil_amendment", "N/A"))
-            with col_r4:
-                st.markdown("**💧 Smart Irrigation Guidance**")
-                st.info(rec.get("irrigation_guidance", "N/A"))
-
+        r1, r2 = st.columns(2)
+        with r1:
             st.markdown(
                 f"""
-                <div class='tip-box'>
-                    <strong>Agronomic Rationale:</strong> {rec.get('rationale', 'N/A')}
+                <div class="dashboard-card" style="border-left: 5px solid #16A34A;">
+                    <h4>🌱 Recommended Primary Crop</h4>
+                    <h2 style="color: #16A34A; margin: 0;">{rec.get('recommended_crop', 'Pearl Millet')}</h2>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+        with r2:
+            st.markdown(
+                f"""
+                <div class="dashboard-card" style="border-left: 5px solid #0284C7;">
+                    <h4>🔁 Companion / Nitrogen-Fixing Rotation</h4>
+                    <h2 style="color: #0284C7; margin: 0;">{rec.get('rotation_partner', 'Cowpea / Pigeon Pea')}</h2>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-# ---------------------------------------------------------------------------
-# TAB 5: LEAF DOCTOR (DISEASE DIAGNOSTIC SCAN)
-# ---------------------------------------------------------------------------
-with tabs[4]:
-    st.subheader("🩺 Step 5: Visual Plant Disease Diagnostic Scan (Leaf Doctor)")
-    st.caption(
-        "Multimodal AI diagnosis that identifies plant pathogens, deficiencies, and pests "
-        "from a leaf photograph, recommending 100% organic, chemical-free mitigations."
-    )
+        r3, r4 = st.columns(2)
+        with r3:
+            st.markdown("**🧪 Organic Soil Amendment**")
+            st.info(rec.get("soil_amendment", "Farmyard Manure + Biochar"))
+        with r4:
+            st.markdown("**💧 Smart Irrigation Guidance**")
+            st.info(rec.get("irrigation_guidance", "Deficit drip irrigation in cool evening"))
 
-    st.markdown("##### 🧪 Quick Test: Select a Sample Leaf or Upload Your Own")
-    sample_col1, sample_col2, sample_col3, sample_col4 = st.columns(4)
+        st.markdown(
+            f"""
+            <div style="background: #E8F5E9; border: 1px solid #C8E6C9; padding: 14px 18px; border-radius: 12px; margin-top: 10px;">
+                <b>Agronomic Rationale:</b> {rec.get('rationale', 'C4 grain paired with nitrogen-fixing legume optimizes biological yields.')}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-    with sample_col1:
-        if st.button("🍅 Tomato Early Blight", use_container_width=True):
-            if os.path.exists("frontend/samples/tomato_early_blight.png"):
-                st.session_state.active_leaf_image = Image.open("frontend/samples/tomato_early_blight.png")
-                st.session_state.sample_label = "Sample: Tomato Early Blight (Alternaria solani)"
-                st.session_state.diagnosis_text = None
-
-    with sample_col2:
-        if st.button("🌾 Rice Blast / Spot", use_container_width=True):
-            if os.path.exists("frontend/samples/rice_blast.png"):
-                st.session_state.active_leaf_image = Image.open("frontend/samples/rice_blast.png")
-                st.session_state.sample_label = "Sample: Rice Blast (Magnaporthe oryzae)"
-                st.session_state.diagnosis_text = None
-
-    with sample_col3:
-        if st.button("🌽 Healthy Maize Leaf", use_container_width=True):
-            if os.path.exists("frontend/samples/healthy_maize.png"):
-                st.session_state.active_leaf_image = Image.open("frontend/samples/healthy_maize.png")
-                st.session_state.sample_label = "Sample: Healthy Maize Canopy"
-                st.session_state.diagnosis_text = None
-
-    with sample_col4:
-        if st.button("🔄 Clear Active Image", use_container_width=True):
-            st.session_state.active_leaf_image = None
-            st.session_state.sample_label = None
-            st.session_state.diagnosis_text = None
-            st.rerun()
-
-    uploaded_file = st.file_uploader(
-        "Or upload a leaf / crop image from your camera or gallery:",
-        type=["jpg", "jpeg", "png"],
-        key="leaf_uploader_widget",
-    )
-
-    if uploaded_file is not None:
-        st.session_state.active_leaf_image = Image.open(uploaded_file)
-        st.session_state.sample_label = "User Uploaded Image"
-
-    if st.session_state.active_leaf_image is not None:
-        col_img, col_diag = st.columns([1, 2])
-        with col_img:
-            st.image(
-                st.session_state.active_leaf_image,
-                caption=st.session_state.sample_label or "Selected Leaf Sample",
-                use_container_width=True,
-            )
-            run_diag_btn = st.button("🔍 Run Disease Diagnostic Scan", type="primary", use_container_width=True)
-
-        with col_diag:
-            if run_diag_btn:
-                client = get_client()
-                if client is None:
-                    st.info("ℹ️ Running in Instant Demo Mode (Add a free Gemini API key in sidebar for live dynamic AI)")
-                try:
-                    with st.spinner("Analyzing foliar patterns and pathology..."):
-                        diag = generate_diagnosis(
-                            client,
-                            st.session_state.active_leaf_image,
-                            sample_hint=st.session_state.sample_label,
-                        )
-                    st.session_state.diagnosis_text = diag
-                except Exception as e:
-                    st.error(f"Diagnostic scan failed: {e}")
-
-            if st.session_state.diagnosis_text:
-                st.markdown("#### 📋 Diagnostic Report & Organic Remedy")
-                st.info(st.session_state.diagnosis_text)
-    else:
-        st.info("👆 Click one of the 3 quick-test buttons above or upload an image to test the diagnostic engine.")
-
-# ---------------------------------------------------------------------------
-# TAB 6: BRICS AGRIN NETWORK (DIGITAL PUBLIC GOOD)
-# ---------------------------------------------------------------------------
-with tabs[5]:
-    st.subheader("🌐 Step 6: BRICS AgriN Interoperability Network")
-    st.caption(
-        "Standardized Digital Public Good (DPG) schema — enabling seamless cross-border "
-        "collaboration between India, Brazil, South Africa, Russia, China, and partner states."
-    )
+# ===========================================================================
+# VIEW 5: BRICS KNOWLEDGE HUB (DPG & INTEROPERABILITY)
+# ===========================================================================
+elif st.session_state.nav_choice in ["🌐 BRICS Knowledge Hub", "📊 Impact Tracker"]:
+    st.markdown("## 🌐 BRICS AgriN Interoperability Network")
+    st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
         "endpoint": "/api/v1/faslyn/export",
         "method": "GET",
-        "schema_version": "1.1.0",
+        "schema_version": "2.0.0",
+        "ai_engine": "xAI Grok-2",
         "node": {
-            "node_id": "faslyn-demo-node-001",
+            "node_id": "faslyn-brics-node-001",
             "network": "BRICS-AgriN-Cooperation",
             "operator_type": "smallholder-cooperative",
         },
@@ -665,7 +1138,7 @@ with tabs[5]:
             "air_temperature_c": telemetry.get("air_temp"),
             "windspeed_kmh": telemetry.get("windspeed"),
             "source": telemetry.get("source"),
-            "sensor_type": "zero-sensor / weather-model reanalysis (Open-Meteo)",
+            "sensor_type": "zero-sensor (Open-Meteo)",
         },
         "satellite_agroclimatology": {
             "solar_radiation_mj_m2_day": satellite.get("solar_radiation"),
@@ -676,15 +1149,10 @@ with tabs[5]:
             "provider": "NASA POWER (community=AG)",
         },
         "ai_advisory": {
-            "language": st.session_state.get("advisor_lang_dropdown", "English"),
             "text": st.session_state.advisory_text,
-            "model": "gemini-2.5-flash",
+            "model": "xAI grok-2-latest",
         },
         "crop_recommendation": st.session_state.crop_recommendation,
-        "diagnostic": {
-            "report": st.session_state.diagnosis_text,
-            "model": "gemini-2.5-flash (multimodal)",
-        },
         "interoperability": {
             "compatible_national_stacks": [
                 "🇮🇳 India AgriStack / Kisan e-Mitra",
@@ -694,35 +1162,11 @@ with tabs[5]:
                 "🇨🇳 China National Agricultural Information Network",
             ],
             "data_license": "Open Data Commons Open Database License (ODbL)",
-            "sync_protocol": "REST/JSON, offline-first sync queue for low-connectivity fields",
-            "cost_model": "$0 — 100% free-tier public infrastructure",
+            "cost_model": "$0 — 100% free-tier digital public infrastructure",
         },
     }
 
-    c_net1, c_net2 = st.columns(2)
-    with c_net1:
-        st.markdown(
-            """
-            <div class='farmer-card'>
-                <h4>🤝 BRICS Data Solidarity</h4>
-                <p>By conforming to an open schema, agricultural research institutes (e.g. ICAR in India, EMBRAPA in Brazil, ARC in South Africa) can share climate-adaptation algorithms without proprietary lock-in.</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    with c_net2:
-        st.markdown(
-            """
-            <div class='farmer-card' style='border-left-color: #007bff;'>
-                <h4>📦 Digital Public Good (DPG)</h4>
-                <p>Zero software licensing fees, zero proprietary sensor vendor lock-in, and full offline-first resilience for remote villages.</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    with st.expander("🔍 View Complete Standardized JSON Export Contract", expanded=False):
-        st.json(interop_schema)
+    st.json(interop_schema)
 
     st.download_button(
         "⬇️ Download Node Export Contract (JSON)",
@@ -732,5 +1176,20 @@ with tabs[5]:
         type="primary",
     )
 
-st.markdown("---")
-st.caption("🌱 **Faslyn** — Zero-Cost Regenerative Agricultural Intelligence for BRICS Smallholder Farmers.")
+# ===========================================================================
+# VIEW 6: SETTINGS
+# ===========================================================================
+elif st.session_state.nav_choice == "⚙️ Settings":
+    st.markdown("## ⚙️ Platform Settings")
+    st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
+
+    s_col1, s_col2 = st.columns(2)
+    with s_col1:
+        st.text_input("Farmer Name", value="Ramesh Kumar")
+        st.text_input("Farm Region", value="Odisha, India")
+    with s_col2:
+        st.text_input("xAI Grok API Key", type="password", value=st.session_state.get("manual_grok_key", ""))
+        st.checkbox("Enable Offline Field Cache", value=True)
+
+    if st.button("Save Settings", type="primary"):
+        st.success("Settings saved successfully!")

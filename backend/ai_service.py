@@ -1,27 +1,24 @@
 """
-AI Service Layer
-================
-Wraps all Gemini 2.5 Flash calls (free tier via the `google-genai` SDK):
-  - build_genai_client(): auth
+AI Service Layer (xAI Grok API)
+===============================
+Wraps all Grok API calls (xAI platform at https://api.x.ai/v1):
+  - build_grok_client(): auth & config
   - generate_advisory(): multilingual spoken advisory from telemetry + satellite data
   - generate_crop_recommendation(): structured regenerative crop/soil recommendation (JSON)
-  - generate_diagnosis(): multimodal crop/leaf disease diagnostic
+  - generate_diagnosis(): multimodal crop/leaf disease diagnostic (Grok Vision)
 
 Includes robust demo/offline fallback modes so a presentation or live test never fails
 even if the evaluator does not enter an API key or encounters network rate limits.
 """
 
+import base64
 import io
 import json
+import requests
 
-try:
-    from google import genai
-    from google.genai import types
-    GENAI_AVAILABLE = True
-except ImportError:
-    GENAI_AVAILABLE = False
-
-MODEL_NAME = "gemini-2.5-flash"
+XAI_API_BASE = "https://api.x.ai/v1"
+GROK_TEXT_MODEL = "grok-2-latest"
+GROK_VISION_MODEL = "grok-2-vision-1212"
 
 # ---------------------------------------------------------------------------
 # DEMO & OFFLINE RESILIENCE FALLBACKS
@@ -63,19 +60,27 @@ Urgency: Monitor"""
 }
 
 
-def build_genai_client(api_key: str):
-    """Create a Gemini client from an API key. Returns None on failure or missing SDK."""
-    if not api_key or not GENAI_AVAILABLE:
+def build_grok_client(api_key: str):
+    """Create a Grok (xAI) client session configuration from an API key."""
+    if not api_key or not isinstance(api_key, str) or len(api_key.strip()) < 8:
         return None
-    try:
-        return genai.Client(api_key=api_key)
-    except Exception:
-        return None
+    return {
+        "api_key": api_key.strip(),
+        "base_url": XAI_API_BASE,
+        "headers": {
+            "Authorization": f"Bearer {api_key.strip()}",
+            "Content-Type": "application/json",
+        },
+    }
+
+# Backward compatibility alias
+build_genai_client = build_grok_client
+GENAI_AVAILABLE = True
 
 
 def generate_advisory(client, telemetry: dict, language: str, satellite: dict | None = None) -> str:
     """
-    Ask Gemini 2.5 Flash for a warm, jargon-free, exactly-3-sentence
+    Ask Grok (xAI) for a warm, jargon-free, exactly-3-sentence
     regenerative farming advisory in the requested language.
     Falls back gracefully to pre-computed agronomic advisories if no client is provided.
     """
@@ -106,18 +111,38 @@ can take today (for example: mulching, cover cropping, irrigation timing, compos
 intercropping) based on the signals above. Do not use any markdown formatting, bullet
 points, or headers — plain spoken sentences only."""
 
+    payload = {
+        "model": GROK_TEXT_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are an expert regenerative agriculture extension advisor across BRICS farming belts.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.3,
+    }
+
     try:
-        response = client.models.generate_content(model=MODEL_NAME, contents=prompt)
-        text = (response.text or "").strip()
-        return text if text else FALLBACK_ADVISORIES.get(language, FALLBACK_ADVISORIES["English"])
+        resp = requests.post(
+            f"{client['base_url']}/chat/completions",
+            headers=client["headers"],
+            json=payload,
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            result = resp.json()
+            content = result["choices"][0]["message"]["content"].strip()
+            return content if content else FALLBACK_ADVISORIES.get(language, FALLBACK_ADVISORIES["English"])
+        return FALLBACK_ADVISORIES.get(language, FALLBACK_ADVISORIES["English"])
     except Exception:
         return FALLBACK_ADVISORIES.get(language, FALLBACK_ADVISORIES["English"])
 
 
 def generate_crop_recommendation(client, telemetry: dict, satellite: dict, language: str) -> dict:
     """
-    Structured regenerative crop & soil recommendation engine. Combines ground
-    telemetry (Open-Meteo) with satellite agro-climatology (NASA POWER).
+    Structured regenerative crop & soil recommendation engine powered by Grok.
+    Combines ground telemetry (Open-Meteo) with satellite agro-climatology (NASA POWER).
     Falls back gracefully if client is None or API is unreachable.
     """
     if client is None:
@@ -151,13 +176,32 @@ EXACTLY these keys:
 All text VALUES must be written in {language}. JSON keys must stay in English exactly
 as given above."""
 
+    payload = {
+        "model": GROK_TEXT_MODEL,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a specialized agronomy engine. Return strictly raw JSON with the exact requested keys.",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.2,
+    }
+
     try:
-        response = client.models.generate_content(model=MODEL_NAME, contents=prompt)
-        raw = (response.text or "").strip()
-        cleaned = raw.replace("```json", "").replace("```", "").strip()
-        parsed = json.loads(cleaned)
-        if isinstance(parsed, dict) and "recommended_crop" in parsed:
-            return parsed
+        resp = requests.post(
+            f"{client['base_url']}/chat/completions",
+            headers=client["headers"],
+            json=payload,
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            result = resp.json()
+            raw = result["choices"][0]["message"]["content"].strip()
+            cleaned = raw.replace("```json", "").replace("```", "").strip()
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, dict) and "recommended_crop" in parsed:
+                return parsed
         return dict(FALLBACK_CROP_REC)
     except Exception:
         return dict(FALLBACK_CROP_REC)
@@ -165,8 +209,7 @@ as given above."""
 
 def generate_diagnosis(client, pil_image, sample_hint: str = None) -> str:
     """
-    Send a crop/leaf image to Gemini 2.5 Flash's multimodal vision endpoint
-    and return a concise, labeled organic mitigation report.
+    Send a crop/leaf image to Grok Vision endpoint and return a concise organic mitigation report.
     Falls back gracefully if client is None or an error occurs.
     """
     if client is None:
@@ -200,18 +243,45 @@ Keep the entire report under 150 words."""
         pil_image.convert("RGB" if save_format == "JPEG" else pil_image.mode).save(
             img_buffer, format=save_format
         )
-        img_bytes = img_buffer.getvalue()
+        b64_img = base64.b64encode(img_buffer.getvalue()).decode("utf-8")
         mime_type = f"image/{save_format.lower()}"
 
-        response = client.models.generate_content(
-            model=MODEL_NAME,
-            contents=[
-                types.Part.from_bytes(data=img_bytes, mime_type=mime_type),
-                vision_prompt,
+        payload = {
+            "model": GROK_VISION_MODEL,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": vision_prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:{mime_type};base64,{b64_img}"
+                            },
+                        },
+                    ],
+                }
             ],
+            "temperature": 0.2,
+        }
+
+        resp = requests.post(
+            f"{client['base_url']}/chat/completions",
+            headers=client["headers"],
+            json=payload,
+            timeout=20,
         )
-        text = (response.text or "").strip()
-        return text if text else FALLBACK_DIAGNOSES["blight"]
+        if resp.status_code == 200:
+            result = resp.json()
+            text = result["choices"][0]["message"]["content"].strip()
+            return text if text else FALLBACK_DIAGNOSES["blight"]
+        
+        # Fallback if vision model returns error or unsupported
+        if sample_hint and "blast" in sample_hint.lower():
+            return FALLBACK_DIAGNOSES["blast"]
+        elif sample_hint and "maize" in sample_hint.lower():
+            return FALLBACK_DIAGNOSES["healthy"]
+        return FALLBACK_DIAGNOSES["blight"]
     except Exception:
         if sample_hint and "blast" in sample_hint.lower():
             return FALLBACK_DIAGNOSES["blast"]
