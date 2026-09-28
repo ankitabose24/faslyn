@@ -34,6 +34,9 @@ from backend.ai_service import (
 from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES
 from backend.satellite_service import fetch_satellite_agroclimatology
 from backend.telemetry_service import fetch_soil_telemetry
+import importlib
+import backend.translations
+importlib.reload(backend.translations)
 from backend.translations import t
 from frontend.tts import speak_text
 
