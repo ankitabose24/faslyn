@@ -668,7 +668,7 @@ render_html(
        LIGHT-COLORED 3D SPLASH LOADER
        ----------------------------------------------------------------------- */
     /* -----------------------------------------------------------------------
-       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (3 SECONDS DURATION)
+       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (2 SECONDS WITH 3D ZOOM-IN OPEN)
        ----------------------------------------------------------------------- */
     .faslyn-loader-container {
         position: fixed;
@@ -681,8 +681,9 @@ render_html(
         display: flex;
         align-items: center;
         justify-content: center;
+        perspective: 1200px;
         pointer-events: none !important;
-        animation: faslynFadeOut 0.55s cubic-bezier(0.16, 1, 0.3, 1) 3.0s forwards;
+        animation: faslynFadeOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 1.85s forwards;
     }
 
     .faslyn-loader-card {
@@ -702,7 +703,8 @@ render_html(
         text-align: center;
         gap: 14px;
         max-width: 360px;
-        animation: faslynCardPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transform-style: preserve-3d;
+        animation: faslynCardSequence 2.1s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
     }
 
     .faslyn-spinner-wrapper {
@@ -763,7 +765,7 @@ render_html(
         height: 100%;
         background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
         border-radius: 9999px;
-        animation: faslynProgressFill 3.0s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+        animation: faslynProgressFill 1.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
     }
 
     .faslyn-loader-status {
@@ -777,7 +779,7 @@ render_html(
         0% { width: 4%; }
         25% { width: 35%; }
         60% { width: 72%; }
-        90% { width: 94%; }
+        88% { width: 95%; }
         100% { width: 100%; }
     }
 
@@ -791,14 +793,36 @@ render_html(
         50% { transform: scale(1.14); }
     }
 
-    @keyframes faslynCardPop {
-        0% { transform: scale(0.9); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
+    @keyframes faslynCardSequence {
+        0% {
+            transform: scale(0.88) translateZ(0);
+            opacity: 0;
+        }
+        18% {
+            transform: scale(1) translateZ(0);
+            opacity: 1;
+        }
+        76% {
+            transform: scale(1) translateZ(0);
+            opacity: 1;
+            filter: blur(0px);
+        }
+        88% {
+            transform: scale(1.18) translateZ(60px);
+            opacity: 0.75;
+            filter: blur(1px);
+        }
+        100% {
+            transform: scale(1.48) translateZ(150px);
+            opacity: 0;
+            filter: blur(6px);
+            visibility: hidden;
+        }
     }
 
     @keyframes faslynFadeOut {
         0% { opacity: 1; visibility: visible; }
-        80% { opacity: 0.9; visibility: visible; }
+        80% { opacity: 0.85; visibility: visible; }
         100% { opacity: 0; visibility: hidden; pointer-events: none; }
     }
 
