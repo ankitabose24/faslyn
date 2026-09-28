@@ -491,15 +491,15 @@ satellite = st.session_state.satellite
 # ---------------------------------------------------------------------------
 nav_items = [
     ("home", _("nav_home")),
-    ("farms", _("nav_farms")),
     ("sat", _("nav_sat")),
     ("ai", _("nav_ai")),
     ("regen", _("nav_regen")),
-    ("impact", _("nav_impact")),
     ("brics", _("nav_brics")),
     ("settings", _("nav_settings")),
 ]
 id_to_label = {k: v for k, v in nav_items}
+id_to_label["farms"] = _("nav_sat")
+id_to_label["impact"] = _("nav_brics")
 label_to_id = {v: k for k, v in nav_items}
 
 # ===========================================================================
@@ -592,7 +592,7 @@ with hdr_left:
             render_html(
                 f"""
                 <div style="display:flex; align-items:center; gap:8px; padding-left:6px;">
-                    <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">🏠 {_('nav_home')}</span>
+                    <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">{_('nav_home')}</span>
                     <span style="color:#9CA3AF; font-size:0.86rem;">›</span>
                     <span style="background:#E8F5E9; color:#1B4D3E; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #C8E6C9;">
                         {current_title}
@@ -870,7 +870,7 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("farm_overview")}</h3>')
         with fo_c2:
             if st.button(_("view_all"), key="btn_view_all_fo", type="tertiary", use_container_width=True):
-                navigate_to("farms")
+                navigate_to("sat")
 
         render_html(
             f"""
@@ -1047,7 +1047,7 @@ if st.session_state.active_tab_id == "home":
 # VIEW 2: SATELLITE VIEW & GROUND TELEMETRY
 # ===========================================================================
 elif st.session_state.active_tab_id in ["farms", "sat"]:
-    st.markdown(f"## 🛰️ {_('nav_sat')}")
+    st.markdown(f"## {_('nav_sat')}")
     st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
 
     col_hub_a, col_hub_b = st.columns([1, 2])
@@ -1118,14 +1118,14 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
         if st.button(_("back_to_home"), key="back_sat_bot", type="secondary", use_container_width=True):
             navigate_back()
     with bot_b2:
-        if st.button(f"🧠 {_('nav_ai')} →", key="fwd_sat_to_ai", type="primary"):
+        if st.button(f"{_('nav_ai')} →", key="fwd_sat_to_ai", type="primary"):
             navigate_to("ai")
 
 # ===========================================================================
 # VIEW 3: AI INSIGHTS & MULTILINGUAL SPOKEN ADVISOR
 # ===========================================================================
 elif st.session_state.active_tab_id == "ai":
-    st.markdown(f"## 🧠 {_('nav_ai')}")
+    st.markdown(f"## {_('nav_ai')}")
     st.caption("Powered by xAI Grok API with fallback resilience for live demonstrations.")
 
     tab_voice, tab_vision = st.tabs(["🎙️ Spoken Oral Agro-Advisor", "🩺 Leaf Doctor (Disease Diagnostic)"])
@@ -1210,14 +1210,14 @@ elif st.session_state.active_tab_id == "ai":
         if st.button(_("back_to_home"), key="back_ai_bot", type="secondary", use_container_width=True):
             navigate_back()
     with bot_b2:
-        if st.button(f"🔄 {_('nav_regen')} →", key="fwd_ai_to_regen", type="primary"):
+        if st.button(f"{_('nav_regen')} →", key="fwd_ai_to_regen", type="primary"):
             navigate_to("regen")
 
 # ===========================================================================
 # VIEW 4: REGENERATIVE PLANNER
 # ===========================================================================
 elif st.session_state.active_tab_id == "regen":
-    st.markdown(f"## 🔄 {_('nav_regen')}")
+    st.markdown(f"## {_('nav_regen')}")
     st.caption("Replaces chemical monoculture with soil-nourishing companion rotations and organic amendments.")
 
     if st.button(_("gen_regen_plan"), type="primary"):
@@ -1270,14 +1270,14 @@ elif st.session_state.active_tab_id == "regen":
         if st.button(_("back_to_home"), key="back_regen_bot", type="secondary", use_container_width=True):
             navigate_back()
     with bot_b2:
-        if st.button(f"🌐 {_('nav_brics')} →", key="fwd_regen_to_brics", type="primary"):
+        if st.button(f"{_('nav_brics')} →", key="fwd_regen_to_brics", type="primary"):
             navigate_to("brics")
 
 # ===========================================================================
 # VIEW 5: BRICS KNOWLEDGE HUB (DPG & INTEROPERABILITY)
 # ===========================================================================
 elif st.session_state.active_tab_id in ["brics", "impact"]:
-    st.markdown(f"## 🌐 {_('nav_brics')}")
+    st.markdown(f"## {_('nav_brics')}")
     st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
@@ -1333,7 +1333,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
     st.json(interop_schema)
 
     st.download_button(
-        f"⬇️ {_('qa_down')}",
+        f"⬇️ {_('qa_down').splitlines()[0].replace('📄 ', '')} (JSON)",
         data=json.dumps(interop_schema, indent=2),
         file_name="brics_agrin_node_export.json",
         mime="application/json",
@@ -1346,14 +1346,14 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         if st.button(_("back_to_home"), key="back_brics_bot", type="secondary", use_container_width=True):
             navigate_back()
     with bot_b2:
-        if st.button(f"⚙️ {_('nav_settings')} →", key="fwd_brics_to_settings", type="primary"):
+        if st.button(f"{_('nav_settings')} →", key="fwd_brics_to_settings", type="primary"):
             navigate_to("settings")
 
 # ===========================================================================
 # VIEW 6: SETTINGS
 # ===========================================================================
 elif st.session_state.active_tab_id == "settings":
-    st.markdown(f"## ⚙️ {_('nav_settings')}")
+    st.markdown(f"## {_('nav_settings')}")
     st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
 
     s_col1, s_col2 = st.columns(2)
