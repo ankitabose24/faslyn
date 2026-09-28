@@ -663,7 +663,174 @@ render_html(
         line-height: 1.4;
         font-style: italic;
     }
+
+    /* -----------------------------------------------------------------------
+       LIGHT-COLORED 3D SPLASH LOADER
+       ----------------------------------------------------------------------- */
+    .faslyn-loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #F6FAF6 55%, #EDF5EF 100%);
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s ease;
+        animation: faslynFadeOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.82s forwards;
+        pointer-events: none;
+    }
+
+    .faslyn-loader-card {
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
+        border: 1.5px solid rgba(225, 238, 228, 0.95);
+        border-bottom: 4px solid rgba(195, 218, 202, 0.9);
+        border-radius: 26px;
+        padding: 34px 44px;
+        box-shadow: 0 20px 48px -10px rgba(27, 77, 62, 0.1), 0 6px 18px -4px rgba(0, 0, 0, 0.03), inset 0 1px 1px #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        max-width: 350px;
+        animation: faslynCardPop 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .faslyn-spinner-wrapper {
+        position: relative;
+        width: 68px;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2px;
+    }
+
+    .faslyn-spinner-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 3.5px solid rgba(212, 163, 115, 0.22);
+        border-top: 3.5px solid #D4A373;
+        border-right: 3.5px solid #B5835A;
+        box-shadow: 0 4px 12px rgba(181, 131, 90, 0.22);
+        animation: faslynSpin 0.9s cubic-bezier(0.4, 0.1, 0.4, 0.9) infinite;
+    }
+
+    .faslyn-spinner-icon {
+        font-size: 30px;
+        animation: faslynPulse 1.3s ease-in-out infinite;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .faslyn-loader-brand {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #1B4D3E;
+        letter-spacing: -0.5px;
+        line-height: 1.1;
+    }
+
+    .faslyn-loader-subtitle {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #6B7280;
+        line-height: 1.3;
+    }
+
+    .faslyn-loader-track {
+        width: 170px;
+        height: 5.5px;
+        background: rgba(212, 163, 115, 0.18);
+        border-radius: 9999px;
+        overflow: hidden;
+        margin-top: 4px;
+    }
+
+    .faslyn-loader-bar {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, #D4A373 0%, #10B981 50%, #D4A373 100%);
+        background-size: 200% 100%;
+        border-radius: 9999px;
+        animation: faslynShimmer 1.1s linear infinite;
+    }
+
+    .faslyn-loader-status {
+        font-size: 0.74rem;
+        font-weight: 600;
+        color: #9CA3AF;
+        letter-spacing: 0.2px;
+    }
+
+    @keyframes faslynSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @keyframes faslynPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.12); }
+    }
+
+    @keyframes faslynShimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+
+    @keyframes faslynCardPop {
+        0% { transform: scale(0.92); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes faslynFadeOut {
+        0% { opacity: 1; visibility: visible; }
+        85% { opacity: 0; visibility: visible; }
+        100% { opacity: 0; visibility: hidden; display: none; pointer-events: none; }
+    }
     </style>
+    """
+)
+
+# Render the light 3D website open loader
+render_html(
+    """
+    <div id="faslyn-loader-overlay" class="faslyn-loader-container">
+        <div class="faslyn-loader-card">
+            <div class="faslyn-spinner-wrapper">
+                <div class="faslyn-spinner-ring"></div>
+                <div class="faslyn-spinner-icon">🌱</div>
+            </div>
+            <div class="faslyn-loader-brand">🌿 faslyn</div>
+            <div class="faslyn-loader-subtitle">Smart Agriculture &bull; Stronger Communities</div>
+            <div class="faslyn-loader-track">
+                <div class="faslyn-loader-bar"></div>
+            </div>
+            <div class="faslyn-loader-status">Initializing agro-intelligence feeds...</div>
+        </div>
+    </div>
+    <script>
+    (function() {
+        try {
+            var loader = document.getElementById("faslyn-loader-overlay");
+            if (loader) {
+                setTimeout(function() {
+                    loader.style.opacity = "0";
+                    loader.style.pointerEvents = "none";
+                    setTimeout(function() {
+                        loader.style.display = "none";
+                    }, 450);
+                }, 750);
+            }
+        } catch(e) {}
+    })();
+    </script>
     """
 )
 
