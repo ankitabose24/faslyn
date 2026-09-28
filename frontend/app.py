@@ -852,45 +852,6 @@ render_html(
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
-if "_faslyn_splash_shown" not in st.session_state:
-    st.session_state._faslyn_splash_shown = False
-
-# Render the light 3D splash loader ONLY once when website is opened / refreshed
-if not st.session_state._faslyn_splash_shown:
-    st.session_state._faslyn_splash_shown = True
-    render_html(
-        """
-        <style>
-        .main .block-container {
-            animation: faslynDashboardReveal 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-        @keyframes faslynDashboardReveal {
-            0%, 67% {
-                opacity: 0.92;
-                transform: scale(0.988);
-            }
-            100% {
-                opacity: 1;
-                transform: none;
-            }
-        }
-        </style>
-        <div id="faslyn-loader-overlay" class="faslyn-loader-container">
-            <div class="faslyn-loader-card">
-                <div class="faslyn-spinner-wrapper">
-                    <div class="faslyn-spinner-ring"></div>
-                    <div class="faslyn-spinner-icon">🌱</div>
-                </div>
-                <div class="faslyn-loader-brand">🌿 faslyn</div>
-                <div class="faslyn-loader-subtitle">Smart Agriculture &bull; Stronger Communities</div>
-                <div class="faslyn-loader-track">
-                    <div class="faslyn-loader-bar"></div>
-                </div>
-                <div class="faslyn-loader-status">Initializing agro-intelligence feeds...</div>
-            </div>
-        </div>
-        """
-    )
 if "current_language" not in st.session_state:
     st.session_state.current_language = "English"
 if "active_tab_id" not in st.session_state:
