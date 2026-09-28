@@ -668,7 +668,7 @@ render_html(
        LIGHT-COLORED 3D SPLASH LOADER
        ----------------------------------------------------------------------- */
     /* -----------------------------------------------------------------------
-       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (2 SECONDS WITH 3D ZOOM-IN OPEN)
+       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (2 SECONDS WITH SMOOTH ZOOM-IN FLOW)
        ----------------------------------------------------------------------- */
     .faslyn-loader-container {
         position: fixed;
@@ -681,36 +681,37 @@ render_html(
         display: flex;
         align-items: center;
         justify-content: center;
-        perspective: 1200px;
-        pointer-events: none !important;
-        animation: faslynFadeOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 1.85s forwards;
+        overflow: hidden;
+        pointer-events: auto;
+        will-change: opacity;
+        animation: faslynContainerFlow 2.0s forwards;
     }
 
     .faslyn-loader-card {
-        background: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        border: 1.5px solid rgba(255, 255, 255, 0.95);
-        border-bottom: 4px solid rgba(165, 214, 200, 0.9);
-        border-radius: 28px;
-        padding: 38px 48px;
-        box-shadow: 0 24px 60px -12px rgba(16, 114, 85, 0.12),
-                    0 10px 25px -6px rgba(2, 132, 199, 0.08),
-                    inset 0 1px 1px #FFFFFF;
+        background: #FFFFFF;
+        border: 1px solid rgba(220, 240, 230, 0.9);
+        border-bottom: 4px solid #10B981;
+        border-radius: 26px;
+        padding: 36px 44px;
+        box-shadow: 0 24px 60px -12px rgba(16, 114, 85, 0.16),
+                    0 10px 25px -6px rgba(2, 132, 199, 0.12),
+                    0 0 0 1px rgba(255, 255, 255, 0.9);
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
         gap: 14px;
         max-width: 360px;
-        transform-style: preserve-3d;
-        animation: faslynCardSequence 2.1s cubic-bezier(0.2, 0.8, 0.25, 1) forwards;
+        width: 90%;
+        box-sizing: border-box;
+        will-change: transform, opacity;
+        animation: faslynCardFlow 2.0s forwards;
     }
 
     .faslyn-spinner-wrapper {
         position: relative;
-        width: 72px;
-        height: 72px;
+        width: 70px;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -722,15 +723,15 @@ render_html(
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 3.5px solid rgba(16, 185, 129, 0.18);
+        border: 3.5px solid rgba(16, 185, 129, 0.16);
         border-top: 3.5px solid #10B981;
         border-right: 3.5px solid #0284C7;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.22);
-        animation: faslynSpin 1.0s cubic-bezier(0.4, 0.1, 0.4, 0.9) infinite;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.18);
+        animation: faslynSpin 1.0s linear infinite;
     }
 
     .faslyn-spinner-icon {
-        font-size: 32px;
+        font-size: 30px;
         animation: faslynPulse 1.4s ease-in-out infinite;
         display: flex;
         align-items: center;
@@ -765,7 +766,7 @@ render_html(
         height: 100%;
         background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
         border-radius: 9999px;
-        animation: faslynProgressFill 1.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+        animation: faslynProgressFill 1.35s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
     }
 
     .faslyn-loader-status {
@@ -776,10 +777,10 @@ render_html(
     }
 
     @keyframes faslynProgressFill {
-        0% { width: 4%; }
+        0% { width: 0%; }
         25% { width: 35%; }
-        60% { width: 72%; }
-        88% { width: 95%; }
+        65% { width: 75%; }
+        90% { width: 95%; }
         100% { width: 100%; }
     }
 
@@ -790,40 +791,50 @@ render_html(
 
     @keyframes faslynPulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.14); }
+        50% { transform: scale(1.12); }
     }
 
-    @keyframes faslynCardSequence {
+    @keyframes faslynCardFlow {
         0% {
-            transform: scale(0.88) translateZ(0);
+            transform: scale(0.92);
             opacity: 0;
+            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
         18% {
-            transform: scale(1) translateZ(0);
+            transform: scale(1);
             opacity: 1;
+            animation-timing-function: linear;
         }
-        76% {
-            transform: scale(1) translateZ(0);
+        67% {
+            transform: scale(1);
             opacity: 1;
-            filter: blur(0px);
-        }
-        88% {
-            transform: scale(1.18) translateZ(60px);
-            opacity: 0.75;
-            filter: blur(1px);
+            animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
         }
         100% {
-            transform: scale(1.48) translateZ(150px);
+            transform: scale(1.28);
             opacity: 0;
-            filter: blur(6px);
             visibility: hidden;
         }
     }
 
-    @keyframes faslynFadeOut {
-        0% { opacity: 1; visibility: visible; }
-        80% { opacity: 0.85; visibility: visible; }
-        100% { opacity: 0; visibility: hidden; pointer-events: none; }
+    @keyframes faslynContainerFlow {
+        0% {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            animation-timing-function: linear;
+        }
+        67% {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        100% {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
     }
 
     /* Style Streamlit's inline spinners with light theme colors */
@@ -849,6 +860,21 @@ if not st.session_state._faslyn_splash_shown:
     st.session_state._faslyn_splash_shown = True
     render_html(
         """
+        <style>
+        .main .block-container {
+            animation: faslynDashboardReveal 2.0s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+        @keyframes faslynDashboardReveal {
+            0%, 67% {
+                opacity: 0.92;
+                transform: scale(0.988);
+            }
+            100% {
+                opacity: 1;
+                transform: none;
+            }
+        }
+        </style>
         <div id="faslyn-loader-overlay" class="faslyn-loader-container">
             <div class="faslyn-loader-card">
                 <div class="faslyn-spinner-wrapper">
