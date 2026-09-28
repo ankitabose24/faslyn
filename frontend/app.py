@@ -65,12 +65,61 @@ render_html(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-    html, body, [class*="css"] {
+    html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        background-color: #F6F9F5 !important;
+        color: #111827 !important;
     }
     
-    .stApp {
+    /* High-contrast dark text everywhere */
+    p, span, label, h1, h2, h3, h4, h5, h6,
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] span,
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stWidgetLabel"] p,
+    [data-testid="stWidgetLabel"] span {
+        color: #111827 !important;
+    }
+    
+    /* Top Streamlit App Header bar */
+    header[data-testid="stHeader"] {
         background-color: #F6F9F5 !important;
+    }
+    header[data-testid="stHeader"] * {
+        color: #111827 !important;
+    }
+    
+    /* Sidebar text colors */
+    section[data-testid="stSidebar"] {
+        background-color: #F8FAF7 !important;
+        border-right: 1px solid #EBF2EB !important;
+    }
+    section[data-testid="stSidebar"] p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] div {
+        color: #1F2937 !important;
+    }
+    
+    /* Radio options in sidebar and main page */
+    div[role="radiogroup"] label {
+        color: #1F2937 !important;
+        font-weight: 600 !important;
+    }
+    div[role="radiogroup"] label p {
+        color: #1F2937 !important;
+        font-weight: 600 !important;
+    }
+    div[role="radiogroup"] label span {
+        color: #1F2937 !important;
+    }
+    
+    /* Input and text fields */
+    .stTextInput input, .stSelectbox div {
+        color: #111827 !important;
+        background-color: #FFFFFF !important;
     }
     
     /* Top Header Bar */
