@@ -39,7 +39,7 @@ def fetch_soil_telemetry(lat: float, lon: float) -> dict:
             "forecast_days": 2,
             "timezone": "auto",
         }
-        resp = requests.get(OPEN_METEO_URL, params=params, timeout=8)
+        resp = requests.get(OPEN_METEO_URL, params=params, timeout=3)
         resp.raise_for_status()
         data = resp.json()
 

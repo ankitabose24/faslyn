@@ -51,7 +51,7 @@ def fetch_satellite_agroclimatology(lat: float, lon: float) -> dict:
     """
     try:
         end_date = datetime.date.today() - datetime.timedelta(days=3)
-        start_date = end_date - datetime.timedelta(days=7)
+        start_date = end_date - datetime.timedelta(days=3)
 
         params = {
             "parameters": "ALLSKY_SFC_SW_DWN,PRECTOTCORR,GWETROOT",
@@ -62,7 +62,7 @@ def fetch_satellite_agroclimatology(lat: float, lon: float) -> dict:
             "end": end_date.strftime("%Y%m%d"),
             "format": "JSON",
         }
-        resp = requests.get(NASA_POWER_URL, params=params, timeout=10)
+        resp = requests.get(NASA_POWER_URL, params=params, timeout=4)
         resp.raise_for_status()
         data = resp.json()
 

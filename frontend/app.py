@@ -31,22 +31,29 @@ from backend.ai_service import (
     generate_crop_recommendation,
     generate_diagnosis,
 )
-import importlib
-import backend.config
-importlib.reload(backend.config)
 from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
-
 from backend.satellite_service import fetch_satellite_agroclimatology
 from backend.telemetry_service import fetch_soil_telemetry
-
-import backend.translations
-importlib.reload(backend.translations)
 from backend.translations import t
-
-import backend.geocoding
-importlib.reload(backend.geocoding)
 from backend.geocoding import geocode_location
 from frontend.tts import speak_text
+
+
+# High-performance caching for telemetry, satellite data & geocoding
+@st.cache_data(ttl=600, show_spinner=False)
+def get_telemetry(lat: float, lon: float) -> dict:
+    return fetch_soil_telemetry(lat, lon)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_satellite(lat: float, lon: float) -> dict:
+    return fetch_satellite_agroclimatology(lat, lon)
+
+
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_cached_geocoding(query: str):
+    return geocode_location(query)
+
 
 # ---------------------------------------------------------------------------
 # PAGE CONFIGURATION
@@ -782,18 +789,11 @@ def get_client():
     return build_grok_client(api_key)
 
 
-# Lazy-load live telemetry & satellite feeds
-if st.session_state.telemetry is None:
-    st.session_state.telemetry = fetch_soil_telemetry(
-        st.session_state.coords["lat"], st.session_state.coords["lon"]
-    )
-if st.session_state.satellite is None:
-    st.session_state.satellite = fetch_satellite_agroclimatology(
-        st.session_state.coords["lat"], st.session_state.coords["lon"]
-    )
-
-telemetry = st.session_state.telemetry
-satellite = st.session_state.satellite
+# Fetch telemetry & satellite feeds (cached globally with TTL, zero network latency on reruns)
+telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
+satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
+st.session_state.telemetry = telemetry
+st.session_state.satellite = satellite
 
 # ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
@@ -1166,7 +1166,7 @@ if st.session_state.active_tab_id == "home":
 
         if home_loc_sub and home_loc_q:
             with st.spinner(f"Guiding map to '{home_loc_q}'..."):
-                r_loc = geocode_location(home_loc_q)
+                r_loc = get_cached_geocoding(home_loc_q)
             if r_loc:
                 st.session_state.last_guided_location = r_loc["display_name"]
                 set_coords(r_loc["lat"], r_loc["lon"], zoom=13, hub_name=f"📍 {r_loc['short_name']}")
@@ -1213,7 +1213,7 @@ if st.session_state.active_tab_id == "home":
                     tooltip=f"{fld['name']} • {fld['crop']} ({fld['score']}%)",
                 ).add_to(m)
 
-            st_folium(m, height=275, use_container_width=True, key="dashboard_map")
+            st_folium(m, height=275, use_container_width=True, key="dashboard_map", returned_objects=[])
 
             render_html(
                 f"""
@@ -1363,6 +1363,8 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("quick_actions")}</h3>')
         with qa_c2:
             if st.button("🔄 " + _("refresh"), key="btn_refresh_feeds", type="tertiary", use_container_width=True, help="Refreshes live satellite and soil telemetry"):
+                get_telemetry.clear()
+                get_satellite.clear()
                 st.session_state.telemetry = None
                 st.session_state.satellite = None
                 st.rerun()
@@ -1537,7 +1539,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
     if sat_search_sub and sat_search_q:
         with st.spinner(f"Locating '{sat_search_q}' and fetching live satellite data..."):
-            found_loc = geocode_location(sat_search_q)
+            found_loc = get_cached_geocoding(sat_search_q)
         if found_loc:
             st.session_state.last_guided_location = found_loc["display_name"]
             set_coords(
@@ -1562,7 +1564,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     for idx, (sug_label, sug_query) in enumerate(popular_sugs):
         with sug_cols[idx]:
             if st.button(sug_label, key=f"btn_pop_sug_{idx}", type="tertiary", use_container_width=True):
-                res_sug = geocode_location(sug_query)
+                res_sug = get_cached_geocoding(sug_query)
                 if res_sug:
                     st.session_state.last_guided_location = res_sug["display_name"]
                     set_coords(
@@ -1632,7 +1634,13 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
             tooltip="Active Live Telemetry Catchment (1.5 km)",
         ).add_to(m_sat)
 
-        map_interaction = st_folium(m_sat, height=390, use_container_width=True, key="sat_view_map")
+        map_interaction = st_folium(
+            m_sat,
+            height=390,
+            use_container_width=True,
+            key="sat_view_map",
+            returned_objects=["last_clicked"],
+        )
         if map_interaction and map_interaction.get("last_clicked"):
             c_clicked = map_interaction["last_clicked"]
             if (
