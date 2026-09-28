@@ -2,7 +2,8 @@
 Faslyn — Modern Regenerative Agricultural Intelligence Dashboard
 ================================================================
 Inspired by the BRICS AgriN Initiative for Smallholder Cooperation.
-Powered by:
+Features:
+- Live multilingual switching across 7 BRICS languages
 - xAI Grok API (Text & Multimodal Vision)
 - Open-Meteo Zero-Sensor Telemetry
 - NASA POWER Agro-Climatology Satellite Feeds
@@ -33,6 +34,7 @@ from backend.ai_service import (
 from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES
 from backend.satellite_service import fetch_satellite_agroclimatology
 from backend.telemetry_service import fetch_soil_telemetry
+from backend.translations import t
 from frontend.tts import speak_text
 
 # ---------------------------------------------------------------------------
@@ -323,7 +325,7 @@ render_html(
     .sidebar-brand {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #1B4D3E;
+        color: #1B4D3E !important;
         display: flex;
         align-items: center;
         gap: 8px;
@@ -331,7 +333,7 @@ render_html(
     }
     .sidebar-tagline {
         font-size: 0.85rem;
-        color: #4B5563;
+        color: #4B5563 !important;
         line-height: 1.4;
         font-style: italic;
     }
@@ -342,8 +344,10 @@ render_html(
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
-if "nav_choice" not in st.session_state:
-    st.session_state.nav_choice = "🏠 Home"
+if "current_language" not in st.session_state:
+    st.session_state.current_language = "English"
+if "active_tab_id" not in st.session_state:
+    st.session_state.active_tab_id = "home"
 if "coords" not in st.session_state:
     st.session_state.coords = {"lat": FIRST_HUB["lat"], "lon": FIRST_HUB["lon"]}
 if "zoom" not in st.session_state:
@@ -357,7 +361,7 @@ if "satellite" not in st.session_state:
 if "advisory_text" not in st.session_state:
     st.session_state.advisory_text = None
 if "advisory_lang_code" not in st.session_state:
-    st.session_state.advisory_lang_code = "en-US"
+    st.session_state.advisory_lang_code = LANGUAGES[st.session_state.current_language]
 if "trigger_speech" not in st.session_state:
     st.session_state.trigger_speech = False
 if "crop_recommendation" not in st.session_state:
@@ -368,6 +372,11 @@ if "active_leaf_image" not in st.session_state:
     st.session_state.active_leaf_image = None
 if "sample_label" not in st.session_state:
     st.session_state.sample_label = None
+
+
+def _(key: str) -> str:
+    """Translate string key into active session language."""
+    return t(key, st.session_state.current_language)
 
 
 def set_coords(lat, lon, zoom=None, hub_name=None):
@@ -406,6 +415,22 @@ if st.session_state.satellite is None:
 telemetry = st.session_state.telemetry
 satellite = st.session_state.satellite
 
+# ---------------------------------------------------------------------------
+# NAVIGATION MAP FOR MULTILINGUAL TABS
+# ---------------------------------------------------------------------------
+nav_items = [
+    ("home", _("nav_home")),
+    ("farms", _("nav_farms")),
+    ("sat", _("nav_sat")),
+    ("ai", _("nav_ai")),
+    ("regen", _("nav_regen")),
+    ("impact", _("nav_impact")),
+    ("brics", _("nav_brics")),
+    ("settings", _("nav_settings")),
+]
+id_to_label = {k: v for k, v in nav_items}
+label_to_id = {v: k for k, v in nav_items}
+
 # ===========================================================================
 # SIDEBAR — BRANDING & NAVIGATION
 # ===========================================================================
@@ -418,25 +443,19 @@ with st.sidebar:
         """
     )
 
-    nav_options = [
-        "🏠 Home",
-        "🌱 My Farms",
-        "🛰️ Satellite View",
-        "🧠 AI Insights",
-        "🔄 Regenerative Plan",
-        "📊 Impact Tracker",
-        "🌐 BRICS Knowledge Hub",
-        "⚙️ Settings",
-    ]
+    current_label = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
+    all_labels = [v for _, v in nav_items]
+    current_index = all_labels.index(current_label) if current_label in all_labels else 0
 
-    selected_nav = st.radio(
+    chosen_label = st.radio(
         "Navigation",
-        nav_options,
-        index=nav_options.index(st.session_state.nav_choice) if st.session_state.nav_choice in nav_options else 0,
+        all_labels,
+        index=current_index,
         label_visibility="collapsed",
     )
-    if selected_nav != st.session_state.nav_choice:
-        st.session_state.nav_choice = selected_nav
+    new_tab_id = label_to_id.get(chosen_label, "home")
+    if new_tab_id != st.session_state.active_tab_id:
+        st.session_state.active_tab_id = new_tab_id
         st.rerun()
 
     st.markdown("---")
@@ -471,24 +490,24 @@ with st.sidebar:
     )
 
 # ===========================================================================
-# TOP HEADER BAR
+# TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
 # ===========================================================================
 hdr_left, hdr_right = st.columns([3, 2])
 
 with hdr_left:
     render_html(
-        """
+        f"""
         <div class="top-header">
             <div>
-                <h1 class="greeting-title">🌱 Good Morning, Farmer!</h1>
-                <p class="greeting-subtitle">Here's what's happening on your farms today.</p>
+                <h1 class="greeting-title">{_('greeting')}</h1>
+                <p class="greeting-subtitle">{_('subtitle')}</p>
             </div>
         </div>
         """
     )
 
 with hdr_right:
-    c_bell, c_lang, c_user = st.columns([1, 2, 3])
+    c_bell, c_lang, c_user = st.columns([1, 2.5, 3])
     with c_bell:
         render_html(
             """
@@ -504,18 +523,25 @@ with hdr_right:
         selected_language = st.selectbox(
             "Language",
             list(LANGUAGES.keys()),
-            index=list(LANGUAGES.keys()).index("English") if "English" in LANGUAGES else 0,
+            index=list(LANGUAGES.keys()).index(st.session_state.current_language)
+            if st.session_state.current_language in LANGUAGES else 0,
+            key="global_live_lang_selector",
             label_visibility="collapsed",
         )
+        if selected_language != st.session_state.current_language:
+            st.session_state.current_language = selected_language
+            st.session_state.advisory_lang_code = LANGUAGES[selected_language]
+            st.rerun()
+
     with c_user:
         render_html(
-            """
+            f"""
             <div style="padding-top: 8px;">
                 <div class="header-user-pill">
                     <div class="user-avatar">RK</div>
                     <div>
                         <div style="font-size: 0.85rem; font-weight: 700; color:#111827; line-height: 1.1;">Ramesh Kumar</div>
-                        <div style="font-size: 0.72rem; color: #6B7280;">Farmer</div>
+                        <div style="font-size: 0.72rem; color: #6B7280;">{_('farmer_role')}</div>
                     </div>
                 </div>
             </div>
@@ -523,9 +549,9 @@ with hdr_right:
         )
 
 # ===========================================================================
-# VIEW 1: HOME DASHBOARD (EXACT VISUAL REPLICA)
+# VIEW 1: HOME DASHBOARD (FULLY TRANSLATED)
 # ===========================================================================
-if st.session_state.nav_choice == "🏠 Home":
+if st.session_state.active_tab_id == "home":
 
     # -----------------------------------------------------------------------
     # ROW 1: TOP 4 KPI CARDS
@@ -534,13 +560,13 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with kpi1:
         render_html(
-            """
+            f"""
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-green">🏡</div>
                 <div>
-                    <div class="kpi-label">Total Fields</div>
+                    <div class="kpi-label">{_('total_fields')}</div>
                     <div class="kpi-val">4</div>
-                    <div class="kpi-subtext">Across 2 farms</div>
+                    <div class="kpi-subtext">{_('across_farms')}</div>
                 </div>
             </div>
             """
@@ -548,13 +574,13 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with kpi2:
         render_html(
-            """
+            f"""
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-green">🍃</div>
                 <div>
-                    <div class="kpi-label">Healthy Fields</div>
+                    <div class="kpi-label">{_('healthy_fields')}</div>
                     <div class="kpi-val">2</div>
-                    <div class="kpi-subtext">50% of total</div>
+                    <div class="kpi-subtext">50% {_('of_total')}</div>
                 </div>
             </div>
             """
@@ -562,13 +588,13 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with kpi3:
         render_html(
-            """
+            f"""
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-orange">⚠️</div>
                 <div>
-                    <div class="kpi-label">Fields at Risk</div>
+                    <div class="kpi-label">{_('fields_at_risk')}</div>
                     <div class="kpi-val">1</div>
-                    <div class="kpi-subtext">25% of total</div>
+                    <div class="kpi-subtext">25% {_('of_total')}</div>
                 </div>
             </div>
             """
@@ -576,13 +602,13 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with kpi4:
         render_html(
-            """
+            f"""
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-teal">🪴</div>
                 <div>
-                    <div class="kpi-label">Overall Farm Health</div>
+                    <div class="kpi-label">{_('overall_health')}</div>
                     <div class="kpi-val">76<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
-                    <div class="kpi-subtext" style="color:#059669; font-weight:700;">↑ +6% vs. last month</div>
+                    <div class="kpi-subtext" style="color:#059669; font-weight:700;">↑ +6% {_('vs_last_month')}</div>
                 </div>
             </div>
             """
@@ -597,11 +623,11 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with mid_left:
         render_html(
-            """
+            f"""
             <div class="dashboard-card" style="margin-bottom: 0px;">
                 <div class="card-header-row">
-                    <h3 class="card-header-title">🌱 My Fields</h3>
-                    <span class="view-all-link">Interactive Map • View all →</span>
+                    <h3 class="card-header-title">{_('my_fields')}</h3>
+                    <span class="view-all-link">{_('interactive_map')}</span>
                 </div>
             </div>
             """
@@ -610,7 +636,6 @@ if st.session_state.nav_choice == "🏠 Home":
         col_map_inner, col_detail_inner = st.columns([1.35, 1])
 
         with col_map_inner:
-            # Interactive Map with Field Polygons
             center_lat = st.session_state.coords["lat"]
             center_lon = st.session_state.coords["lon"]
 
@@ -621,32 +646,30 @@ if st.session_state.nav_choice == "🏠 Home":
                 control_scale=False,
             )
 
-            # Draw 4 Simulated Farm Polygons (Field 01, Field 02, Field 03, Field 04)
             d = 0.005
             p1 = [[center_lat + d, center_lon - d], [center_lat + 2*d, center_lon], [center_lat + d, center_lon + d/2]]
             p2 = [[center_lat, center_lon], [center_lat + d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d]]
             p3 = [[center_lat - d, center_lon - d/2], [center_lat, center_lon], [center_lat - 1.5*d, center_lon + d/3]]
             p4 = [[center_lat - d, center_lon + d/2], [center_lat - d/2, center_lon + 1.5*d], [center_lat - 2*d, center_lon + d]]
 
-            folium.Polygon(locations=p1, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 01 (Healthy)").add_to(m)
-            folium.Polygon(locations=p2, color="#D97706", fill=True, fill_color="#F59E0B", fill_opacity=0.6, tooltip="Field 02 (Moderate Risk)").add_to(m)
-            folium.Polygon(locations=p3, color="#DC2626", fill=True, fill_color="#EF4444", fill_opacity=0.7, tooltip="Field 03 (Critical)").add_to(m)
-            folium.Polygon(locations=p4, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 04 (Healthy)").add_to(m)
+            folium.Polygon(locations=p1, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 01").add_to(m)
+            folium.Polygon(locations=p2, color="#D97706", fill=True, fill_color="#F59E0B", fill_opacity=0.6, tooltip="Field 02").add_to(m)
+            folium.Polygon(locations=p3, color="#DC2626", fill=True, fill_color="#EF4444", fill_opacity=0.7, tooltip="Field 03").add_to(m)
+            folium.Polygon(locations=p4, color="#16A34A", fill=True, fill_color="#22C55E", fill_opacity=0.6, tooltip="Field 04").add_to(m)
 
             st_folium(m, height=275, use_container_width=True, key="dashboard_map")
 
             render_html(
-                """
+                f"""
                 <div style="display:flex; justify-content:center; gap: 16px; font-size: 0.78rem; font-weight:600; color: #4B5563; margin-top: 4px;">
-                    <span>🟢 Healthy</span>
-                    <span>🟡 Moderate Risk</span>
-                    <span>🔴 Critical</span>
+                    <span>🟢 {_('healthy')}</span>
+                    <span>🟡 {_('moderate_risk')}</span>
+                    <span>🔴 {_('critical')}</span>
                 </div>
                 """
             )
 
         with col_detail_inner:
-            # Selected Field Detail Card (Field 03)
             soil_pct = int(min(100, max(10, (telemetry.get('soil_moisture', 0.24) / 0.40) * 100)))
             water_pct = int(min(100, max(10, (satellite.get('root_zone_soil_wetness', 0.41) / 0.70) * 100)))
 
@@ -655,16 +678,16 @@ if st.session_state.nav_choice == "🏠 Home":
                 <div style="background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 16px; padding: 16px; height: 100%;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
                         <h4 style="margin:0; font-weight:800; font-size:1.15rem; color:#111827;">Field 03</h4>
-                        <span class="badge badge-critical">High Risk</span>
+                        <span class="badge badge-critical">{_('high_risk')}</span>
                     </div>
                     <div style="font-size: 0.8rem; color:#4B5563; line-height: 1.6; margin-bottom: 12px;">
-                        <div>🌾 <b>Rice</b> &nbsp;•&nbsp; 📍 <b>{st.session_state.selected_hub_name.split('—')[1] if '—' in st.session_state.selected_hub_name else 'Odisha, India'}</b></div>
-                        <div>📅 <b>48 days</b> (crop age)</div>
+                        <div>🌾 <b>{_('rice')}</b> &nbsp;•&nbsp; 📍 <b>{st.session_state.selected_hub_name.split('—')[1] if '—' in st.session_state.selected_hub_name else 'Odisha, India'}</b></div>
+                        <div>📅 <b>48 {_('crop_age')}</b></div>
                     </div>
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
-                            <span>Field Health</span>
+                            <span>{_('field_health')}</span>
                             <span style="color:#DC2626; font-weight:700;">64%</span>
                         </div>
                         <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 64%; background: #EF4444;"></div></div>
@@ -672,7 +695,7 @@ if st.session_state.nav_choice == "🏠 Home":
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
-                            <span>🪱 Soil Health</span>
+                            <span>🪱 {_('soil_health')}</span>
                             <span>{soil_pct}%</span>
                         </div>
                         <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {soil_pct}%; background: #F59E0B;"></div></div>
@@ -680,7 +703,7 @@ if st.session_state.nav_choice == "🏠 Home":
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
-                            <span>💧 Water Status</span>
+                            <span>💧 {_('water_status')}</span>
                             <span>{water_pct}%</span>
                         </div>
                         <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {water_pct}%; background: #0284C7;"></div></div>
@@ -688,7 +711,7 @@ if st.session_state.nav_choice == "🏠 Home":
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
-                            <span>🌿 Vegetation</span>
+                            <span>🌿 {_('vegetation')}</span>
                             <span>62%</span>
                         </div>
                         <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 62%; background: #10B981;"></div></div>
@@ -696,49 +719,48 @@ if st.session_state.nav_choice == "🏠 Home":
                 </div>
                 """
             )
-            if st.button("View Details →", use_container_width=True, key="btn_view_field_details"):
-                st.session_state.nav_choice = "🛰️ Satellite View"
+            if st.button(_("view_details_btn"), use_container_width=True, key="btn_view_field_details"):
+                st.session_state.active_tab_id = "sat"
                 st.rerun()
 
     with mid_right:
-        # AI Insights Card
         render_html(
-            """
+            f"""
             <div class="dashboard-card">
                 <div class="card-header-row">
-                    <h3 class="card-header-title">🧠 AI Insights</h3>
-                    <span class="view-all-link">View all →</span>
+                    <h3 class="card-header-title">{_('ai_insights')}</h3>
+                    <span class="view-all-link">{_('view_all')}</span>
                 </div>
                 
                 <div style="background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 14px; padding: 14px; margin-bottom: 16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
                         <span style="font-weight:700; color:#DC2626; font-size:0.92rem; display:flex; align-items:center; gap:6px;">
-                            💧 Water Stress Detected
+                            {_('water_stress_detected')}
                         </span>
                         <span style="font-size:0.72rem; color:#DC2626; font-weight:700; background:#FFFFFF; padding:2px 8px; border-radius:9999px;">
-                            High Confidence • 84%
+                            {_('high_confidence')}
                         </span>
                     </div>
                     <p style="font-size:0.8rem; color:#4B5563; margin:0; line-height: 1.45;">
-                        Field 03 is showing low soil moisture and declining vegetation. Rainfall forecast is low for the next 7 days.
+                        {_('water_stress_desc')}
                     </p>
                 </div>
                 
                 <div style="margin-bottom: 16px;">
                     <div style="font-size:0.85rem; font-weight:700; color:#111827; margin-bottom: 8px; display:flex; align-items:center; gap:6px;">
-                        🌿 Recommended action
+                        {_('recommended_action')}
                     </div>
                     <ul style="font-size:0.82rem; color:#4B5563; padding-left: 18px; margin:0; line-height: 1.6;">
-                        <li>Optimize irrigation schedule (evening drip)</li>
-                        <li>Apply straw mulch (conserve moisture)</li>
-                        <li>Consider green manure / companion crop</li>
+                        <li>{_('action_1')}</li>
+                        <li>{_('action_2')}</li>
+                        <li>{_('action_3')}</li>
                     </ul>
                 </div>
             </div>
             """
         )
-        if st.button("Generate Regenerative Plan →", use_container_width=True, key="btn_gen_regen_home"):
-            st.session_state.nav_choice = "🔄 Regenerative Plan"
+        if st.button(_("gen_regen_plan"), use_container_width=True, key="btn_gen_regen_home"):
+            st.session_state.active_tab_id = "regen"
             st.rerun()
 
     st.write("")
@@ -750,11 +772,11 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with col_ov:
         render_html(
-            """
+            f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
-                    <h3 class="card-header-title">📦 Farm Overview</h3>
-                    <span class="view-all-link">View all →</span>
+                    <h3 class="card-header-title">{_('farm_overview')}</h3>
+                    <span class="view-all-link">{_('view_all')}</span>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -762,32 +784,32 @@ if st.session_state.nav_choice == "🏠 Home":
                         <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
                             <span style="color:#16A34A;">●</span> Field 01
                         </div>
-                        <div class="badge badge-healthy" style="margin:4px 0;">Healthy</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">🌾 Rice • 1.2 ha</div>
+                        <div class="badge badge-healthy" style="margin:4px 0;">{_('healthy')}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌾 {_('rice')} • 1.2 ha</div>
                     </div>
                     
                     <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
                         <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
                             <span style="color:#F59E0B;">●</span> Field 02
                         </div>
-                        <div class="badge badge-warning" style="margin:4px 0;">Moderate Risk</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">🌽 Maize • 0.8 ha</div>
+                        <div class="badge badge-warning" style="margin:4px 0;">{_('moderate_risk')}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌽 {_('maize')} • 0.8 ha</div>
                     </div>
                     
                     <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
                         <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
                             <span style="color:#DC2626;">●</span> Field 03
                         </div>
-                        <div class="badge badge-critical" style="margin:4px 0;">High Risk</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">🌾 Rice • 1.1 ha</div>
+                        <div class="badge badge-critical" style="margin:4px 0;">{_('high_risk')}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🌾 {_('rice')} • 1.1 ha</div>
                     </div>
                     
                     <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
                         <div style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
                             <span style="color:#16A34A;">●</span> Field 04
                         </div>
-                        <div class="badge badge-healthy" style="margin:4px 0;">Healthy</div>
-                        <div style="font-size:0.75rem; color:#6B7280;">🥬 Veg • 0.6 ha</div>
+                        <div class="badge badge-healthy" style="margin:4px 0;">{_('healthy')}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">🥬 {_('veg')} • 0.6 ha</div>
                     </div>
                 </div>
             </div>
@@ -796,10 +818,10 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with col_act:
         render_html(
-            """
+            f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
-                    <h3 class="card-header-title">⚡ Quick Actions</h3>
+                    <h3 class="card-header-title">{_('quick_actions')}</h3>
                 </div>
             </div>
             """
@@ -807,51 +829,51 @@ if st.session_state.nav_choice == "🏠 Home":
 
         qa1, qa2 = st.columns(2)
         with qa1:
-            if st.button("📷 Upload Crop Image\n*Instant AI diagnosis*", use_container_width=True, key="qa_upload"):
-                st.session_state.nav_choice = "🧠 AI Insights"
+            if st.button(_("qa_upload"), use_container_width=True, key="qa_upload"):
+                st.session_state.active_tab_id = "ai"
                 st.rerun()
-            if st.button("🎙️ Speak to Faslyn\n*Your local language*", use_container_width=True, key="qa_speak"):
-                st.session_state.nav_choice = "🧠 AI Insights"
+            if st.button(_("qa_speak"), use_container_width=True, key="qa_speak"):
+                st.session_state.active_tab_id = "ai"
                 st.rerun()
 
         with qa2:
-            if st.button("🛰️ View Satellite Data\n*Check field health*", use_container_width=True, key="qa_sat"):
-                st.session_state.nav_choice = "🛰️ Satellite View"
+            if st.button(_("qa_sat"), use_container_width=True, key="qa_sat"):
+                st.session_state.active_tab_id = "sat"
                 st.rerun()
-            if st.button("📄 Download Report\n*PDF / JSON / Share*", use_container_width=True, key="qa_down"):
-                st.session_state.nav_choice = "🌐 BRICS Knowledge Hub"
+            if st.button(_("qa_down"), use_container_width=True, key="qa_down"):
+                st.session_state.active_tab_id = "brics"
                 st.rerun()
 
     with col_alt:
         render_html(
-            """
+            f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
-                    <h3 class="card-header-title">🔔 Upcoming & Alerts</h3>
-                    <span class="view-all-link">View all →</span>
+                    <h3 class="card-header-title">{_('upcoming_alerts')}</h3>
+                    <span class="view-all-link">{_('view_all')}</span>
                 </div>
                 
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FEF2F2; border-radius:10px;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#DC2626;">🔴 Field 03 – Water stress risk</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">Today • 9:30 AM</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#DC2626;">{_('alert_1_title')}</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_1_sub')}</div>
                         </div>
                         <span style="color:#DC2626;">›</span>
                     </div>
                     
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FFFBEB; border-radius:10px;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#D97706;">🟡 Field 02 – Soil health decline</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">Today • 11:15 AM</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#D97706;">{_('alert_2_title')}</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_2_sub')}</div>
                         </div>
                         <span style="color:#D97706;">›</span>
                     </div>
                     
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#F0F9FF; border-radius:10px;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#0284C7;">🔵 Rain forecast low (Next 7 days)</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">Plan irrigation for Field 03</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:#0284C7;">{_('alert_3_title')}</div>
+                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_3_sub')}</div>
                         </div>
                         <span style="color:#0284C7;">›</span>
                     </div>
@@ -866,14 +888,14 @@ if st.session_state.nav_choice == "🏠 Home":
     # ROW 4: SUSTAINABILITY BANNER (IMPACT ESTIMATOR)
     # -----------------------------------------------------------------------
     render_html(
-        """
+        f"""
         <div class="impact-banner">
             <div style="max-width: 50%;">
                 <h3 style="margin:0 0 6px 0; font-weight:800; font-size:1.35rem; color:#1B4D3E;">
-                    Let's build a more sustainable future
+                    {_('sustainable_future')}
                 </h3>
                 <p style="margin:0; font-size:0.9rem; color:#374151;">
-                    Regenerative practices today, healthier farms tomorrow.
+                    {_('sustainable_desc')}
                 </p>
             </div>
             
@@ -881,7 +903,7 @@ if st.session_state.nav_choice == "🏠 Home":
                 <div class="impact-chip">
                     <span style="font-size:20px;">🪴</span>
                     <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">Soil Health</div>
+                        <div style="font-size:0.72rem; color:#6B7280;">{_('soil_health')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ 14%</div>
                     </div>
                 </div>
@@ -889,7 +911,7 @@ if st.session_state.nav_choice == "🏠 Home":
                 <div class="impact-chip">
                     <span style="font-size:20px;">💧</span>
                     <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">Water Use</div>
+                        <div style="font-size:0.72rem; color:#6B7280;">{_('water_use')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#0284C7;">↓ -11%</div>
                     </div>
                 </div>
@@ -897,7 +919,7 @@ if st.session_state.nav_choice == "🏠 Home":
                 <div class="impact-chip">
                     <span style="font-size:20px;">🧪</span>
                     <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">Input Dependency</div>
+                        <div style="font-size:0.72rem; color:#6B7280;">{_('input_dep')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↓ -18%</div>
                     </div>
                 </div>
@@ -905,7 +927,7 @@ if st.session_state.nav_choice == "🏠 Home":
                 <div class="impact-chip">
                     <span style="font-size:20px;">🌿</span>
                     <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">Regenerative Score</div>
+                        <div style="font-size:0.72rem; color:#6B7280;">{_('regen_score')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +17%</div>
                     </div>
                 </div>
@@ -915,9 +937,9 @@ if st.session_state.nav_choice == "🏠 Home":
     )
 
     render_html(
-        """
+        f"""
         <div style="text-align: center; color: #9CA3AF; font-size: 0.8rem; padding-bottom: 20px;">
-            <b>faslyn</b> | Smart Agriculture. Stronger Communities.
+            <b>{_('tagline_footer')}</b>
         </div>
         """
     )
@@ -925,8 +947,8 @@ if st.session_state.nav_choice == "🏠 Home":
 # ===========================================================================
 # VIEW 2: SATELLITE VIEW & GROUND TELEMETRY
 # ===========================================================================
-elif st.session_state.nav_choice in ["🌱 My Farms", "🛰️ Satellite View"]:
-    st.markdown("## 🛰️ Satellite & Zero-Sensor Agro-Climatology")
+elif st.session_state.active_tab_id in ["farms", "sat"]:
+    st.markdown(f"## 🛰️ {_('nav_sat')}")
     st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
 
     col_hub_a, col_hub_b = st.columns([1, 2])
@@ -982,10 +1004,10 @@ elif st.session_state.nav_choice in ["🌱 My Farms", "🛰️ Satellite View"]:
     st.markdown("### 📊 Real-Time Environmental Indicators")
 
     s1, s2, s3, s4 = st.columns(4)
-    s1.metric("Soil Moisture (0-7cm)", f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Optimal Field Capacity")
+    s1.metric(_("soil_health"), f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Optimal Field Capacity")
     s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Active")
     s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", "High Photosynthesis")
-    s4.metric("Root-Zone Wetness", f"{satellite.get('root_zone_soil_wetness', 0.42):.2f} (0-1)", "Adequate Deep Moisture")
+    s4.metric(_("water_status"), f"{satellite.get('root_zone_soil_wetness', 0.42):.2f} (0-1)", "Adequate Deep Moisture")
 
     if telemetry.get("trend"):
         with st.expander("📈 24-Hour Ground Weather & Soil Micro-Trend", expanded=False):
@@ -994,37 +1016,31 @@ elif st.session_state.nav_choice in ["🌱 My Farms", "🛰️ Satellite View"]:
 # ===========================================================================
 # VIEW 3: AI INSIGHTS & MULTILINGUAL SPOKEN ADVISOR
 # ===========================================================================
-elif st.session_state.nav_choice == "🧠 AI Insights":
-    st.markdown("## 🧠 AI Extension Officer & Multimodal Diagnosis")
+elif st.session_state.active_tab_id == "ai":
+    st.markdown(f"## 🧠 {_('nav_ai')}")
     st.caption("Powered by xAI Grok API with fallback resilience for live demonstrations.")
 
     tab_voice, tab_vision = st.tabs(["🎙️ Spoken Oral Agro-Advisor", "🩺 Leaf Doctor (Disease Diagnostic)"])
 
     with tab_voice:
         st.subheader("🎙️ Spoken Agro-Advisory")
-        st.write("Grok synthesizes live satellite & soil signals into 3 actionable, jargon-free spoken sentences.")
+        st.write(f"Active spoken language: **{st.session_state.current_language}**")
 
-        c_lang_sel, c_lang_btn = st.columns([1, 2])
-        with c_lang_sel:
-            chosen_lang = st.selectbox("🌐 Choose Language:", list(LANGUAGES.keys()), index=0)
-        with c_lang_btn:
-            st.write("")
-            st.write("")
-            gen_adv = st.button("🎙️ Generate & Speak Advisory", type="primary", use_container_width=True)
+        gen_adv = st.button(f"🎙️ Generate & Speak Advisory in {st.session_state.current_language}", type="primary", use_container_width=True)
 
         if gen_adv:
             client = get_client()
             with st.spinner("Grok is formulating your localized spoken advisory..."):
-                adv = generate_advisory(client, telemetry, chosen_lang, satellite=satellite)
+                adv = generate_advisory(client, telemetry, st.session_state.current_language, satellite=satellite)
             st.session_state.advisory_text = adv
-            st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
+            st.session_state.advisory_lang_code = LANGUAGES[st.session_state.current_language]
             st.session_state.trigger_speech = True
 
         if st.session_state.advisory_text:
             render_html(
                 f"""
                 <div style="background:#FFFFFF; border-left: 5px solid #1B4D3E; border-radius: 12px; padding: 18px; margin-top: 16px;">
-                    <h4 style="margin:0 0 8px 0; color:#1B4D3E;">🗣️ Advisory ({chosen_lang})</h4>
+                    <h4 style="margin:0 0 8px 0; color:#1B4D3E;">🗣️ Advisory ({st.session_state.current_language})</h4>
                     <p style="font-size: 1.15rem; line-height: 1.6; color:#111827; margin:0;">{st.session_state.advisory_text}</p>
                 </div>
                 """
@@ -1083,14 +1099,14 @@ elif st.session_state.nav_choice == "🧠 AI Insights":
 # ===========================================================================
 # VIEW 4: REGENERATIVE PLANNER
 # ===========================================================================
-elif st.session_state.nav_choice == "🔄 Regenerative Plan":
-    st.markdown("## 🔄 Regenerative Crop & Soil Recommendation Engine")
+elif st.session_state.active_tab_id == "regen":
+    st.markdown(f"## 🔄 {_('nav_regen')}")
     st.caption("Replaces chemical monoculture with soil-nourishing companion rotations and organic amendments.")
 
-    if st.button("🌾 Generate Regenerative Crop Plan", type="primary"):
+    if st.button(_("gen_regen_plan"), type="primary"):
         client = get_client()
         with st.spinner("Grok agronomy engine is analyzing soil biology and satellite climatology..."):
-            rec = generate_crop_recommendation(client, telemetry, satellite, "English")
+            rec = generate_crop_recommendation(client, telemetry, satellite, st.session_state.current_language)
         st.session_state.crop_recommendation = rec
 
     rec = st.session_state.crop_recommendation
@@ -1117,10 +1133,10 @@ elif st.session_state.nav_choice == "🔄 Regenerative Plan":
 
         r3, r4 = st.columns(2)
         with r3:
-            st.markdown("**🧪 Organic Soil Amendment**")
+            st.markdown(f"**🧪 {_('soil_health')} Amendment**")
             st.info(rec.get("soil_amendment", "Farmyard Manure + Biochar"))
         with r4:
-            st.markdown("**💧 Smart Irrigation Guidance**")
+            st.markdown(f"**💧 Smart {_('water_status')} Guidance**")
             st.info(rec.get("irrigation_guidance", "Deficit drip irrigation in cool evening"))
 
         render_html(
@@ -1134,8 +1150,8 @@ elif st.session_state.nav_choice == "🔄 Regenerative Plan":
 # ===========================================================================
 # VIEW 5: BRICS KNOWLEDGE HUB (DPG & INTEROPERABILITY)
 # ===========================================================================
-elif st.session_state.nav_choice in ["🌐 BRICS Knowledge Hub", "📊 Impact Tracker"]:
-    st.markdown("## 🌐 BRICS AgriN Interoperability Network")
+elif st.session_state.active_tab_id in ["brics", "impact"]:
+    st.markdown(f"## 🌐 {_('nav_brics')}")
     st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
@@ -1170,6 +1186,7 @@ elif st.session_state.nav_choice in ["🌐 BRICS Knowledge Hub", "📊 Impact Tr
             "provider": "NASA POWER (community=AG)",
         },
         "ai_advisory": {
+            "language": st.session_state.current_language,
             "text": st.session_state.advisory_text,
             "model": "xAI grok-2-latest",
         },
@@ -1190,7 +1207,7 @@ elif st.session_state.nav_choice in ["🌐 BRICS Knowledge Hub", "📊 Impact Tr
     st.json(interop_schema)
 
     st.download_button(
-        "⬇️ Download Node Export Contract (JSON)",
+        f"⬇️ {_('qa_down')}",
         data=json.dumps(interop_schema, indent=2),
         file_name="brics_agrin_node_export.json",
         mime="application/json",
@@ -1200,8 +1217,8 @@ elif st.session_state.nav_choice in ["🌐 BRICS Knowledge Hub", "📊 Impact Tr
 # ===========================================================================
 # VIEW 6: SETTINGS
 # ===========================================================================
-elif st.session_state.nav_choice == "⚙️ Settings":
-    st.markdown("## ⚙️ Platform Settings")
+elif st.session_state.active_tab_id == "settings":
+    st.markdown(f"## ⚙️ {_('nav_settings')}")
     st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
 
     s_col1, s_col2 = st.columns(2)
