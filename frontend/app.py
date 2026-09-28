@@ -14,6 +14,7 @@ import base64
 import json
 import os
 import sys
+import textwrap
 
 # Make the project root importable
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -45,19 +46,31 @@ st.set_page_config(
 )
 
 # ---------------------------------------------------------------------------
+# SAFE HTML RENDERER (Prevents Markdown 4-space code block glitch)
+# ---------------------------------------------------------------------------
+def render_html(html_str: str):
+    """Render HTML safely without Markdown treating indented lines as code blocks."""
+    cleaned = textwrap.dedent(html_str).strip()
+    if hasattr(st, "html"):
+        st.html(cleaned)
+    else:
+        st.markdown(cleaned, unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------------------------
 # CUSTOM CSS FOR THE EXACT DASHBOARD DESIGN
 # ---------------------------------------------------------------------------
-st.markdown(
+render_html(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
     html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
     .stApp {
-        background-color: #F6F9F5;
+        background-color: #F6F9F5 !important;
     }
     
     /* Top Header Bar */
@@ -65,7 +78,7 @@ st.markdown(
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 0 24px 0;
+        padding: 6px 0 16px 0;
     }
     .greeting-title {
         font-size: 1.85rem;
@@ -111,22 +124,21 @@ st.markdown(
     .kpi-card {
         background: #FFFFFF;
         border-radius: 16px;
-        padding: 20px;
+        padding: 18px 20px;
         border: 1px solid #EEF2F6;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.03);
-        height: 100%;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
         display: flex;
         align-items: center;
         gap: 16px;
     }
     .kpi-icon-box {
-        width: 52px;
-        height: 52px;
+        width: 48px;
+        height: 48px;
         border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 22px;
     }
     .icon-green { background: #ECFDF5; color: #059669; }
     .icon-orange { background: #FFFBEB; color: #D97706; }
@@ -139,13 +151,13 @@ st.markdown(
         line-height: 1.2;
     }
     .kpi-label {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 600;
         color: #4B5563;
         margin-bottom: 2px;
     }
     .kpi-subtext {
-        font-size: 0.78rem;
+        font-size: 0.75rem;
         color: #9CA3AF;
         margin: 0;
     }
@@ -154,16 +166,16 @@ st.markdown(
     .dashboard-card {
         background: #FFFFFF;
         border-radius: 20px;
-        padding: 22px;
+        padding: 20px;
         border: 1px solid #EEF2F6;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-        margin-bottom: 20px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        margin-bottom: 16px;
     }
     .card-header-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
     }
     .card-header-title {
         font-size: 1.15rem;
@@ -183,20 +195,20 @@ st.markdown(
     
     /* Progress Bars & Status */
     .metric-bar-container {
-        margin: 10px 0;
+        margin: 8px 0;
     }
     .metric-bar-label {
         display: flex;
         justify-content: space-between;
-        font-size: 0.82rem;
+        font-size: 0.8rem;
         font-weight: 600;
         color: #374151;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
     }
     .metric-bar-bg {
         background-color: #F3F4F6;
         border-radius: 9999px;
-        height: 8px;
+        height: 7px;
         overflow: hidden;
     }
     .metric-bar-fill {
@@ -207,9 +219,9 @@ st.markdown(
     /* Badges */
     .badge {
         display: inline-block;
-        padding: 4px 10px;
+        padding: 3px 8px;
         border-radius: 9999px;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 700;
     }
     .badge-critical { background: #FEE2E2; color: #DC2626; }
@@ -217,39 +229,22 @@ st.markdown(
     .badge-healthy { background: #DCFCE7; color: #16A34A; }
     .badge-info { background: #E0F2FE; color: #0284C7; }
     
-    /* Quick Action Button Tiles */
-    .action-tile {
-        background: #FFFFFF;
-        border: 1px solid #E5E7EB;
-        border-radius: 14px;
-        padding: 16px;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        transition: all 0.2s ease;
-        margin-bottom: 12px;
-    }
-    .action-tile:hover {
-        border-color: #1B4D3E;
-        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.08);
-    }
-    
     /* Sustainability Banner */
     .impact-banner {
         background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
         border: 1px solid #C8E6C9;
         border-radius: 20px;
-        padding: 24px;
+        padding: 22px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-top: 10px;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
     .impact-chip {
         background: #FFFFFF;
         border-radius: 12px;
-        padding: 10px 16px;
+        padding: 8px 14px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -262,7 +257,7 @@ st.markdown(
         color: #FFFFFF !important;
         font-weight: 700 !important;
         border-radius: 9999px !important;
-        padding: 0.5rem 1.5rem !important;
+        padding: 0.45rem 1.4rem !important;
         border: none !important;
         transition: all 0.2s ease !important;
     }
@@ -283,7 +278,7 @@ st.markdown(
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 10px 0 20px 0;
+        padding: 10px 0 16px 0;
     }
     .sidebar-tagline {
         font-size: 0.85rem;
@@ -292,8 +287,7 @@ st.markdown(
         font-style: italic;
     }
     </style>
-    """,
-    unsafe_allow_html=True,
+    """
 )
 
 # ---------------------------------------------------------------------------
@@ -367,13 +361,12 @@ satellite = st.session_state.satellite
 # SIDEBAR — BRANDING & NAVIGATION
 # ===========================================================================
 with st.sidebar:
-    st.markdown(
+    render_html(
         """
         <div class="sidebar-brand">
             🌿 faslyn
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
     nav_options = [
@@ -417,7 +410,7 @@ with st.sidebar:
         st.success("✅ **Grok-2 AI Connected**")
 
     st.markdown("---")
-    st.markdown(
+    render_html(
         """
         <div style="text-align: center; padding: 20px 0;">
             <div style="font-size: 32px; margin-bottom: 6px;">🌱</div>
@@ -425,8 +418,7 @@ with st.sidebar:
                 Healthier Soil<br>Greener Tomorrow<br><b>Together</b>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 # ===========================================================================
@@ -435,7 +427,7 @@ with st.sidebar:
 hdr_left, hdr_right = st.columns([3, 2])
 
 with hdr_left:
-    st.markdown(
+    render_html(
         """
         <div class="top-header">
             <div>
@@ -443,14 +435,13 @@ with hdr_left:
                 <p class="greeting-subtitle">Here's what's happening on your farms today.</p>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 with hdr_right:
     c_bell, c_lang, c_user = st.columns([1, 2, 3])
     with c_bell:
-        st.markdown(
+        render_html(
             """
             <div style="display:flex; justify-content:center; align-items:center; height: 100%; padding-top: 14px;">
                 <div style="position:relative; cursor:pointer; font-size:22px;">
@@ -458,8 +449,7 @@ with hdr_right:
                     <span style="position:absolute; top:-2px; right:-2px; background:#EF4444; color:white; border-radius:50%; width:14px; height:14px; font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700;">1</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
     with c_lang:
         selected_language = st.selectbox(
@@ -469,7 +459,7 @@ with hdr_right:
             label_visibility="collapsed",
         )
     with c_user:
-        st.markdown(
+        render_html(
             """
             <div style="padding-top: 8px;">
                 <div class="header-user-pill">
@@ -480,8 +470,7 @@ with hdr_right:
                     </div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
 # ===========================================================================
@@ -495,7 +484,7 @@ if st.session_state.nav_choice == "🏠 Home":
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
     with kpi1:
-        st.markdown(
+        render_html(
             """
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-green">🏡</div>
@@ -505,12 +494,11 @@ if st.session_state.nav_choice == "🏠 Home":
                     <div class="kpi-subtext">Across 2 farms</div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
     with kpi2:
-        st.markdown(
+        render_html(
             """
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-green">🍃</div>
@@ -520,12 +508,11 @@ if st.session_state.nav_choice == "🏠 Home":
                     <div class="kpi-subtext">50% of total</div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
     with kpi3:
-        st.markdown(
+        render_html(
             """
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-orange">⚠️</div>
@@ -535,12 +522,11 @@ if st.session_state.nav_choice == "🏠 Home":
                     <div class="kpi-subtext">25% of total</div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
     with kpi4:
-        st.markdown(
+        render_html(
             """
             <div class="kpi-card">
                 <div class="kpi-icon-box icon-teal">🪴</div>
@@ -550,11 +536,10 @@ if st.session_state.nav_choice == "🏠 Home":
                     <div class="kpi-subtext" style="color:#059669; font-weight:700;">↑ +6% vs. last month</div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    st.write("")
 
     # -----------------------------------------------------------------------
     # ROW 2: "MY FIELDS" MAP (LEFT) & "AI INSIGHTS" (RIGHT)
@@ -562,7 +547,7 @@ if st.session_state.nav_choice == "🏠 Home":
     mid_left, mid_right = st.columns([2, 1])
 
     with mid_left:
-        st.markdown(
+        render_html(
             """
             <div class="dashboard-card" style="margin-bottom: 0px;">
                 <div class="card-header-row">
@@ -570,8 +555,7 @@ if st.session_state.nav_choice == "🏠 Home":
                     <span class="view-all-link">Interactive Map • View all →</span>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         col_map_inner, col_detail_inner = st.columns([1.35, 1])
@@ -602,15 +586,14 @@ if st.session_state.nav_choice == "🏠 Home":
 
             st_folium(m, height=275, use_container_width=True, key="dashboard_map")
 
-            st.markdown(
+            render_html(
                 """
                 <div style="display:flex; justify-content:center; gap: 16px; font-size: 0.78rem; font-weight:600; color: #4B5563; margin-top: 4px;">
                     <span>🟢 Healthy</span>
                     <span>🟡 Moderate Risk</span>
                     <span>🔴 Critical</span>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         with col_detail_inner:
@@ -618,7 +601,7 @@ if st.session_state.nav_choice == "🏠 Home":
             soil_pct = int(min(100, max(10, (telemetry.get('soil_moisture', 0.24) / 0.40) * 100)))
             water_pct = int(min(100, max(10, (satellite.get('root_zone_soil_wetness', 0.41) / 0.70) * 100)))
 
-            st.markdown(
+            render_html(
                 f"""
                 <div style="background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 16px; padding: 16px; height: 100%;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
@@ -662,8 +645,7 @@ if st.session_state.nav_choice == "🏠 Home":
                         <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: 62%; background: #10B981;"></div></div>
                     </div>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
             if st.button("View Details →", use_container_width=True, key="btn_view_field_details"):
                 st.session_state.nav_choice = "🛰️ Satellite View"
@@ -671,7 +653,7 @@ if st.session_state.nav_choice == "🏠 Home":
 
     with mid_right:
         # AI Insights Card
-        st.markdown(
+        render_html(
             """
             <div class="dashboard-card">
                 <div class="card-header-row">
@@ -704,14 +686,13 @@ if st.session_state.nav_choice == "🏠 Home":
                     </ul>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
         if st.button("Generate Regenerative Plan →", use_container_width=True, key="btn_gen_regen_home"):
             st.session_state.nav_choice = "🔄 Regenerative Plan"
             st.rerun()
 
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    st.write("")
 
     # -----------------------------------------------------------------------
     # ROW 3: FARM OVERVIEW | QUICK ACTIONS | UPCOMING & ALERTS
@@ -719,7 +700,7 @@ if st.session_state.nav_choice == "🏠 Home":
     col_ov, col_act, col_alt = st.columns(3)
 
     with col_ov:
-        st.markdown(
+        render_html(
             """
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
@@ -761,20 +742,18 @@ if st.session_state.nav_choice == "🏠 Home":
                     </div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
     with col_act:
-        st.markdown(
+        render_html(
             """
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
                     <h3 class="card-header-title">⚡ Quick Actions</h3>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
         qa1, qa2 = st.columns(2)
@@ -795,7 +774,7 @@ if st.session_state.nav_choice == "🏠 Home":
                 st.rerun()
 
     with col_alt:
-        st.markdown(
+        render_html(
             """
             <div class="dashboard-card" style="height: 100%;">
                 <div class="card-header-row">
@@ -829,16 +808,15 @@ if st.session_state.nav_choice == "🏠 Home":
                     </div>
                 </div>
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    st.write("")
 
     # -----------------------------------------------------------------------
     # ROW 4: SUSTAINABILITY BANNER (IMPACT ESTIMATOR)
     # -----------------------------------------------------------------------
-    st.markdown(
+    render_html(
         """
         <div class="impact-banner">
             <div style="max-width: 50%;">
@@ -884,17 +862,15 @@ if st.session_state.nav_choice == "🏠 Home":
                 </div>
             </div>
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
-    st.markdown(
+    render_html(
         """
         <div style="text-align: center; color: #9CA3AF; font-size: 0.8rem; padding-bottom: 20px;">
             <b>faslyn</b> | Smart Agriculture. Stronger Communities.
         </div>
-        """,
-        unsafe_allow_html=True,
+        """
     )
 
 # ===========================================================================
@@ -996,14 +972,13 @@ elif st.session_state.nav_choice == "🧠 AI Insights":
             st.session_state.trigger_speech = True
 
         if st.session_state.advisory_text:
-            st.markdown(
+            render_html(
                 f"""
                 <div style="background:#FFFFFF; border-left: 5px solid #1B4D3E; border-radius: 12px; padding: 18px; margin-top: 16px;">
                     <h4 style="margin:0 0 8px 0; color:#1B4D3E;">🗣️ Advisory ({chosen_lang})</h4>
                     <p style="font-size: 1.15rem; line-height: 1.6; color:#111827; margin:0;">{st.session_state.advisory_text}</p>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
             col_rep, _ = st.columns([1, 4])
             with col_rep:
@@ -1073,24 +1048,22 @@ elif st.session_state.nav_choice == "🔄 Regenerative Plan":
     if rec:
         r1, r2 = st.columns(2)
         with r1:
-            st.markdown(
+            render_html(
                 f"""
                 <div class="dashboard-card" style="border-left: 5px solid #16A34A;">
                     <h4>🌱 Recommended Primary Crop</h4>
                     <h2 style="color: #16A34A; margin: 0;">{rec.get('recommended_crop', 'Pearl Millet')}</h2>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
         with r2:
-            st.markdown(
+            render_html(
                 f"""
                 <div class="dashboard-card" style="border-left: 5px solid #0284C7;">
                     <h4>🔁 Companion / Nitrogen-Fixing Rotation</h4>
                     <h2 style="color: #0284C7; margin: 0;">{rec.get('rotation_partner', 'Cowpea / Pigeon Pea')}</h2>
                 </div>
-                """,
-                unsafe_allow_html=True,
+                """
             )
 
         r3, r4 = st.columns(2)
@@ -1101,13 +1074,12 @@ elif st.session_state.nav_choice == "🔄 Regenerative Plan":
             st.markdown("**💧 Smart Irrigation Guidance**")
             st.info(rec.get("irrigation_guidance", "Deficit drip irrigation in cool evening"))
 
-        st.markdown(
+        render_html(
             f"""
             <div style="background: #E8F5E9; border: 1px solid #C8E6C9; padding: 14px 18px; border-radius: 12px; margin-top: 10px;">
                 <b>Agronomic Rationale:</b> {rec.get('rationale', 'C4 grain paired with nitrogen-fixing legume optimizes biological yields.')}
             </div>
-            """,
-            unsafe_allow_html=True,
+            """
         )
 
 # ===========================================================================
