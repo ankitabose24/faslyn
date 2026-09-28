@@ -667,46 +667,52 @@ render_html(
     /* -----------------------------------------------------------------------
        LIGHT-COLORED 3D SPLASH LOADER
        ----------------------------------------------------------------------- */
+    /* -----------------------------------------------------------------------
+       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (3 SECONDS DURATION)
+       ----------------------------------------------------------------------- */
     .faslyn-loader-container {
         position: fixed;
         top: 0;
         left: 0;
         width: 100vw;
         height: 100vh;
-        background: radial-gradient(circle at 50% 45%, #FFFFFF 0%, #F6FAF6 55%, #EDF5EF 100%);
+        background: radial-gradient(circle at 45% 35%, #F0FDF4 0%, #E0F2FE 45%, #E6F7EE 75%, #DCEEFE 100%);
         z-index: 9999999;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.45s ease;
-        animation: faslynFadeOut 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.82s forwards;
-        pointer-events: none;
+        pointer-events: none !important;
+        animation: faslynFadeOut 0.55s cubic-bezier(0.16, 1, 0.3, 1) 3.0s forwards;
     }
 
     .faslyn-loader-card {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
-        border: 1.5px solid rgba(225, 238, 228, 0.95);
-        border-bottom: 4px solid rgba(195, 218, 202, 0.9);
-        border-radius: 26px;
-        padding: 34px 44px;
-        box-shadow: 0 20px 48px -10px rgba(27, 77, 62, 0.1), 0 6px 18px -4px rgba(0, 0, 0, 0.03), inset 0 1px 1px #FFFFFF;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1.5px solid rgba(255, 255, 255, 0.95);
+        border-bottom: 4px solid rgba(165, 214, 200, 0.9);
+        border-radius: 28px;
+        padding: 38px 48px;
+        box-shadow: 0 24px 60px -12px rgba(16, 114, 85, 0.12),
+                    0 10px 25px -6px rgba(2, 132, 199, 0.08),
+                    inset 0 1px 1px #FFFFFF;
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 12px;
-        max-width: 350px;
-        animation: faslynCardPop 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+        gap: 14px;
+        max-width: 360px;
+        animation: faslynCardPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .faslyn-spinner-wrapper {
         position: relative;
-        width: 68px;
-        height: 68px;
+        width: 72px;
+        height: 72px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 2px;
+        margin-bottom: 4px;
     }
 
     .faslyn-spinner-ring {
@@ -714,23 +720,23 @@ render_html(
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 3.5px solid rgba(212, 163, 115, 0.22);
-        border-top: 3.5px solid #D4A373;
-        border-right: 3.5px solid #B5835A;
-        box-shadow: 0 4px 12px rgba(181, 131, 90, 0.22);
-        animation: faslynSpin 0.9s cubic-bezier(0.4, 0.1, 0.4, 0.9) infinite;
+        border: 3.5px solid rgba(16, 185, 129, 0.18);
+        border-top: 3.5px solid #10B981;
+        border-right: 3.5px solid #0284C7;
+        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.22);
+        animation: faslynSpin 1.0s cubic-bezier(0.4, 0.1, 0.4, 0.9) infinite;
     }
 
     .faslyn-spinner-icon {
-        font-size: 30px;
-        animation: faslynPulse 1.3s ease-in-out infinite;
+        font-size: 32px;
+        animation: faslynPulse 1.4s ease-in-out infinite;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
     .faslyn-loader-brand {
-        font-size: 1.6rem;
+        font-size: 1.65rem;
         font-weight: 800;
         color: #1B4D3E;
         letter-spacing: -0.5px;
@@ -738,35 +744,41 @@ render_html(
     }
 
     .faslyn-loader-subtitle {
-        font-size: 0.82rem;
+        font-size: 0.84rem;
         font-weight: 600;
-        color: #6B7280;
+        color: #4B5563;
         line-height: 1.3;
     }
 
     .faslyn-loader-track {
-        width: 170px;
-        height: 5.5px;
-        background: rgba(212, 163, 115, 0.18);
+        width: 190px;
+        height: 6px;
+        background: rgba(2, 132, 199, 0.12);
         border-radius: 9999px;
         overflow: hidden;
         margin-top: 4px;
     }
 
     .faslyn-loader-bar {
-        width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, #D4A373 0%, #10B981 50%, #D4A373 100%);
-        background-size: 200% 100%;
+        background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
         border-radius: 9999px;
-        animation: faslynShimmer 1.1s linear infinite;
+        animation: faslynProgressFill 3.0s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
     }
 
     .faslyn-loader-status {
-        font-size: 0.74rem;
+        font-size: 0.75rem;
         font-weight: 600;
-        color: #9CA3AF;
+        color: #6B7280;
         letter-spacing: 0.2px;
+    }
+
+    @keyframes faslynProgressFill {
+        0% { width: 4%; }
+        25% { width: 35%; }
+        60% { width: 72%; }
+        90% { width: 94%; }
+        100% { width: 100%; }
     }
 
     @keyframes faslynSpin {
@@ -776,22 +788,17 @@ render_html(
 
     @keyframes faslynPulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.12); }
-    }
-
-    @keyframes faslynShimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        50% { transform: scale(1.14); }
     }
 
     @keyframes faslynCardPop {
-        0% { transform: scale(0.92); opacity: 0; }
+        0% { transform: scale(0.9); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
 
     @keyframes faslynFadeOut {
         0% { opacity: 1; visibility: visible; }
-        70% { opacity: 0.8; visibility: visible; }
+        80% { opacity: 0.9; visibility: visible; }
         100% { opacity: 0; visibility: hidden; pointer-events: none; }
     }
 
