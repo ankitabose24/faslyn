@@ -170,21 +170,27 @@ render_html(
         margin-bottom: 0;
     }
     
-    /* Profile & Language Header Pill */
+    /* Profile & Language Header Pill - Subtle 3D Depth */
     .header-user-pill {
         display: inline-flex;
         align-items: center;
         gap: 10px;
-        background: #FFFFFF;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
         padding: 6px 14px;
         border-radius: 9999px;
         border: 1px solid #E5E7EB;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        border-bottom: 2.5px solid #D1D5DB;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .header-user-pill:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08), inset 0 1px 0 #FFFFFF;
     }
     .user-avatar {
         width: 32px;
         height: 32px;
-        background: #DCFCE7;
+        background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
         color: #15803D;
         border-radius: 50%;
         display: flex;
@@ -192,18 +198,27 @@ render_html(
         justify-content: center;
         font-weight: 700;
         font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 2px 4px rgba(21, 128, 61, 0.15), inset 0 1px 1px #FFFFFF;
     }
     
-    /* KPI Metric Cards */
+    /* KPI Metric Cards - Tactile Soft 3D Elevation */
     .kpi-card {
-        background: #FFFFFF;
-        border-radius: 16px;
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
+        border-radius: 18px;
         padding: 18px 20px;
-        border: 1px solid #EEF2F6;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        border: 1px solid rgba(226, 235, 229, 0.95);
+        border-bottom: 3.5px solid rgba(200, 218, 206, 0.9);
+        box-shadow: 0 5px 14px -3px rgba(27, 77, 62, 0.06), 0 2px 5px -1px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
         display: flex;
         align-items: center;
         gap: 16px;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kpi-card:hover {
+        transform: translateY(-3px) scale(1.006);
+        border-bottom-color: rgba(181, 131, 90, 0.55);
+        box-shadow: 0 14px 28px -4px rgba(27, 77, 62, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 1);
     }
     .kpi-icon-box {
         width: 48px;
@@ -213,10 +228,18 @@ render_html(
         align-items: center;
         justify-content: center;
         font-size: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), inset 0 1.5px 1px rgba(255, 255, 255, 0.9);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .icon-green { background: #ECFDF5; color: #059669; }
-    .icon-orange { background: #FFFBEB; color: #D97706; }
-    .icon-teal { background: #F0FDFA; color: #0D9488; }
+    .kpi-card:hover .kpi-icon-box {
+        transform: translateY(-2px) scale(1.08) rotate(-2deg);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px #FFFFFF;
+    }
+    .icon-green { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); color: #059669; }
+    .icon-orange { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); color: #D97706; }
+    .icon-teal { background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%); color: #0D9488; }
     
     .kpi-val {
         font-size: 1.75rem;
@@ -236,14 +259,20 @@ render_html(
         margin: 0;
     }
     
-    /* Section Cards */
+    /* Section Cards - Soft 3D Elevation */
     .dashboard-card {
-        background: #FFFFFF;
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
         border-radius: 20px;
         padding: 20px;
-        border: 1px solid #EEF2F6;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+        border: 1px solid rgba(228, 236, 231, 0.95);
+        border-bottom: 3.5px solid rgba(200, 218, 206, 0.85);
+        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
         margin-bottom: 16px;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dashboard-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.1), 0 5px 10px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px #FFFFFF;
     }
     .card-header-row {
         display: flex;
@@ -303,10 +332,11 @@ render_html(
     .badge-healthy { background: #DCFCE7; color: #16A34A; }
     .badge-info { background: #E0F2FE; color: #0284C7; }
     
-    /* Sustainability Banner */
+    /* Sustainability Banner - 3D Soft Elevation */
     .impact-banner {
         background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
         border: 1px solid #C8E6C9;
+        border-bottom: 3.5px solid #A5D6A7;
         border-radius: 20px;
         padding: 22px;
         display: flex;
@@ -314,26 +344,40 @@ render_html(
         align-items: center;
         margin-top: 10px;
         margin-bottom: 20px;
+        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.08), inset 0 1px 1px #FFFFFF;
+        transition: all 0.25s ease;
+    }
+    .impact-banner:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px #FFFFFF;
     }
     .impact-chip {
-        background: #FFFFFF;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%);
         border-radius: 12px;
         padding: 8px 14px;
         display: flex;
         align-items: center;
         gap: 10px;
         border: 1px solid #E5E7EB;
+        border-bottom: 2px solid #D1D5DB;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04), inset 0 1px 0 #FFFFFF;
+        transition: all 0.2s ease;
+    }
+    .impact-chip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
     }
     
-    /* Primary Action Buttons - Light Brown Theme with High Visibility Text */
+    /* Primary Action Buttons - 3D Tactile Light Brown Theme */
     .stButton > button,
     button[data-testid="baseButton-primary"] {
-        background-color: #D4A373 !important;
-        border: 1.5px solid #C4925E !important;
+        background: linear-gradient(180deg, #DEAE7F 0%, #D4A373 50%, #C4925E 100%) !important;
+        border: 1px solid #B5804D !important;
+        border-bottom: 3.5px solid #9C683E !important;
         border-radius: 9999px !important;
         padding: 0.45rem 1.4rem !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 0 2px 6px rgba(181, 131, 90, 0.2) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: 0 4px 10px rgba(181, 131, 90, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
     }
     .stButton > button *,
     .stButton > button p,
@@ -349,22 +393,23 @@ render_html(
     }
     .stButton > button:hover,
     button[data-testid="baseButton-primary"]:hover {
-        background-color: #C89664 !important;
-        border-color: #B5804D !important;
-        box-shadow: 0 4px 14px rgba(181, 131, 90, 0.35) !important;
-        transform: translateY(-1px) !important;
+        background: linear-gradient(180deg, #E8BC90 0%, #DCAE7E 50%, #CC9A66 100%) !important;
+        border-color: #A97442 !important;
+        box-shadow: 0 7px 18px rgba(181, 131, 90, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+        transform: translateY(-2px) !important;
     }
     .stButton > button:hover *,
     button[data-testid="baseButton-primary"]:hover * {
         color: #110A03 !important;
     }
-    /* Click / Active state: Light Shade of Brown */
+    /* Click / Active state: Tactile 3D Physical Push Down */
     .stButton > button:active,
     .stButton > button[data-testid="baseButton-primary"]:active {
-        background-color: #B57F4D !important;
-        border-color: #9C683E !important;
-        box-shadow: 0 2px 8px rgba(181, 131, 90, 0.45) !important;
-        transform: scale(0.98) !important;
+        background: #B57F4D !important;
+        border-color: #8C5B32 !important;
+        border-bottom-width: 1.5px !important;
+        box-shadow: 0 1px 4px rgba(181, 131, 90, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(2px) !important;
     }
     .stButton > button:active *,
     button[data-testid="baseButton-primary"]:active * {
@@ -388,6 +433,7 @@ render_html(
         justify-content: flex-end !important;
         display: inline-flex !important;
         padding: 4px 10px !important;
+        transition: all 0.2s ease !important;
     }
     .stButton > button[kind="tertiary"] *,
     .stButton > button[data-testid="baseButton-tertiary"] * {
@@ -399,6 +445,7 @@ render_html(
     .stButton > button[data-testid="baseButton-tertiary"]:hover {
         background-color: #F8F3EE !important;
         box-shadow: none !important;
+        transform: translateX(2px) !important;
     }
     .stButton > button[kind="tertiary"]:hover *,
     .stButton > button[data-testid="baseButton-tertiary"]:hover * {
@@ -415,19 +462,20 @@ render_html(
         color: #2E1504 !important;
     }
     
-    /* Secondary / Back Buttons - Enhanced Presentable Style */
+    /* Secondary / Back Buttons - 3D Tactile Glass Style */
     .stButton > button[kind="secondary"],
     .stButton > button[data-testid="baseButton-secondary"] {
-        background-color: #FFFFFF !important;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%) !important;
         border: 1.5px solid #D4A373 !important;
+        border-bottom: 3px solid #B57F4D !important;
         font-size: 0.88rem !important;
         padding: 0.42rem 1.25rem !important;
         border-radius: 9999px !important;
-        box-shadow: 0 1px 4px rgba(181, 131, 90, 0.1) !important;
+        box-shadow: 0 2px 6px rgba(181, 131, 90, 0.12), inset 0 1px 0 #FFFFFF !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     .stButton > button[kind="secondary"] *,
     .stButton > button[kind="secondary"] p,
@@ -438,10 +486,10 @@ render_html(
     }
     .stButton > button[kind="secondary"]:hover,
     .stButton > button[data-testid="baseButton-secondary"]:hover {
-        background-color: #F8F3EE !important;
+        background: #FFFDFC !important;
         border-color: #B57F4D !important;
-        box-shadow: 0 4px 12px rgba(181, 131, 90, 0.2) !important;
-        transform: translateY(-1px) !important;
+        box-shadow: 0 6px 14px rgba(181, 131, 90, 0.22), inset 0 1px 0 #FFFFFF !important;
+        transform: translateY(-2px) !important;
     }
     .stButton > button[kind="secondary"]:hover *,
     .stButton > button[data-testid="baseButton-secondary"]:hover * {
@@ -451,18 +499,23 @@ render_html(
     .stButton > button[data-testid="baseButton-secondary"]:active {
         background-color: #D4A373 !important;
         border-color: #B57F4D !important;
-        box-shadow: 0 2px 8px rgba(181, 131, 90, 0.4) !important;
-        transform: scale(0.98) !important;
+        border-bottom-width: 1px !important;
+        box-shadow: 0 1px 3px rgba(181, 131, 90, 0.3) !important;
+        transform: translateY(2px) !important;
     }
     .stButton > button[kind="secondary"]:active *,
     .stButton > button[data-testid="baseButton-secondary"]:active * {
         color: #1E1208 !important;
     }
 
-    /* Tabs Styling */
+    /* Tabs Styling - 3D Accent Line */
     button[data-baseweb="tab"] {
         font-weight: 600 !important;
         color: #4B5563 !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"]:hover {
+        color: #111827 !important;
     }
     button[data-baseweb="tab"][aria-selected="true"] {
         color: #633811 !important;
@@ -474,69 +527,113 @@ render_html(
     }
     div[data-baseweb="tab-highlight"] {
         background-color: #C49A6C !important;
+        height: 3px !important;
+        border-radius: 9999px !important;
+        box-shadow: 0 1px 4px rgba(196, 154, 108, 0.4) !important;
     }
 
-    /* Notification Bell Popover Styling */
+    /* Notification Bell Popover Styling - 3D Tactile Pill */
     div[data-testid="stPopover"] {
         display: flex;
         align-items: center;
         justify-content: center;
     }
     div[data-testid="stPopover"] > button {
-        background-color: #FFFFFF !important;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%) !important;
         color: #111827 !important;
         border: 1.5px solid #E5E7EB !important;
+        border-bottom: 2.5px solid #D1D5DB !important;
         border-radius: 9999px !important;
         padding: 0.38rem 0.75rem !important;
         font-size: 0.92rem !important;
         font-weight: 700 !important;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 #FFFFFF !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
         cursor: pointer !important;
     }
     div[data-testid="stPopover"] > button:hover {
-        background-color: #F8F3EE !important;
+        background: #F8F3EE !important;
         border-color: #B5835A !important;
         color: #7D4E27 !important;
-        box-shadow: 0 3px 8px rgba(181, 131, 90, 0.2) !important;
+        box-shadow: 0 5px 12px rgba(181, 131, 90, 0.22), inset 0 1px 0 #FFFFFF !important;
+        transform: translateY(-1.5px) !important;
     }
     div[data-testid="stPopover"] > button:active {
         background-color: #B5835A !important;
         color: #FFFFFF !important;
         border-color: #9C683E !important;
-        transform: scale(0.96) !important;
+        border-bottom-width: 1px !important;
+        transform: translateY(1.5px) !important;
+        box-shadow: 0 1px 3px rgba(181, 131, 90, 0.35) !important;
     }
     div[data-testid="stPopoverBody"] {
-        border-radius: 16px !important;
+        border-radius: 18px !important;
         border: 1px solid #E5E7EB !important;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+        border-bottom: 3px solid #D1D5DB !important;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.05) !important;
         padding: 16px !important;
     }
 
-    /* Radio button active/click selection styling */
+    /* Radio button active/click selection styling - 3D Tactile Highlight */
+    div[data-testid="stRadio"] div[role="radiogroup"] > label {
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        padding: 8px 14px !important;
+        border-radius: 12px !important;
+        margin-bottom: 4px !important;
+        border: 1px solid transparent !important;
+    }
     div[data-testid="stRadio"] div[role="radiogroup"] > label:hover {
-        background-color: #F8F3EE !important;
-        border-radius: 8px !important;
+        background-color: #F4EFEB !important;
+        transform: translateX(3px) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
     }
     div[data-testid="stRadio"] div[role="radiogroup"] > label:active {
         background-color: #EBDCCF !important;
-        border-radius: 8px !important;
+        transform: translateX(1px) !important;
     }
     div[data-testid="stRadio"] label:has(input:checked) {
-        background-color: #F8F3EE !important;
-        border-radius: 8px !important;
+        background: linear-gradient(135deg, #FAF4EF 0%, #F3E8DE 100%) !important;
+        border: 1px solid rgba(212, 163, 115, 0.4) !important;
+        border-left: 4px solid #B5835A !important;
+        border-bottom: 2px solid rgba(181, 131, 90, 0.35) !important;
+        border-radius: 12px !important;
         color: #7D4E27 !important;
         font-weight: 700 !important;
+        box-shadow: 0 3px 8px rgba(181, 131, 90, 0.12), inset 0 1px 0 #ffffff !important;
+        transform: translateX(2px) !important;
     }
     div[data-testid="stRadio"] input:checked + div {
         border-color: #B5835A !important;
         background-color: #B5835A !important;
+        box-shadow: 0 2px 5px rgba(181, 131, 90, 0.3) !important;
     }
 
-    /* Input focus styling */
-    input:focus, textarea:focus, select:focus {
+    /* Input and Form Fields - 3D Inset Depth */
+    .stTextInput > div > div {
+        background: #FFFFFF !important;
+        border-radius: 14px !important;
+        border: 1.5px solid #DDE5DF !important;
+        border-bottom: 2.5px solid #C5D4C9 !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .stTextInput > div > div:focus-within {
         border-color: #B5835A !important;
-        box-shadow: 0 0 0 2px rgba(181, 131, 90, 0.25) !important;
+        border-bottom: 3px solid #9C683E !important;
+        box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.25), 0 6px 14px rgba(0, 0, 0, 0.06) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    /* 3D Map Viewport Frame */
+    iframe {
+        border-radius: 18px !important;
+        border: 1.5px solid rgba(220, 232, 224, 0.95) !important;
+        border-bottom: 3.5px solid rgba(185, 205, 192, 0.95) !important;
+        box-shadow: 0 10px 25px -4px rgba(27, 77, 62, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.04) !important;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    iframe:hover {
+        box-shadow: 0 16px 36px -4px rgba(27, 77, 62, 0.15), 0 6px 14px -2px rgba(0, 0, 0, 0.05) !important;
     }
     
     /* Sidebar Styling */
@@ -1132,7 +1229,7 @@ if st.session_state.active_tab_id == "home":
             focus_field = min(fields_data, key=lambda x: x["score"])
             render_html(
                 f"""
-                <div style="background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 16px; padding: 16px; height: 100%;">
+                <div style="background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%); border: 1.5px solid rgba(228, 236, 231, 0.95); border-bottom: 3.5px solid rgba(200, 218, 206, 0.85); border-radius: 18px; padding: 18px; height: 100%; box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), inset 0 1px 1px #ffffff; transition: all 0.25s ease;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
                         <h4 style="margin:0; font-weight:800; font-size:1.15rem; color:#111827;">{focus_field['name']}</h4>
                         <span class="badge {focus_field['badge_class']}">{focus_field['badge_label']}</span>
@@ -1237,7 +1334,7 @@ if st.session_state.active_tab_id == "home":
 
         cards_html = "".join([
             f"""
-            <div style="background: #FAFCFA; border: 1px solid #EEF2F6; border-radius: 12px; padding: 10px;">
+            <div style="background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFA 100%); border: 1.5px solid #E5EBE7; border-bottom: 2.5px solid #D5E0D8; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03), inset 0 1px 0 #ffffff; transition: all 0.22s ease;">
                 <div style="display:flex; align-items:center; justify-content:space-between;">
                     <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
                         <span style="color:{f['dot_color']};">●</span> {f['name']}
@@ -1295,28 +1392,28 @@ if st.session_state.active_tab_id == "home":
             f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FEF2F2; border-radius:10px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #FEF2F2 0%, #FEE8E8 100%); border: 1px solid #FECACA; border-bottom: 2.5px solid #FCA5A5; border-radius:12px; box-shadow: 0 2px 5px rgba(220, 38, 38, 0.06); transition: all 0.2s ease;">
                         <div>
                             <div style="font-size:0.82rem; font-weight:700; color:#DC2626;">{_('alert_1_title')}</div>
                             <div style="font-size:0.72rem; color:#6B7280;">{_('alert_1_sub')} • {fields_data[2]['score']}% health</div>
                         </div>
-                        <span style="color:#DC2626;">›</span>
+                        <span style="color:#DC2626; font-weight:bold;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#FFFBEB; border-radius:10px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A; border-bottom: 2.5px solid #FCD34D; border-radius:12px; box-shadow: 0 2px 5px rgba(217, 119, 6, 0.06); transition: all 0.2s ease;">
                         <div>
                             <div style="font-size:0.82rem; font-weight:700; color:#D97706;">{_('alert_2_title')}</div>
                             <div style="font-size:0.72rem; color:#6B7280;">{_('alert_2_sub')} • {fields_data[1]['score']}% health</div>
                         </div>
-                        <span style="color:#D97706;">›</span>
+                        <span style="color:#D97706; font-weight:bold;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#F0F9FF; border-radius:10px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%); border: 1px solid #BAE6FD; border-bottom: 2.5px solid #7DD3FC; border-radius:12px; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.06); transition: all 0.2s ease;">
                         <div>
                             <div style="font-size:0.82rem; font-weight:700; color:#0284C7;">{_('alert_3_title')}</div>
                             <div style="font-size:0.72rem; color:#6B7280;">{_('alert_3_sub')} • {live_precip:.1f} mm/d</div>
                         </div>
-                        <span style="color:#0284C7;">›</span>
+                        <span style="color:#0284C7; font-weight:bold;">›</span>
                     </div>
                 </div>
             </div>

@@ -13,4 +13,5 @@ enableXsrfProtection = false
 
 [client]
 toolbarMode = "minimal"
+hideMenu = true
 
