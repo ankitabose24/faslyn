@@ -78,6 +78,8 @@ TRANSLATIONS = {
         "back_to_home": "← Back to Dashboard",
         "back_btn": "← Back",
         "refresh": "Sync Live Feeds",
+        "search_placeholder": "Search village, city, district, or coordinates (e.g. Sambalpur, Nairobi, Mato Grosso)...",
+        "search_guide_btn": "🔎 Search & Guide Map",
     },
     "Hindi": {
         "greeting": "🙏 नमस्ते, किसान भाई!",
@@ -145,6 +147,8 @@ TRANSLATIONS = {
         "back_to_home": "← मुख्य डैशबोर्ड पर वापस जाएं",
         "back_btn": "← वापस जाएं",
         "refresh": "लाइव डेटा सिंक",
+        "search_placeholder": "गाँव, शहर, जिला या स्थान खोजें (जैसे संबलपुर, पंजाब, नैरोबी)...",
+        "search_guide_btn": "🔎 खोजें और मैप देखें",
     },
     "Odia": {
         "greeting": "🙏 ନମସ୍କାର, ଚାଷୀ ଭାଇ!",
@@ -212,6 +216,8 @@ TRANSLATIONS = {
         "back_to_home": "← ମୁଖ୍ୟ ଡ୍ୟାସବୋର୍ଡକୁ ଫେରନ୍ତୁ",
         "back_btn": "← ପଛକୁ ଫେରନ୍ତୁ",
         "refresh": "ଲାଇଭ ଡାଟା ସିଙ୍କ",
+        "search_placeholder": "ଗାଁ, ସହର, ଜିଲ୍ଲା କିମ୍ବା ସ୍ଥାନ ଖୋଜନ୍ତୁ (ଯେପରି ସମ୍ବଲପୁର, କଟକ)...",
+        "search_guide_btn": "🔎 ଖୋଜନ୍ତୁ ଓ ମାନଚିତ୍ର ଦେଖନ୍ତୁ",
     },
     "Portuguese": {
         "greeting": "🙏 Olá & Namastê, Produtor Rural!",
@@ -279,6 +285,8 @@ TRANSLATIONS = {
         "back_to_home": "← Voltar ao Painel Principal",
         "back_btn": "← Voltar",
         "refresh": "Sincronizar Ao Vivo",
+        "search_placeholder": "Buscar cidade, distrito, fazenda ou região (ex. Campinas, Mato Grosso)...",
+        "search_guide_btn": "🔎 Buscar e Guiar Mapa",
     },
     "Russian": {
         "greeting": "🙏 Здравствуйте & Намасте, Фермер!",
@@ -346,6 +354,8 @@ TRANSLATIONS = {
         "back_to_home": "← Назад на главную панель",
         "back_btn": "← Назад",
         "refresh": "Синхронизация данных",
+        "search_placeholder": "Поиск села, города, района или региона (напр., Краснодар, Казань)...",
+        "search_guide_btn": "🔎 Найти и перейти на карту",
     },
     "Swahili": {
         "greeting": "🙏 Habari & Namaste, Mkulima!",
@@ -413,6 +423,8 @@ TRANSLATIONS = {
         "back_to_home": "← Rudi kwenye Dashibodi Kuu",
         "back_btn": "← Rudi Nyuma",
         "refresh": "Sawazisha Data Moja kwa Moja",
+        "search_placeholder": "Tafuta kijiji, mji, wilaya, au eneo la shamba (k.m. Nairobi, Limpopo)...",
+        "search_guide_btn": "🔎 Tafuta na Elekeza Ramani",
     },
     "Mandarin": {
         "greeting": "🙏 您好 & 问候，农户朋友！",
@@ -480,6 +492,8 @@ TRANSLATIONS = {
         "back_to_home": "← 返回控制面板",
         "back_btn": "← 返回",
         "refresh": "同步实时数据",
+        "search_placeholder": "搜索村庄、城市、区县或农业产区（如 黑龙江、松原、新德里）...",
+        "search_guide_btn": "🔎 搜索并定位地图",
     },
 }
 

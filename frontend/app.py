@@ -38,6 +38,7 @@ import importlib
 import backend.translations
 importlib.reload(backend.translations)
 from backend.translations import t
+from backend.geocoding import geocode_location
 from frontend.tts import speak_text
 
 # ---------------------------------------------------------------------------
@@ -1035,6 +1036,28 @@ if st.session_state.active_tab_id == "home":
             if st.button(_("view_all"), key="btn_view_all_fields", type="tertiary", use_container_width=True):
                 navigate_to("sat")
 
+        with st.form("home_quick_loc_search", clear_on_submit=False):
+            hs1, hs2 = st.columns([3.4, 1.3], vertical_alignment="center")
+            with hs1:
+                home_loc_q = st.text_input(
+                    "Search Farmland Location",
+                    placeholder=_("search_placeholder"),
+                    key="home_loc_input",
+                    label_visibility="collapsed",
+                )
+            with hs2:
+                home_loc_sub = st.form_submit_button(_("search_guide_btn"), type="primary", use_container_width=True)
+
+        if home_loc_sub and home_loc_q:
+            with st.spinner(f"Guiding map to '{home_loc_q}'..."):
+                r_loc = geocode_location(home_loc_q)
+            if r_loc:
+                st.session_state.last_guided_location = r_loc["display_name"]
+                set_coords(r_loc["lat"], r_loc["lon"], zoom=13, hub_name=f"📍 {r_loc['short_name']}")
+                st.rerun()
+            else:
+                st.error(f"❌ Location '{home_loc_q}' not found.")
+
         col_map_inner, col_detail_inner = st.columns([1.35, 1])
 
         with col_map_inner:
@@ -1363,6 +1386,79 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     st.markdown(f"## {_('nav_sat')}")
     st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
 
+    # -----------------------------------------------------------------------
+    # LIVE LOCATION SEARCH & MAP GUIDANCE BAR
+    # -----------------------------------------------------------------------
+    render_html(
+        f"""
+        <div style="background: linear-gradient(135deg, #F0FDF4 0%, #E8F5E9 100%); border: 1px solid #C8E6C9; border-radius: 14px; padding: 12px 18px; margin-bottom: 12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:800; font-size:1.02rem; color:#1B4D3E;">
+                    <span>🔍</span> Live Farmland Location Search & Map Guidance
+                </div>
+                <span style="font-size:0.72rem; background:#DCFCE7; color:#166534; padding:3px 10px; border-radius:9999px; font-weight:700;">
+                    ● LIVE OPENSTREETMAP & NASA FEEDS
+                </span>
+            </div>
+            <div style="font-size:0.8rem; color:#4B5563; margin-top:4px;">
+                Search any village, district, city, or global agricultural coordinate. The interactive map will automatically pan and guide to that location with live satellite & soil telemetry.
+            </div>
+        </div>
+        """
+    )
+
+    with st.form("sat_loc_search_form", clear_on_submit=False):
+        sc1, sc2 = st.columns([3.8, 1.3], vertical_alignment="center")
+        with sc1:
+            sat_search_q = st.text_input(
+                "Search Location",
+                placeholder=_("search_placeholder"),
+                key="sat_loc_input",
+                label_visibility="collapsed",
+            )
+        with sc2:
+            sat_search_sub = st.form_submit_button(_("search_guide_btn"), type="primary", use_container_width=True)
+
+    if sat_search_sub and sat_search_q:
+        with st.spinner(f"Locating '{sat_search_q}' and fetching live satellite data..."):
+            found_loc = geocode_location(sat_search_q)
+        if found_loc:
+            st.session_state.last_guided_location = found_loc["display_name"]
+            set_coords(
+                found_loc["lat"],
+                found_loc["lon"],
+                zoom=13,
+                hub_name=f"📍 {found_loc['short_name']}",
+            )
+            st.rerun()
+        else:
+            st.error(f"❌ Could not find location for '{sat_search_q}'. Please try a broader city, district, or region name.")
+
+    # Quick Jump Chips
+    sug_cols = st.columns(5)
+    popular_sugs = [
+        ("🌾 Sambalpur (Odisha)", "Sambalpur, Odisha, India"),
+        ("🌽 Mato Grosso (Brazil)", "Mato Grosso, Brazil"),
+        ("🚜 Punjab Grain Belt", "Ludhiana, Punjab, India"),
+        ("🌻 Krasnodar (Russia)", "Krasnodar, Russia"),
+        ("🌱 Heilongjiang (China)", "Harbin, Heilongjiang, China"),
+    ]
+    for idx, (sug_label, sug_query) in enumerate(popular_sugs):
+        with sug_cols[idx]:
+            if st.button(sug_label, key=f"btn_pop_sug_{idx}", type="tertiary", use_container_width=True):
+                res_sug = geocode_location(sug_query)
+                if res_sug:
+                    st.session_state.last_guided_location = res_sug["display_name"]
+                    set_coords(
+                        res_sug["lat"],
+                        res_sug["lon"],
+                        zoom=13,
+                        hub_name=f"📍 {res_sug['short_name']}",
+                    )
+                    st.rerun()
+
+    st.write("")
+
     col_hub_a, col_hub_b = st.columns([1, 2])
     with col_hub_a:
         st.markdown("#### 📍 Select BRICS Agricultural Belt")
@@ -1375,12 +1471,19 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
         if st.button("📍 Snap Map to Selected Hub", use_container_width=True):
             h_data = BRICS_HUBS[selected_hub]
             set_coords(h_data["lat"], h_data["lon"], h_data["zoom"], selected_hub)
+            st.session_state.last_guided_location = selected_hub
             st.rerun()
 
+        st.markdown("---")
+        st.markdown(f"**Current Farmland:** `{st.session_state.selected_hub_name}`")
+        if st.session_state.get("last_guided_location"):
+            st.caption(f"🎯 *{st.session_state.last_guided_location}*")
+
         st.code(
-            f"Latitude:  {st.session_state.coords['lat']:.4f}\nLongitude: {st.session_state.coords['lon']:.4f}",
+            f"Latitude:  {st.session_state.coords['lat']:.4f}\nLongitude: {st.session_state.coords['lon']:.4f}\nZoom Level: {st.session_state.zoom}",
             language="text",
         )
+        st.caption("💡 *Tip: Search above, select a hub, or click anywhere on the map to pin any custom farmland!*")
 
     with col_hub_b:
         m_sat = folium.Map(
@@ -1398,18 +1501,30 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
         folium.Marker(
             [st.session_state.coords["lat"], st.session_state.coords["lon"]],
-            popup="Active Field",
+            popup=f"Active Farmland: {st.session_state.selected_hub_name}",
+            tooltip=f"🎯 Active Farmland ({st.session_state.coords['lat']:.4f}, {st.session_state.coords['lon']:.4f})",
             icon=folium.Icon(color="red", icon="crosshairs", prefix="fa"),
         ).add_to(m_sat)
 
-        map_interaction = st_folium(m_sat, height=350, use_container_width=True, key="sat_view_map")
+        folium.Circle(
+            location=[st.session_state.coords["lat"], st.session_state.coords["lon"]],
+            radius=1500,
+            color="#10B981",
+            fill=True,
+            fill_color="#10B981",
+            fill_opacity=0.2,
+            tooltip="Active Live Telemetry Catchment (1.5 km)",
+        ).add_to(m_sat)
+
+        map_interaction = st_folium(m_sat, height=390, use_container_width=True, key="sat_view_map")
         if map_interaction and map_interaction.get("last_clicked"):
             c_clicked = map_interaction["last_clicked"]
             if (
                 round(c_clicked["lat"], 4) != round(st.session_state.coords["lat"], 4)
                 or round(c_clicked["lng"], 4) != round(st.session_state.coords["lon"], 4)
             ):
-                set_coords(c_clicked["lat"], c_clicked["lng"], hub_name="Custom Pinpoint")
+                set_coords(c_clicked["lat"], c_clicked["lng"], zoom=14, hub_name=f"📍 Manual Pinpoint ({c_clicked['lat']:.2f}, {c_clicked['lng']:.2f})")
+                st.session_state.last_guided_location = f"Manual Pinpoint ({c_clicked['lat']:.4f}, {c_clicked['lng']:.4f})"
                 st.rerun()
 
     st.markdown("---")
