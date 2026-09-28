@@ -13,7 +13,7 @@ Supports 7 BRICS languages:
 
 TRANSLATIONS = {
     "English": {
-        "greeting": "🌱 Good Morning, Farmer!",
+        "greeting": "🙏 Hello & Namaste, Farmer!",
         "subtitle": "Here's what's happening on your farms today.",
         "farmer_role": "Farmer",
         "total_fields": "Total Fields",
@@ -77,9 +77,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ Settings",
         "back_to_home": "← Back to Dashboard",
         "back_btn": "← Back",
+        "refresh": "Sync Live Feeds",
     },
     "Hindi": {
-        "greeting": "🌱 शुभ प्रभात, किसान भाई!",
+        "greeting": "🙏 नमस्ते, किसान भाई!",
         "subtitle": "आज आपके खेतों की स्थिति यहाँ देखें।",
         "farmer_role": "किसान",
         "total_fields": "कुल खेत",
@@ -143,9 +144,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ सेटिंग्स (Settings)",
         "back_to_home": "← मुख्य डैशबोर्ड पर वापस जाएं",
         "back_btn": "← वापस जाएं",
+        "refresh": "लाइव डेटा सिंक",
     },
     "Odia": {
-        "greeting": "🌱 ଶୁଭ ସକାଳ, ଚାଷୀ ଭାଇ!",
+        "greeting": "🙏 ନମସ୍କାର, ଚାଷୀ ଭାଇ!",
         "subtitle": "ଆଜି ଆପଣଙ୍କ ଚାଷଜମିର ସ୍ଥିତି ଏଠାରେ ଦେଖନ୍ତୁ।",
         "farmer_role": "କୃଷକ",
         "total_fields": "ମୋଟ ଜମି",
@@ -209,9 +211,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ ସେଟିଙ୍ଗ୍ସ",
         "back_to_home": "← ମୁଖ୍ୟ ଡ୍ୟାସବୋର୍ଡକୁ ଫେରନ୍ତୁ",
         "back_btn": "← ପଛକୁ ଫେରନ୍ତୁ",
+        "refresh": "ଲାଇଭ ଡାଟା ସିଙ୍କ",
     },
     "Portuguese": {
-        "greeting": "🌱 Bom dia, Produtor!",
+        "greeting": "🙏 Olá & Namastê, Produtor Rural!",
         "subtitle": "Aqui está o que está acontecendo em suas lavouras hoje.",
         "farmer_role": "Agricultor",
         "total_fields": "Total de Lavouras",
@@ -275,9 +278,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ Configurações",
         "back_to_home": "← Voltar ao Painel Principal",
         "back_btn": "← Voltar",
+        "refresh": "Sincronizar Ao Vivo",
     },
     "Russian": {
-        "greeting": "🌱 Доброе утро, Фермер!",
+        "greeting": "🙏 Здравствуйте & Намасте, Фермер!",
         "subtitle": "Вот текущее состояние ваших полей на сегодня.",
         "farmer_role": "Фермер",
         "total_fields": "Всего полей",
@@ -341,9 +345,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ Настройки",
         "back_to_home": "← Назад на главную панель",
         "back_btn": "← Назад",
+        "refresh": "Синхронизация данных",
     },
     "Swahili": {
-        "greeting": "🌱 Habari za Asubuhi, Mkulima!",
+        "greeting": "🙏 Habari & Namaste, Mkulima!",
         "subtitle": "Huu ndio muhtasari wa mashamba yako leo.",
         "farmer_role": "Mkulima",
         "total_fields": "Jumla ya Mashamba",
@@ -407,9 +412,10 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ Mipangilio",
         "back_to_home": "← Rudi kwenye Dashibodi Kuu",
         "back_btn": "← Rudi Nyuma",
+        "refresh": "Sawazisha Data Moja kwa Moja",
     },
     "Mandarin": {
-        "greeting": "🌱 早上好，农户朋友！",
+        "greeting": "🙏 您好 & 问候，农户朋友！",
         "subtitle": "以下是您农场今日的最新土壤与作物动态。",
         "farmer_role": "农户",
         "total_fields": "地块总数",
@@ -473,6 +479,7 @@ TRANSLATIONS = {
         "nav_settings": "⚙️ 系统设置",
         "back_to_home": "← 返回控制面板",
         "back_btn": "← 返回",
+        "refresh": "同步实时数据",
     },
 }
 
