@@ -338,6 +338,27 @@ render_html(
         box-shadow: none !important;
     }
     
+    /* Secondary / Back Buttons */
+    .stButton > button[kind="secondary"],
+    .stButton > button[data-testid="baseButton-secondary"] {
+        background-color: #FFFFFF !important;
+        color: #1B4D3E !important;
+        border: 1.5px solid #1B4D3E !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+        padding: 0.4rem 1.1rem !important;
+        border-radius: 9999px !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button[kind="secondary"]:hover,
+    .stButton > button[data-testid="baseButton-secondary"]:hover {
+        background-color: #F0FDF4 !important;
+        color: #143B2F !important;
+        border-color: #143B2F !important;
+        box-shadow: 0 2px 8px rgba(27, 77, 62, 0.15) !important;
+    }
+    
     /* Sidebar Styling */
     section[data-testid="stSidebar"] {
         background-color: #F8FAF7 !important;
@@ -393,11 +414,36 @@ if "active_leaf_image" not in st.session_state:
     st.session_state.active_leaf_image = None
 if "sample_label" not in st.session_state:
     st.session_state.sample_label = None
+if "nav_stack" not in st.session_state:
+    st.session_state.nav_stack = ["home"]
 
 
 def _(key: str) -> str:
     """Translate string key into active session language."""
     return t(key, st.session_state.current_language)
+
+
+def navigate_to(tab_id: str):
+    """Navigate to a target section and push to history stack."""
+    if not st.session_state.get("nav_stack"):
+        st.session_state.nav_stack = ["home"]
+    if st.session_state.nav_stack[-1] != tab_id:
+        st.session_state.nav_stack.append(tab_id)
+    st.session_state.active_tab_id = tab_id
+    st.rerun()
+
+
+def navigate_back():
+    """Navigate back to the previous section in history, or to home."""
+    stack = st.session_state.get("nav_stack", ["home"])
+    if len(stack) > 1:
+        stack.pop()  # pop current
+        prev_tab = stack[-1]
+        st.session_state.active_tab_id = prev_tab
+    else:
+        st.session_state.active_tab_id = "home"
+        st.session_state.nav_stack = ["home"]
+    st.rerun()
 
 
 def set_coords(lat, lon, zoom=None, hub_name=None):
@@ -477,8 +523,12 @@ with st.sidebar:
     )
     new_tab_id = label_to_id.get(chosen_label, "home")
     if new_tab_id != st.session_state.active_tab_id:
-        st.session_state.active_tab_id = new_tab_id
-        st.rerun()
+        if new_tab_id == "home":
+            st.session_state.nav_stack = ["home"]
+            st.session_state.active_tab_id = "home"
+            st.rerun()
+        else:
+            navigate_to(new_tab_id)
 
     st.markdown("---")
 
@@ -517,16 +567,35 @@ with st.sidebar:
 hdr_left, hdr_right = st.columns([3, 2])
 
 with hdr_left:
-    render_html(
-        f"""
-        <div class="top-header">
-            <div>
-                <h1 class="greeting-title">{_('greeting')}</h1>
-                <p class="greeting-subtitle">{_('subtitle')}</p>
+    if st.session_state.active_tab_id == "home":
+        render_html(
+            f"""
+            <div class="top-header">
+                <div>
+                    <h1 class="greeting-title">{_('greeting')}</h1>
+                    <p class="greeting-subtitle">{_('subtitle')}</p>
+                </div>
             </div>
-        </div>
-        """
-    )
+            """
+        )
+    else:
+        b_c1, b_c2 = st.columns([1.8, 3.2], vertical_alignment="center")
+        with b_c1:
+            if st.button(_("back_to_home"), key="global_header_back", type="secondary", use_container_width=True):
+                navigate_back()
+        with b_c2:
+            current_title = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
+            render_html(
+                f"""
+                <div style="padding-top: 4px;">
+                    <div style="font-size: 0.88rem; color: #6B7280; font-weight:600;">
+                        <span>🏠 {_('nav_home')}</span>
+                        <span style="margin: 0 6px; color:#9CA3AF;">›</span>
+                        <span style="color: #1B4D3E; font-weight:800;">{current_title}</span>
+                    </div>
+                </div>
+                """
+            )
 
 with hdr_right:
     c_bell, c_lang, c_user = st.columns([1, 2.5, 3])
@@ -649,8 +718,7 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("my_fields")}</h3>')
         with mf_c2:
             if st.button(_("view_all"), key="btn_view_all_fields", type="tertiary", use_container_width=True):
-                st.session_state.active_tab_id = "sat"
-                st.rerun()
+                navigate_to("sat")
 
         col_map_inner, col_detail_inner = st.columns([1.35, 1])
 
@@ -739,8 +807,7 @@ if st.session_state.active_tab_id == "home":
                 """
             )
             if st.button(_("view_details_btn"), use_container_width=True, key="btn_view_field_details"):
-                st.session_state.active_tab_id = "sat"
-                st.rerun()
+                navigate_to("sat")
 
     with mid_right:
         ai_c1, ai_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
@@ -748,8 +815,7 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("ai_insights")}</h3>')
         with ai_c2:
             if st.button(_("view_all"), key="btn_view_all_ai", type="tertiary", use_container_width=True):
-                st.session_state.active_tab_id = "ai"
-                st.rerun()
+                navigate_to("ai")
 
         render_html(
             f"""
@@ -782,8 +848,7 @@ if st.session_state.active_tab_id == "home":
             """
         )
         if st.button(_("gen_regen_plan"), use_container_width=True, key="btn_gen_regen_home"):
-            st.session_state.active_tab_id = "regen"
-            st.rerun()
+            navigate_to("regen")
 
     st.write("")
 
@@ -798,8 +863,7 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("farm_overview")}</h3>')
         with fo_c2:
             if st.button(_("view_all"), key="btn_view_all_fo", type="tertiary", use_container_width=True):
-                st.session_state.active_tab_id = "farms"
-                st.rerun()
+                navigate_to("farms")
 
         render_html(
             f"""
@@ -855,19 +919,15 @@ if st.session_state.active_tab_id == "home":
         qa1, qa2 = st.columns(2)
         with qa1:
             if st.button(_("qa_upload"), use_container_width=True, key="qa_upload"):
-                st.session_state.active_tab_id = "ai"
-                st.rerun()
+                navigate_to("ai")
             if st.button(_("qa_speak"), use_container_width=True, key="qa_speak"):
-                st.session_state.active_tab_id = "ai"
-                st.rerun()
+                navigate_to("ai")
 
         with qa2:
             if st.button(_("qa_sat"), use_container_width=True, key="qa_sat"):
-                st.session_state.active_tab_id = "sat"
-                st.rerun()
+                navigate_to("sat")
             if st.button(_("qa_down"), use_container_width=True, key="qa_down"):
-                st.session_state.active_tab_id = "brics"
-                st.rerun()
+                navigate_to("brics")
 
     with col_alt:
         ua_c1, ua_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
@@ -875,8 +935,7 @@ if st.session_state.active_tab_id == "home":
             render_html(f'<h3 class="card-header-title">{_("upcoming_alerts")}</h3>')
         with ua_c2:
             if st.button(_("view_all"), key="btn_view_all_alerts", type="tertiary", use_container_width=True):
-                st.session_state.active_tab_id = "ai"
-                st.rerun()
+                navigate_to("ai")
 
         render_html(
             f"""
@@ -965,8 +1024,7 @@ if st.session_state.active_tab_id == "home":
     )
 
     if st.button(f"🌱 {_('gen_regen_plan')}", key="btn_banner_regen_all", use_container_width=True):
-        st.session_state.active_tab_id = "regen"
-        st.rerun()
+        navigate_to("regen")
 
     st.write("")
 
@@ -982,7 +1040,12 @@ if st.session_state.active_tab_id == "home":
 # VIEW 2: SATELLITE VIEW & GROUND TELEMETRY
 # ===========================================================================
 elif st.session_state.active_tab_id in ["farms", "sat"]:
-    st.markdown(f"## 🛰️ {_('nav_sat')}")
+    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
+    with top_nav1:
+        if st.button(_("back_to_home"), key="back_sat_top", type="secondary", use_container_width=True):
+            navigate_back()
+    with top_nav2:
+        st.markdown(f"## 🛰️ {_('nav_sat')}")
     st.caption("Live NASA POWER satellite reanalysis & Open-Meteo modeled topsoil parameters.")
 
     col_hub_a, col_hub_b = st.columns([1, 2])
@@ -1047,11 +1110,25 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
         with st.expander("📈 24-Hour Ground Weather & Soil Micro-Trend", expanded=False):
             st.dataframe(telemetry["trend"], use_container_width=True)
 
+    st.markdown("---")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    with bot_b1:
+        if st.button(_("back_to_home"), key="back_sat_bot", type="secondary", use_container_width=True):
+            navigate_back()
+    with bot_b2:
+        if st.button(f"🧠 {_('nav_ai')} →", key="fwd_sat_to_ai", type="primary"):
+            navigate_to("ai")
+
 # ===========================================================================
 # VIEW 3: AI INSIGHTS & MULTILINGUAL SPOKEN ADVISOR
 # ===========================================================================
 elif st.session_state.active_tab_id == "ai":
-    st.markdown(f"## 🧠 {_('nav_ai')}")
+    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
+    with top_nav1:
+        if st.button(_("back_to_home"), key="back_ai_top", type="secondary", use_container_width=True):
+            navigate_back()
+    with top_nav2:
+        st.markdown(f"## 🧠 {_('nav_ai')}")
     st.caption("Powered by xAI Grok API with fallback resilience for live demonstrations.")
 
     tab_voice, tab_vision = st.tabs(["🎙️ Spoken Oral Agro-Advisor", "🩺 Leaf Doctor (Disease Diagnostic)"])
@@ -1130,11 +1207,25 @@ elif st.session_state.active_tab_id == "ai":
                     st.markdown("#### 📋 Diagnostic Report & Organic Remedy")
                     st.info(st.session_state.diagnosis_text)
 
+    st.markdown("---")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    with bot_b1:
+        if st.button(_("back_to_home"), key="back_ai_bot", type="secondary", use_container_width=True):
+            navigate_back()
+    with bot_b2:
+        if st.button(f"🔄 {_('nav_regen')} →", key="fwd_ai_to_regen", type="primary"):
+            navigate_to("regen")
+
 # ===========================================================================
 # VIEW 4: REGENERATIVE PLANNER
 # ===========================================================================
 elif st.session_state.active_tab_id == "regen":
-    st.markdown(f"## 🔄 {_('nav_regen')}")
+    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
+    with top_nav1:
+        if st.button(_("back_to_home"), key="back_regen_top", type="secondary", use_container_width=True):
+            navigate_back()
+    with top_nav2:
+        st.markdown(f"## 🔄 {_('nav_regen')}")
     st.caption("Replaces chemical monoculture with soil-nourishing companion rotations and organic amendments.")
 
     if st.button(_("gen_regen_plan"), type="primary"):
@@ -1181,11 +1272,25 @@ elif st.session_state.active_tab_id == "regen":
             """
         )
 
+    st.markdown("---")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    with bot_b1:
+        if st.button(_("back_to_home"), key="back_regen_bot", type="secondary", use_container_width=True):
+            navigate_back()
+    with bot_b2:
+        if st.button(f"🌐 {_('nav_brics')} →", key="fwd_regen_to_brics", type="primary"):
+            navigate_to("brics")
+
 # ===========================================================================
 # VIEW 5: BRICS KNOWLEDGE HUB (DPG & INTEROPERABILITY)
 # ===========================================================================
 elif st.session_state.active_tab_id in ["brics", "impact"]:
-    st.markdown(f"## 🌐 {_('nav_brics')}")
+    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
+    with top_nav1:
+        if st.button(_("back_to_home"), key="back_brics_top", type="secondary", use_container_width=True):
+            navigate_back()
+    with top_nav2:
+        st.markdown(f"## 🌐 {_('nav_brics')}")
     st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
@@ -1248,11 +1353,25 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         type="primary",
     )
 
+    st.markdown("---")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    with bot_b1:
+        if st.button(_("back_to_home"), key="back_brics_bot", type="secondary", use_container_width=True):
+            navigate_back()
+    with bot_b2:
+        if st.button(f"⚙️ {_('nav_settings')} →", key="fwd_brics_to_settings", type="primary"):
+            navigate_to("settings")
+
 # ===========================================================================
 # VIEW 6: SETTINGS
 # ===========================================================================
 elif st.session_state.active_tab_id == "settings":
-    st.markdown(f"## ⚙️ {_('nav_settings')}")
+    top_nav1, top_nav2 = st.columns([1.5, 4], vertical_alignment="center")
+    with top_nav1:
+        if st.button(_("back_to_home"), key="back_settings_top", type="secondary", use_container_width=True):
+            navigate_back()
+    with top_nav2:
+        st.markdown(f"## ⚙️ {_('nav_settings')}")
     st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
 
     s_col1, s_col2 = st.columns(2)
@@ -1265,3 +1384,7 @@ elif st.session_state.active_tab_id == "settings":
 
     if st.button("Save Settings", type="primary"):
         st.success("Settings saved successfully!")
+
+    st.markdown("---")
+    if st.button(_("back_to_home"), key="back_settings_bot", type="secondary"):
+        navigate_back()

@@ -75,6 +75,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 Impact Tracker",
         "nav_brics": "🌐 BRICS Knowledge Hub",
         "nav_settings": "⚙️ Settings",
+        "back_to_home": "← Back to Dashboard",
+        "back_btn": "← Back",
     },
     "Hindi": {
         "greeting": "🌱 शुभ प्रभात, किसान भाई!",
@@ -139,6 +141,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 प्रभाव ट्रैकर (Impact Tracker)",
         "nav_brics": "🌐 ब्रिक्स ज्ञान केंद्र (BRICS Hub)",
         "nav_settings": "⚙️ सेटिंग्स (Settings)",
+        "back_to_home": "← मुख्य डैशबोर्ड पर वापस जाएं",
+        "back_btn": "← वापस जाएं",
     },
     "Odia": {
         "greeting": "🌱 ଶୁଭ ସକାଳ, ଚାଷୀ ଭାଇ!",
@@ -203,6 +207,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 ପ୍ରଭାବ ଟ୍ରାକର୍",
         "nav_brics": "🌐 ବ୍ରିକ୍ସ ନେଟୱାର୍କ",
         "nav_settings": "⚙️ ସେଟିଙ୍ଗ୍ସ",
+        "back_to_home": "← ମୁଖ୍ୟ ଡ୍ୟାସବୋର୍ଡକୁ ଫେରନ୍ତୁ",
+        "back_btn": "← ପଛକୁ ଫେରନ୍ତୁ",
     },
     "Portuguese": {
         "greeting": "🌱 Bom dia, Produtor!",
@@ -267,6 +273,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 Monitor de Impacto",
         "nav_brics": "🌐 Rede BRICS",
         "nav_settings": "⚙️ Configurações",
+        "back_to_home": "← Voltar ao Painel Principal",
+        "back_btn": "← Voltar",
     },
     "Russian": {
         "greeting": "🌱 Доброе утро, Фермер!",
@@ -331,6 +339,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 Влияние и эффект",
         "nav_brics": "🌐 Сеть БРИКС",
         "nav_settings": "⚙️ Настройки",
+        "back_to_home": "← Назад на главную панель",
+        "back_btn": "← Назад",
     },
     "Swahili": {
         "greeting": "🌱 Habari za Asubuhi, Mkulima!",
@@ -395,6 +405,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 Athari na Matokeo",
         "nav_brics": "🌐 Mtandao wa BRICS",
         "nav_settings": "⚙️ Mipangilio",
+        "back_to_home": "← Rudi kwenye Dashibodi Kuu",
+        "back_btn": "← Rudi Nyuma",
     },
     "Mandarin": {
         "greeting": "🌱 早上好，农户朋友！",
@@ -459,6 +471,8 @@ TRANSLATIONS = {
         "nav_impact": "📊 减碳增效追踪",
         "nav_brics": "🌐 金砖数字农业网络",
         "nav_settings": "⚙️ 系统设置",
+        "back_to_home": "← 返回控制面板",
+        "back_btn": "← 返回",
     },
 }
 
