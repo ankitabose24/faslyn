@@ -98,10 +98,22 @@ render_html(
     
     /* Top Streamlit App Header bar */
     header[data-testid="stHeader"] {
-        background-color: #F6F9F5 !important;
+        background-color: transparent !important;
     }
-    header[data-testid="stHeader"] * {
-        color: #111827 !important;
+    
+    /* Hide Deploy button, 3-dots Menu, and Streamlit Footer */
+    .stAppDeployButton,
+    [data-testid="stAppDeployButton"],
+    #MainMenu,
+    [data-testid="stToolbar"],
+    [data-testid="stToolbarActions"],
+    footer {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
     
     /* Sidebar text colors */
