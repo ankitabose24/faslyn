@@ -805,7 +805,7 @@ with hdr_right:
         unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
         bell_label = f"🔔 {unread_count}" if unread_count > 0 else "🔔"
         with st.popover(bell_label, help=_("upcoming_alerts"), use_container_width=True):
-            st.markdown(f"#### 🔔 {_('upcoming_alerts')}")
+            st.markdown(f"#### {_('upcoming_alerts')}")
             if unread_count > 0:
                 st.caption(f"{unread_count} unread notifications")
             else:
