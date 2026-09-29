@@ -1915,6 +1915,45 @@ def render_login_page():
             border-color: #10B981;
             background: #F0FDF4;
         }
+        div[data-testid="column"]:empty {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 0 !important;
+        }
+        /* Style the Demo Popover Icon button on Login page */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button {
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%) !important;
+            border: 1.5px solid #10B981 !important;
+            border-bottom: 2.5px solid #059669 !important;
+            border-radius: 9999px !important;
+            color: #047857 !important;
+            font-weight: 800 !important;
+            font-size: 0.84rem !important;
+            padding: 4px 14px !important;
+            min-height: 36px !important;
+            height: 36px !important;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25) !important;
+            cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button:hover {
+            background: #A7F3D0 !important;
+            border-color: #047857 !important;
+            transform: translateY(-1.5px) scale(1.04) !important;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+        }
+        /* Popover dropdown container inside login page */
+        div[data-testid="stPopoverBody"] {
+            min-width: 320px !important;
+            max-width: 380px !important;
+            border-radius: 18px !important;
+            border: 1.5px solid #BBF7D0 !important;
+            border-bottom: 3.5px solid #10B981 !important;
+            box-shadow: 0 16px 36px -4px rgba(16, 114, 85, 0.2) !important;
+            padding: 16px !important;
+            background: #FFFFFF !important;
+        }
         </style>
         """
     )
@@ -1931,16 +1970,94 @@ def render_login_page():
                     BRICS Sovereign Agricultural Intelligence Network
                 </span>
             </div>
-            <h2 style="font-size: 1.6rem; font-weight: 800; color: #111827; margin: 12px 0 0 0;">
-                Cooperative Farmer Sign-In
-            </h2>
         </div>
         """
     )
 
-    col_left, col_right = st.columns([1, 1], gap="large")
+    col_spacer_l, col_center, col_spacer_r = st.columns([0.20, 0.60, 0.20])
 
-    with col_left:
+    with col_center:
+        col_title, col_demo_icon = st.columns([3.6, 1.2], vertical_alignment="center")
+        with col_title:
+            render_html(
+                """
+                <h2 style="font-size: 1.55rem; font-weight: 800; color: #111827; margin: 0; line-height: 1.25;">
+                    Cooperative Farmer Sign-In
+                </h2>
+                """
+            )
+        with col_demo_icon:
+            with st.popover("⚡ Demo", help="1-Click Instant Demo Login", use_container_width=True):
+                render_html(
+                    """
+                    <div style="padding: 2px 0 6px 0;">
+                        <div style="font-weight: 800; font-size: 1.05rem; color: #111827;">⚡ 1-Click Demo Profile</div>
+                        <div style="font-size: 0.76rem; color: #6B7280; margin-top: 2px;">Instant login with pre-configured BRICS agricultural telemetry</div>
+                    </div>
+                    """
+                )
+
+                ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
+                if not ramesh_profile and len(DEMO_PROFILES) > 0:
+                    ramesh_profile = [DEMO_PROFILES[0]]
+
+                for idx, prof in enumerate(ramesh_profile):
+                    render_html(
+                        f"""
+                        <div class="demo-card-item">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="width:34px; height:34px; border-radius:50%; background:#10B981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.82rem;">
+                                        {prof['avatar']}
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:700; font-size:0.88rem; color:#111827;">{prof['flag']} {prof['name']}</div>
+                                        <div style="font-size:0.72rem; color:#6B7280;">{prof['role']} · {prof['region']}</div>
+                                    </div>
+                                </div>
+                                <span style="font-size:0.7rem; font-weight:700; background:#ECFDF5; color:#047857; padding:2px 8px; border-radius:9999px; border:1px solid #A7F3D0;">
+                                    {prof['badge']}
+                                </span>
+                            </div>
+                            <div style="font-size:0.72rem; color:#4B5563; margin-top:5px; padding-left:44px;">
+                                🌾 <b>Crops:</b> {prof['crops']}
+                            </div>
+                        </div>
+                        """
+                    )
+                    if st.button(f"Enter as {prof['name']} ({prof['flag']}) →", key=f"quick_demo_btn_{idx}", use_container_width=True, type="primary"):
+                        st.session_state.is_authenticated = True
+                        st.session_state.just_logged_in = True
+                        st.session_state.show_login_loader = False
+                        st.session_state.user_name = prof["name"]
+                        st.session_state.user_avatar = prof["avatar"]
+                        st.session_state.user_role = prof["role"]
+                        st.session_state.user_phone = prof["phone"]
+                        st.session_state.user_region = prof["region"]
+                        st.session_state.farmer_id = prof["id"]
+                        st.session_state.selected_hub_name = prof["hub"]
+                        st.session_state.coords = {"lat": BRICS_HUBS[prof["hub"]]["lat"], "lon": BRICS_HUBS[prof["hub"]]["lon"]}
+                        st.session_state.zoom = BRICS_HUBS[prof["hub"]]["zoom"]
+                        st.session_state.current_language = prof["lang"]
+                        st.session_state.advisory_lang_code = LANGUAGES[prof["lang"]]
+                        st.session_state.active_tab_id = "home"
+                        st.session_state.nav_stack = ["home"]
+
+                        try:
+                            upsert_farmer(
+                                prof["id"],
+                                prof["phone"],
+                                prof["name"],
+                                prof["region"],
+                                prof["role"],
+                                prof["hub"],
+                            )
+                        except Exception:
+                            pass
+
+                        st.rerun()
+
+        render_html('<div style="height: 10px;"></div>')
 
         login_name = st.text_input(
             "Farmer Full Name",
@@ -2055,93 +2172,25 @@ def render_login_page():
 
             st.rerun()
 
-    with col_right:
-        render_html(
-            """
-            <div class="login-card-head">⚡ 1-Click Demo Profile</div>
-            <div class="login-card-sub">Instant login with pre-configured BRICS agricultural telemetry</div>
-            """
-        )
-
-        ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
-        if not ramesh_profile and len(DEMO_PROFILES) > 0:
-            ramesh_profile = [DEMO_PROFILES[0]]
-
-        for idx, prof in enumerate(ramesh_profile):
-            render_html(
-                f"""
-                <div class="demo-card-item">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="width:34px; height:34px; border-radius:50%; background:#10B981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.82rem;">
-                                {prof['avatar']}
-                            </div>
-                            <div>
-                                <div style="font-weight:700; font-size:0.88rem; color:#111827;">{prof['flag']} {prof['name']}</div>
-                                <div style="font-size:0.72rem; color:#6B7280;">{prof['role']} · {prof['region']}</div>
-                            </div>
-                        </div>
-                        <span style="font-size:0.7rem; font-weight:700; background:#ECFDF5; color:#047857; padding:2px 8px; border-radius:9999px; border:1px solid #A7F3D0;">
-                            {prof['badge']}
-                        </span>
-                    </div>
-                    <div style="font-size:0.72rem; color:#4B5563; margin-top:5px; padding-left:44px;">
-                        🌾 <b>Crops:</b> {prof['crops']}
-                    </div>
-                </div>
-                """
-            )
-            if st.button(f"Enter as {prof['name']} ({prof['flag']}) →", key=f"quick_demo_btn_{idx}", use_container_width=True):
-                st.session_state.is_authenticated = True
-                st.session_state.just_logged_in = True
-                st.session_state.show_login_loader = False
-                st.session_state.user_name = prof["name"]
-                st.session_state.user_avatar = prof["avatar"]
-                st.session_state.user_role = prof["role"]
-                st.session_state.user_phone = prof["phone"]
-                st.session_state.user_region = prof["region"]
-                st.session_state.farmer_id = prof["id"]
-                st.session_state.selected_hub_name = prof["hub"]
-                st.session_state.coords = {"lat": BRICS_HUBS[prof["hub"]]["lat"], "lon": BRICS_HUBS[prof["hub"]]["lon"]}
-                st.session_state.zoom = BRICS_HUBS[prof["hub"]]["zoom"]
-                st.session_state.current_language = prof["lang"]
-                st.session_state.advisory_lang_code = LANGUAGES[prof["lang"]]
-                st.session_state.active_tab_id = "home"
-                st.session_state.nav_stack = ["home"]
-
-                try:
-                    upsert_farmer(
-                        prof["id"],
-                        prof["phone"],
-                        prof["name"],
-                        prof["region"],
-                        prof["role"],
-                        prof["hub"],
-                    )
-                except Exception:
-                    pass
-
-                st.rerun()
-
     render_html(
         """
-        <div style="margin-top: 32px; padding: 18px 24px; background: #FFFFFF; border: 1px solid #E2EBE5; border-radius: 16px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+        <div style="margin-top: 28px; padding: 16px 20px; background: #FFFFFF; border: 1px solid #E2EBE5; border-radius: 16px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:1.4rem;">🔒</span>
+                <span style="font-size:1.3rem;">🔒</span>
                 <div>
                     <div style="font-weight:700; font-size:0.82rem; color:#111827;">Sovereign Security</div>
                     <div style="font-size:0.72rem; color:#6B7280;">ODbL 1.0 Open Data Public Good</div>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:1.4rem;">🛰️</span>
+                <span style="font-size:1.3rem;">🛰️</span>
                 <div>
                     <div style="font-weight:700; font-size:0.82rem; color:#111827;">Zero-Sensor Telemetry</div>
                     <div style="font-size:0.72rem; color:#6B7280;">NASA POWER & Open-Meteo Feeds</div>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:1.4rem;">📞</span>
+                <span style="font-size:1.3rem;">📞</span>
                 <div>
                     <div style="font-weight:700; font-size:0.82rem; color:#111827;">Kisan Helpline</div>
                     <div style="font-size:0.72rem; color:#6B7280;">Toll-Free: 1800-180-1551</div>
