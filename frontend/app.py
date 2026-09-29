@@ -138,10 +138,10 @@ _trigger_background_prewarm()
 # PAGE CONFIGURATION
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="faslyn | Smart Agriculture. Stronger Communities.",
+    page_title="Faslyn",
     page_icon="🌱",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="auto",
 )
 
 # ---------------------------------------------------------------------------
@@ -183,6 +183,13 @@ render_html(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+    /* =======================================================================
+       1. GLOBAL BASE STYLES (All Viewports & Screen Sizes)
+       ======================================================================= */
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
+
     html, body, [class*="css"], .stApp {
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
         background-color: #F6F9F5 !important;
@@ -191,8 +198,35 @@ render_html(
         max-width: 100vw !important;
         -webkit-tap-highlight-color: transparent !important;
     }
-    
-    /* Global Metric Cards (Consistent elevation on all screens) */
+
+    /* Wrap code and JSON blocks to prevent sideways blowout */
+    pre, code, [data-testid="stCodeBlock"] {
+        white-space: pre-wrap !important;
+        word-break: break-all !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Responsive DataFrames, Tables, and Charts */
+    [data-testid="stDataFrame"],
+    [data-testid="stTable"],
+    [data-testid="stVegaLiteChart"],
+    [data-testid="stPlotlyChart"],
+    [data-testid="stArrowVegaLiteChart"] {
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    /* Responsive Images */
+    img, [data-testid="stImage"] img {
+        max-width: 100% !important;
+        height: auto !important;
+        object-fit: contain !important;
+    }
+
+    /* Global Metric Cards (Consistent tactile elevation) */
     [data-testid="stMetric"] {
         background: #FFFFFF !important;
         border: 1.5px solid #E5EBE7 !important;
@@ -208,7 +242,7 @@ render_html(
         color: #4B5563 !important;
     }
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
-        font-size: 1.30rem !important;
+        font-size: clamp(1.10rem, 3.5vw, 1.35rem) !important;
         font-weight: 800 !important;
         color: #111827 !important;
     }
@@ -216,13 +250,6 @@ render_html(
         font-size: 0.72rem !important;
     }
 
-    /* Wrap code and JSON blocks to prevent sideways mobile blowouts */
-    pre, code, [data-testid="stCodeBlock"] {
-        white-space: pre-wrap !important;
-        word-break: break-all !important;
-        max-width: 100% !important;
-    }
-    
     /* High-contrast dark text everywhere */
     p, span, label, h1, h2, h3, h4, h5, h6,
     [data-testid="stMarkdownContainer"] p,
@@ -234,14 +261,14 @@ render_html(
     [data-testid="stWidgetLabel"] span {
         color: #111827 !important;
     }
-    
+
     /* Top Streamlit App Header bar */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
         z-index: 99999 !important;
     }
-    
-    /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar Actions (Share, GitHub, Edit, Star), Badges and Footer */
+
+    /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar Actions, Badges, and Footer */
     .stAppDeployButton,
     [data-testid="stAppDeployButton"],
     #MainMenu,
@@ -255,7 +282,8 @@ render_html(
     button[kind="manageApp"],
     [class*="manageApp"],
     [class*="viewerBadge"],
-    div[data-testid="stStatusWidget"] {
+    div[data-testid="stStatusWidget"],
+    div[data-testid="stSidebarResizeHandle"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -264,7 +292,7 @@ render_html(
         pointer-events: none !important;
     }
 
-    /* Ensure Sidebar Collapse/Expand Toggle is ALWAYS visible and clickable */
+    /* Ensure Sidebar Collapse/Expand Toggle is ALWAYS visible and tactile */
     div[data-testid="stSidebarCollapsedControl"],
     button[data-testid="stExpandSidebarButton"],
     button[data-testid="stSidebarCollapseButton"],
@@ -298,6 +326,8 @@ render_html(
         box-shadow: 0 4px 14px rgba(27, 77, 62, 0.16) !important;
         padding: 6px 12px !important;
         cursor: pointer !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
     }
     div[data-testid="stSidebarCollapsedControl"] button:hover,
     button[data-testid="stSidebarCollapseButton"]:hover,
@@ -312,13 +342,17 @@ render_html(
         color: #1B4D3E !important;
     }
 
-    /* Sidebar Base Background & Content Padding */
+    /* Sidebar Base Background & Typography */
     section[data-testid="stSidebar"] {
         background-color: #F8FAF7 !important;
         border-right: 1.5px solid #E2EAE4 !important;
+        overflow-x: hidden !important;
     }
-    div[data-testid="stSidebarUserContent"] {
+    div[data-testid="stSidebarUserContent"],
+    div[data-testid="stSidebarContent"] {
+        background-color: #F8FAF7 !important;
         padding: 1.1rem 0.85rem !important;
+        overflow-x: hidden !important;
     }
     section[data-testid="stSidebar"] p,
     section[data-testid="stSidebar"] span,
@@ -331,581 +365,29 @@ render_html(
         margin-top: 0.4rem !important;
         margin-bottom: 0.2rem !important;
     }
-    
-    /* Radio options in sidebar and main page */
-    div[role="radiogroup"] label {
-        color: #1F2937 !important;
-        font-weight: 600 !important;
-    }
-    div[role="radiogroup"] label p {
-        color: #1F2937 !important;
-        font-weight: 600 !important;
-    }
-    div[role="radiogroup"] label span {
-        color: #1F2937 !important;
-    }
-    
-    /* Input and text fields */
-    .stTextInput input, .stSelectbox div {
-        color: #111827 !important;
-        background-color: #FFFFFF !important;
-    }
-    
-    /* Top Header Bar */
-    .top-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 6px 0 16px 0;
-    }
-    .greeting-title {
-        font-size: 1.85rem;
+    .sidebar-brand {
+        font-size: 1.35rem;
         font-weight: 800;
-        color: #111827;
-        margin: 0;
+        color: #1B4D3E !important;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+        padding: 4px 0 10px 0;
     }
-    .greeting-subtitle {
-        font-size: 0.95rem;
-        color: #6B7280;
-        margin-top: 4px;
-        margin-bottom: 0;
-    }
-    
-    /* Profile & Language Header Pill - Subtle 3D Depth */
-    .header-user-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
-        padding: 6px 14px;
-        border-radius: 9999px;
-        border: 1px solid #E5E7EB;
-        border-bottom: 2.5px solid #D1D5DB;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .header-user-pill:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(0,0,0,0.08), inset 0 1px 0 #FFFFFF;
-    }
-    .user-avatar {
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
-        color: #15803D;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.85);
-        box-shadow: 0 2px 4px rgba(21, 128, 61, 0.15), inset 0 1px 1px #FFFFFF;
-    }
-    
-    /* KPI Metric Cards - Tactile Soft 3D Elevation */
-    .kpi-card {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
-        border-radius: 18px;
-        padding: 18px 20px;
-        border: 1px solid rgba(226, 235, 229, 0.95);
-        border-bottom: 3.5px solid rgba(200, 218, 206, 0.9);
-        box-shadow: 0 5px 14px -3px rgba(27, 77, 62, 0.06), 0 2px 5px -1px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .kpi-card:hover {
-        transform: translateY(-3px) scale(1.006);
-        border-bottom-color: rgba(181, 131, 90, 0.55);
-        box-shadow: 0 14px 28px -4px rgba(27, 77, 62, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 1);
-    }
-    .kpi-icon-box {
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.85);
-        border-bottom: 2px solid rgba(0, 0, 0, 0.08);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), inset 0 1.5px 1px rgba(255, 255, 255, 0.9);
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .kpi-card:hover .kpi-icon-box {
-        transform: translateY(-2px) scale(1.08) rotate(-2deg);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px #FFFFFF;
-    }
-    .icon-green { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); color: #059669; }
-    .icon-orange { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); color: #D97706; }
-    .icon-teal { background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%); color: #0D9488; }
-    
-    .kpi-val {
-        font-size: 1.75rem;
-        font-weight: 800;
-        color: #111827;
-        line-height: 1.2;
-    }
-    .kpi-label {
-        font-size: 0.82rem;
-        font-weight: 600;
-        color: #4B5563;
-        margin-bottom: 2px;
-    }
-    .kpi-subtext {
-        font-size: 0.75rem;
-        color: #9CA3AF;
-        margin: 0;
-    }
-    
-    /* Section Cards - Soft 3D Elevation */
-    /* Section Cards - Soft 3D Elevation */
-    .dashboard-card,
-    .st-key-home_qa_card_box {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
-        border-radius: 20px !important;
-        padding: 20px !important;
-        border: 1px solid rgba(228, 236, 231, 0.95) !important;
-        border-bottom: 3.5px solid rgba(200, 218, 206, 0.85) !important;
-        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
-        margin-bottom: 16px !important;
-        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        box-sizing: border-box !important;
-    }
-    .dashboard-card:hover,
-    .st-key-home_qa_card_box:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.1), 0 5px 10px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px #FFFFFF !important;
-    }
-
-    /* Row 3 Uniform Cards - Farm Overview, Quick Actions, Upcoming Alerts */
-    .home-row3-card,
-    .st-key-home_qa_card_box {
-        min-height: 255px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-    }
-    .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 12px !important;
-        width: 100% !important;
-        align-items: stretch !important;
-    }
-    .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        flex: 1 1 50% !important;
-        width: 50% !important;
-        min-width: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 10px !important;
-        margin-bottom: 0 !important;
-    }
-    .st-key-home_qa_card_box .stButton {
-        width: 100% !important;
-        margin: 0 !important;
-    }
-    .st-key-home_qa_card_box .stButton > button {
-        width: 100% !important;
-        min-height: 48px !important;
-        height: 48px !important;
-        border-radius: 14px !important;
-        font-size: 0.85rem !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 0 !important;
-        padding: 4px 8px !important;
-    }
-
-    /* Row 3 Columns on Desktop */
-    .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 16px !important;
-        width: 100% !important;
-        align-items: stretch !important;
-    }
-    .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-        flex: 1 1 0 !important;
-        min-width: 0 !important;
-        width: 33.333% !important;
-        display: flex !important;
-        flex-direction: column !important;
-    }
-
-    /* Row 2 Columns on Desktop */
-    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 20px !important;
-        width: 100% !important;
-        align-items: stretch !important;
-    }
-    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
-        flex: 1.85 1 0 !important;
-        min-width: 0 !important;
-        width: 62% !important;
-    }
-    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-        flex: 1.15 1 0 !important;
-        min-width: 0 !important;
-        width: 38% !important;
-    }
-
-    /* Universal Location Search Form */
-    div[data-testid="stForm"] {
-        border: 1px solid #E5EBE7 !important;
-        border-bottom: 2.5px solid #D5E0D8 !important;
-        border-radius: 14px !important;
-        padding: 6px 10px !important;
-        background: #FFFFFF !important;
-        margin-bottom: 12px !important;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-    }
-    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-        align-items: center !important;
-        width: 100% !important;
-    }
-    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
-    }
-    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-        flex: 0 0 auto !important;
-        width: auto !important;
-        min-width: 130px !important;
-        max-width: 48% !important;
-    }
-    div[data-testid="stForm"] input {
-        height: 38px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
-        padding: 4px 10px !important;
-    }
-    div[data-testid="stForm"] button {
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 12px !important;
-        font-size: 0.82rem !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-        border-radius: 10px !important;
-        margin: 0 !important;
-    }
-
-    .card-header-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 14px;
-    }
-    .card-header-title {
-        font-size: 1.15rem;
-        font-weight: 700;
-        color: #111827;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 0;
-    }
-    .view-all-link {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #1B4D3E;
-        text-decoration: none;
-    }
-    
-    /* Progress Bars & Status */
-    .metric-bar-container {
-        margin: 8px 0;
-    }
-    .metric-bar-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 3px;
-    }
-    .metric-bar-bg {
-        background-color: #F3F4F6;
-        border-radius: 9999px;
-        height: 7px;
-        overflow: hidden;
-    }
-    .metric-bar-fill {
-        height: 100%;
-        border-radius: 9999px;
-    }
-    
-    /* Badges */
-    .badge {
-        display: inline-block;
-        padding: 3px 8px;
-        border-radius: 9999px;
-        font-size: 0.72rem;
-        font-weight: 700;
-    }
-    .badge-critical { background: #FEE2E2; color: #DC2626; }
-    .badge-warning { background: #FEF3C7; color: #D97706; }
-    .badge-healthy { background: #DCFCE7; color: #16A34A; }
-    .badge-info { background: #E0F2FE; color: #0284C7; }
-    
-    /* Sustainability Banner - 3D Soft Elevation */
-    .impact-banner {
-        background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
-        border: 1px solid #C8E6C9;
-        border-bottom: 3.5px solid #A5D6A7;
-        border-radius: 20px;
-        padding: 22px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 10px;
-        margin-bottom: 20px;
-        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.08), inset 0 1px 1px #FFFFFF;
-        transition: all 0.25s ease;
-    }
-    .impact-banner:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px #FFFFFF;
-    }
-    .impact-chip {
-        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%);
-        border-radius: 12px;
-        padding: 8px 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border: 1px solid #E5E7EB;
-        border-bottom: 2px solid #D1D5DB;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04), inset 0 1px 0 #FFFFFF;
-        transition: all 0.2s ease;
-    }
-    .impact-chip:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
-    }
-    
-    /* Primary Action Buttons - 3D Tactile Light Brown Theme */
-    .stButton > button,
-    button[data-testid="baseButton-primary"] {
-        background: linear-gradient(180deg, #DEAE7F 0%, #D4A373 50%, #C4925E 100%) !important;
-        border: 1px solid #B5804D !important;
-        border-bottom: 3.5px solid #9C683E !important;
-        border-radius: 9999px !important;
-        padding: 0.45rem 1.4rem !important;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        box-shadow: 0 4px 10px rgba(181, 131, 90, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
-    }
-    .stButton > button *,
-    .stButton > button p,
-    .stButton > button div,
-    .stButton > button span,
-    button[data-testid="baseButton-primary"] *,
-    button[data-testid="baseButton-primary"] p,
-    button[data-testid="baseButton-primary"] div,
-    button[data-testid="baseButton-primary"] span {
-        color: #1E1208 !important;
-        font-weight: 700 !important;
-        font-size: 0.95rem !important;
-    }
-    .stButton > button:hover,
-    button[data-testid="baseButton-primary"]:hover {
-        background: linear-gradient(180deg, #E8BC90 0%, #DCAE7E 50%, #CC9A66 100%) !important;
-        border-color: #A97442 !important;
-        box-shadow: 0 7px 18px rgba(181, 131, 90, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
-        transform: translateY(-2px) !important;
-    }
-    .stButton > button:hover *,
-    button[data-testid="baseButton-primary"]:hover * {
-        color: #110A03 !important;
-    }
-    /* Click / Active state: Tactile 3D Physical Push Down */
-    .stButton > button:active,
-    .stButton > button[data-testid="baseButton-primary"]:active {
-        background: #B57F4D !important;
-        border-color: #8C5B32 !important;
-        border-bottom-width: 1.5px !important;
-        box-shadow: 0 1px 4px rgba(181, 131, 90, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-        transform: translateY(2px) !important;
-    }
-    .stButton > button:active *,
-    button[data-testid="baseButton-primary"]:active * {
-        color: #FFFFFF !important;
-    }
-    .stButton > button:focus,
-    .stButton > button:focus-visible,
-    button[data-testid="baseButton-primary"]:focus,
-    button[data-testid="baseButton-primary"]:focus-visible {
-        outline: 2px solid #C4925E !important;
-        box-shadow: 0 0 0 3px rgba(212, 163, 115, 0.4) !important;
-    }
-    
-    /* Tertiary / View All Buttons */
-    .stButton > button[kind="tertiary"],
-    .stButton > button[data-testid="baseButton-tertiary"] {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        text-align: right !important;
-        justify-content: flex-end !important;
-        display: inline-flex !important;
-        padding: 4px 10px !important;
-        transition: all 0.2s ease !important;
-    }
-    .stButton > button[kind="tertiary"] *,
-    .stButton > button[data-testid="baseButton-tertiary"] * {
-        color: #7D4E27 !important;
-        font-weight: 700 !important;
-        font-size: 0.85rem !important;
-    }
-    .stButton > button[kind="tertiary"]:hover,
-    .stButton > button[data-testid="baseButton-tertiary"]:hover {
-        background-color: #F8F3EE !important;
-        box-shadow: none !important;
-        transform: translateX(2px) !important;
-    }
-    .stButton > button[kind="tertiary"]:hover *,
-    .stButton > button[data-testid="baseButton-tertiary"]:hover * {
-        color: #4A280F !important;
-    }
-    .stButton > button[kind="tertiary"]:active,
-    .stButton > button[data-testid="baseButton-tertiary"]:active {
-        background-color: #EBDCCF !important;
-        border-radius: 8px !important;
-        transform: scale(0.97) !important;
-    }
-    .stButton > button[kind="tertiary"]:active *,
-    .stButton > button[data-testid="baseButton-tertiary"]:active * {
-        color: #2E1504 !important;
-    }
-    
-    /* Secondary / Back Buttons - 3D Tactile Glass Style */
-    .stButton > button[kind="secondary"],
-    .stButton > button[data-testid="baseButton-secondary"] {
-        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%) !important;
-        border: 1.5px solid #D4A373 !important;
-        border-bottom: 3px solid #B57F4D !important;
-        font-size: 0.88rem !important;
-        padding: 0.42rem 1.25rem !important;
-        border-radius: 9999px !important;
-        box-shadow: 0 2px 6px rgba(181, 131, 90, 0.12), inset 0 1px 0 #FFFFFF !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    .stButton > button[kind="secondary"] *,
-    .stButton > button[kind="secondary"] p,
-    .stButton > button[data-testid="baseButton-secondary"] *,
-    .stButton > button[data-testid="baseButton-secondary"] p {
-        color: #633811 !important;
-        font-weight: 700 !important;
-    }
-    .stButton > button[kind="secondary"]:hover,
-    .stButton > button[data-testid="baseButton-secondary"]:hover {
-        background: #FFFDFC !important;
-        border-color: #B57F4D !important;
-        box-shadow: 0 6px 14px rgba(181, 131, 90, 0.22), inset 0 1px 0 #FFFFFF !important;
-        transform: translateY(-2px) !important;
-    }
-    .stButton > button[kind="secondary"]:hover *,
-    .stButton > button[data-testid="baseButton-secondary"]:hover * {
-        color: #3D2007 !important;
-    }
-    .stButton > button[kind="secondary"]:active,
-    .stButton > button[data-testid="baseButton-secondary"]:active {
-        background-color: #D4A373 !important;
-        border-color: #B57F4D !important;
-        border-bottom-width: 1px !important;
-        box-shadow: 0 1px 3px rgba(181, 131, 90, 0.3) !important;
-        transform: translateY(2px) !important;
-    }
-    .stButton > button[kind="secondary"]:active *,
-    .stButton > button[data-testid="baseButton-secondary"]:active * {
-        color: #1E1208 !important;
-    }
-
-    /* Tabs Styling - 3D Accent Line */
-    button[data-baseweb="tab"] {
-        font-weight: 600 !important;
+    .sidebar-tagline {
+        font-size: 0.78rem;
         color: #4B5563 !important;
-        transition: all 0.2s ease !important;
+        line-height: 1.35;
+        font-style: italic;
     }
-    button[data-baseweb="tab"]:hover {
-        color: #111827 !important;
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 3px !important;
     }
-    button[data-baseweb="tab"][aria-selected="true"] {
-        color: #633811 !important;
-        font-weight: 700 !important;
-        border-bottom-color: #C49A6C !important;
-    }
-    button[data-baseweb="tab"][aria-selected="true"] * {
-        color: #633811 !important;
-    }
-    div[data-baseweb="tab-highlight"] {
-        background-color: #C49A6C !important;
-        height: 3px !important;
-        border-radius: 9999px !important;
-        box-shadow: 0 1px 4px rgba(196, 154, 108, 0.4) !important;
-    }
-
-    /* Notification Bell Popover Styling - 3D Tactile Pill */
-    div[data-testid="stPopover"] {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    div[data-testid="stPopover"] > button {
-        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%) !important;
-        color: #111827 !important;
-        border: 1.5px solid #E5E7EB !important;
-        border-bottom: 2.5px solid #D1D5DB !important;
-        border-radius: 9999px !important;
-        padding: 0.38rem 0.75rem !important;
-        font-size: 0.92rem !important;
-        font-weight: 700 !important;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 #FFFFFF !important;
-        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        cursor: pointer !important;
-    }
-    div[data-testid="stPopover"] > button:hover {
-        background: #F8F3EE !important;
-        border-color: #B5835A !important;
-        color: #7D4E27 !important;
-        box-shadow: 0 5px 12px rgba(181, 131, 90, 0.22), inset 0 1px 0 #FFFFFF !important;
-        transform: translateY(-1.5px) !important;
-    }
-    div[data-testid="stPopover"] > button:active {
-        background-color: #B5835A !important;
-        color: #FFFFFF !important;
-        border-color: #9C683E !important;
-        border-bottom-width: 1px !important;
-        transform: translateY(1.5px) !important;
-        box-shadow: 0 1px 3px rgba(181, 131, 90, 0.35) !important;
-    }
-    div[data-testid="stPopoverBody"] {
-        border-radius: 18px !important;
-        border: 1px solid #E5E7EB !important;
-        border-bottom: 3px solid #D1D5DB !important;
-        box-shadow: 0 14px 34px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.05) !important;
-        padding: 16px !important;
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        padding: 6px 8px !important;
+        font-size: 0.86rem !important;
+        border-radius: 8px !important;
+        margin-bottom: 2px !important;
     }
 
     /* Radio button active/click selection styling - 3D Tactile Highlight */
@@ -942,7 +424,11 @@ render_html(
         box-shadow: 0 2px 5px rgba(181, 131, 90, 0.3) !important;
     }
 
-    /* Input and Form Fields - 3D Inset Depth */
+    /* Input and text fields */
+    .stTextInput input, .stSelectbox div {
+        color: #111827 !important;
+        background-color: #FFFFFF !important;
+    }
     .stTextInput > div > div {
         background: #FFFFFF !important;
         border-radius: 14px !important;
@@ -958,6 +444,390 @@ render_html(
         transform: translateY(-1px) !important;
     }
 
+    /* Top Header Bar */
+    .top-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0 14px 0;
+    }
+    .greeting-title {
+        font-size: clamp(1.20rem, 4vw, 1.85rem);
+        font-weight: 800;
+        color: #111827;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        line-height: 1.25;
+    }
+    .greeting-subtitle {
+        font-size: clamp(0.78rem, 2.5vw, 0.95rem);
+        color: #6B7280;
+        margin-top: 4px;
+        margin-bottom: 0;
+        line-height: 1.35;
+    }
+
+    /* Profile & Language Header Pill */
+    .header-user-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
+        padding: 6px 14px;
+        border-radius: 9999px;
+        border: 1px solid #E5E7EB;
+        border-bottom: 2.5px solid #D1D5DB;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .header-user-pill:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.08), inset 0 1px 0 #FFFFFF;
+    }
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+        color: #15803D;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        box-shadow: 0 2px 4px rgba(21, 128, 61, 0.15), inset 0 1px 1px #FFFFFF;
+    }
+
+    /* KPI Metric Cards - Tactile Soft 3D Elevation */
+    .kpi-card {
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
+        border-radius: 18px;
+        padding: 16px 18px;
+        border: 1px solid rgba(226, 235, 229, 0.95);
+        border-bottom: 3.5px solid rgba(200, 218, 206, 0.9);
+        box-shadow: 0 5px 14px -3px rgba(27, 77, 62, 0.06), 0 2px 5px -1px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        box-sizing: border-box;
+    }
+    .kpi-card:hover {
+        transform: translateY(-3px) scale(1.006);
+        border-bottom-color: rgba(181, 131, 90, 0.55);
+        box-shadow: 0 14px 28px -4px rgba(27, 77, 62, 0.12), 0 6px 12px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 1);
+    }
+    .kpi-icon-box {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), inset 0 1.5px 1px rgba(255, 255, 255, 0.9);
+        flex-shrink: 0;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .kpi-card:hover .kpi-icon-box {
+        transform: translateY(-2px) scale(1.08) rotate(-2deg);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08), inset 0 1.5px 1px #FFFFFF;
+    }
+    .icon-green { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); color: #059669; }
+    .icon-orange { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); color: #D97706; }
+    .icon-teal { background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%); color: #0D9488; }
+    
+    .kpi-val {
+        font-size: clamp(1.15rem, 3.5vw, 1.75rem);
+        font-weight: 800;
+        color: #111827;
+        line-height: 1.2;
+    }
+    .kpi-label {
+        font-size: clamp(0.68rem, 2vw, 0.82rem);
+        font-weight: 600;
+        color: #4B5563;
+        margin-bottom: 2px;
+    }
+    .kpi-subtext {
+        font-size: clamp(0.64rem, 1.8vw, 0.75rem);
+        color: #9CA3AF;
+        margin: 0;
+    }
+
+    /* Section Cards - Soft 3D Elevation */
+    .dashboard-card,
+    .st-key-home_qa_card_box {
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
+        border-radius: 20px !important;
+        padding: 20px !important;
+        border: 1px solid rgba(228, 236, 231, 0.95) !important;
+        border-bottom: 3.5px solid rgba(200, 218, 206, 0.85) !important;
+        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        margin-bottom: 16px !important;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-sizing: border-box !important;
+    }
+    .dashboard-card:hover,
+    .st-key-home_qa_card_box:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.1), 0 5px 10px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px #FFFFFF !important;
+    }
+
+    .card-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 14px;
+    }
+    .card-header-title {
+        font-size: clamp(0.96rem, 3vw, 1.15rem);
+        font-weight: 700;
+        color: #111827;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+    }
+    .view-all-link {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #1B4D3E;
+        text-decoration: none;
+    }
+
+    /* Progress Bars & Status */
+    .metric-bar-container {
+        margin: 8px 0;
+    }
+    .metric-bar-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 3px;
+    }
+    .metric-bar-bg {
+        background-color: #F3F4F6;
+        border-radius: 9999px;
+        height: 7px;
+        overflow: hidden;
+    }
+    .metric-bar-fill {
+        height: 100%;
+        border-radius: 9999px;
+    }
+
+    /* Badges */
+    .badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 9999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+    .badge-critical { background: #FEE2E2; color: #DC2626; }
+    .badge-warning { background: #FEF3C7; color: #D97706; }
+    .badge-healthy { background: #DCFCE7; color: #16A34A; }
+    .badge-info { background: #E0F2FE; color: #0284C7; }
+
+    /* Sustainability Banner - 3D Soft Elevation */
+    .impact-banner {
+        background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+        border: 1px solid #C8E6C9;
+        border-bottom: 3.5px solid #A5D6A7;
+        border-radius: 20px;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.08), inset 0 1px 1px #FFFFFF;
+        transition: all 0.25s ease;
+        box-sizing: border-box;
+    }
+    .impact-banner:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px #FFFFFF;
+    }
+    .impact-chip {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%);
+        border-radius: 12px;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #E5E7EB;
+        border-bottom: 2px solid #D1D5DB;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04), inset 0 1px 0 #FFFFFF;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+    }
+    .impact-chip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Primary Action Buttons - 3D Tactile Light Brown Theme */
+    .stButton > button,
+    button[data-testid="baseButton-primary"] {
+        background: linear-gradient(180deg, #DEAE7F 0%, #D4A373 50%, #C4925E 100%) !important;
+        border: 1px solid #B5804D !important;
+        border-bottom: 3.5px solid #9C683E !important;
+        border-radius: 9999px !important;
+        padding: 0.45rem 1.4rem !important;
+        min-height: 44px !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-shadow: 0 4px 10px rgba(181, 131, 90, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.45) !important;
+    }
+    .stButton > button *,
+    .stButton > button p,
+    .stButton > button div,
+    .stButton > button span,
+    button[data-testid="baseButton-primary"] *,
+    button[data-testid="baseButton-primary"] p,
+    button[data-testid="baseButton-primary"] div,
+    button[data-testid="baseButton-primary"] span {
+        color: #1E1208 !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+    }
+    .stButton > button:hover,
+    button[data-testid="baseButton-primary"]:hover {
+        background: linear-gradient(180deg, #E8BC90 0%, #DCAE7E 50%, #CC9A66 100%) !important;
+        border-color: #A97442 !important;
+        box-shadow: 0 7px 18px rgba(181, 131, 90, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
+        transform: translateY(-2px) !important;
+    }
+    .stButton > button:hover *,
+    button[data-testid="baseButton-primary"]:hover * {
+        color: #110A03 !important;
+    }
+    .stButton > button:active,
+    .stButton > button[data-testid="baseButton-primary"]:active {
+        background: #B57F4D !important;
+        border-color: #8C5B32 !important;
+        border-bottom-width: 1.5px !important;
+        box-shadow: 0 1px 4px rgba(181, 131, 90, 0.35), inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+        transform: translateY(2px) !important;
+    }
+    .stButton > button:active *,
+    button[data-testid="baseButton-primary"]:active * {
+        color: #FFFFFF !important;
+    }
+
+    /* Tertiary / View All Buttons */
+    .stButton > button[kind="tertiary"],
+    .stButton > button[data-testid="baseButton-tertiary"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        text-align: right !important;
+        justify-content: flex-end !important;
+        display: inline-flex !important;
+        padding: 4px 10px !important;
+        min-height: 36px !important;
+        transition: all 0.2s ease !important;
+    }
+    .stButton > button[kind="tertiary"] *,
+    .stButton > button[data-testid="baseButton-tertiary"] * {
+        color: #7D4E27 !important;
+        font-weight: 700 !important;
+        font-size: 0.85rem !important;
+    }
+    .stButton > button[kind="tertiary"]:hover,
+    .stButton > button[data-testid="baseButton-tertiary"]:hover {
+        background-color: #F8F3EE !important;
+        transform: translateX(2px) !important;
+    }
+
+    /* Secondary / Back Buttons - 3D Tactile Glass Style */
+    .stButton > button[kind="secondary"],
+    .stButton > button[data-testid="baseButton-secondary"] {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%) !important;
+        border: 1.5px solid #D4A373 !important;
+        border-bottom: 3px solid #B57F4D !important;
+        font-size: 0.88rem !important;
+        padding: 0.42rem 1.25rem !important;
+        border-radius: 9999px !important;
+        min-height: 44px !important;
+        box-shadow: 0 2px 6px rgba(181, 131, 90, 0.12), inset 0 1px 0 #FFFFFF !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .stButton > button[kind="secondary"] *,
+    .stButton > button[data-testid="baseButton-secondary"] * {
+        color: #633811 !important;
+        font-weight: 700 !important;
+    }
+    .stButton > button[kind="secondary"]:hover,
+    .stButton > button[data-testid="baseButton-secondary"]:hover {
+        background: #FFFDFC !important;
+        border-color: #B57F4D !important;
+        box-shadow: 0 6px 14px rgba(181, 131, 90, 0.22), inset 0 1px 0 #FFFFFF !important;
+        transform: translateY(-2px) !important;
+    }
+
+    /* Tabs Styling - 3D Accent Line */
+    button[data-baseweb="tab"] {
+        font-weight: 600 !important;
+        color: #4B5563 !important;
+        transition: all 0.2s ease !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #633811 !important;
+        font-weight: 700 !important;
+        border-bottom-color: #C49A6C !important;
+    }
+    div[data-baseweb="tab-highlight"] {
+        background-color: #C49A6C !important;
+        height: 3px !important;
+        border-radius: 9999px !important;
+    }
+
+    /* Notification Bell Popover Styling */
+    div[data-testid="stPopover"] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    div[data-testid="stPopover"] > button {
+        background: linear-gradient(180deg, #FFFFFF 0%, #FAFAF8 100%) !important;
+        color: #111827 !important;
+        border: 1.5px solid #E5E7EB !important;
+        border-bottom: 2.5px solid #D1D5DB !important;
+        border-radius: 9999px !important;
+        padding: 0.38rem 0.75rem !important;
+        font-size: 0.92rem !important;
+        font-weight: 700 !important;
+        min-height: 42px !important;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05), inset 0 1px 0 #FFFFFF !important;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        cursor: pointer !important;
+    }
+    div[data-testid="stPopover"] > button:hover {
+        background: #F8F3EE !important;
+        border-color: #B5835A !important;
+        color: #7D4E27 !important;
+        transform: translateY(-1.5px) !important;
+    }
+    div[data-testid="stPopoverBody"] {
+        border-radius: 18px !important;
+        border: 1px solid #E5E7EB !important;
+        border-bottom: 3px solid #D1D5DB !important;
+        box-shadow: 0 14px 34px rgba(0,0,0,0.12), 0 4px 10px rgba(0,0,0,0.05) !important;
+        padding: 16px !important;
+    }
+
     /* 3D Map Viewport Frame */
     iframe {
         border-radius: 18px !important;
@@ -965,67 +835,170 @@ render_html(
         border-bottom: 3.5px solid rgba(185, 205, 192, 0.95) !important;
         box-shadow: 0 10px 25px -4px rgba(27, 77, 62, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.04) !important;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    iframe:hover {
-        box-shadow: 0 16px 36px -4px rgba(27, 77, 62, 0.15), 0 6px 14px -2px rgba(0, 0, 0, 0.05) !important;
-    }
-    
-    /* =======================================================================
-       COMPREHENSIVE RESPONSIVE DESIGN SYSTEM: DESKTOP & MOBILE
-       1. Zero sidebar-dashboard overlap on any screen resolution.
-       2. Silky smooth cubic-bezier transitions for sidebar expand/collapse.
-       3. Enhanced off-canvas mobile drawer with native backdrop dimming.
-       4. Touch-optimized mobile layout, compact header row & full-width cards.
-       ======================================================================= */
-
-    /* Hide the Streamlit sidebar resize handle so manual dragging doesn't break layout */
-    div[data-testid="stSidebarResizeHandle"] {
-        display: none !important;
-        pointer-events: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
 
-    /* Common Sidebar Base Styling */
-    section[data-testid="stSidebar"] {
-        background-color: #F8FAF7 !important;
-        border-right: 1.5px solid #E2EAE4 !important;
-        overflow-x: hidden !important;
-        will-change: width, min-width, max-width, transform, margin-left;
+    /* Universal Location Search Form */
+    div[data-testid="stForm"] {
+        border: 1.5px solid #E5EBE7 !important;
+        border-bottom: 2.5px solid #D5E0D8 !important;
+        border-radius: 14px !important;
+        padding: 6px 10px !important;
+        background: #FFFFFF !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        width: 100% !important;
     }
-    div[data-testid="stSidebarContent"] {
-        background-color: #F8FAF7 !important;
-        overflow-x: hidden !important;
+
+    /* Streamlit Spinners */
+    div[data-testid="stSpinner"] > div {
+        border-color: #D4A373 transparent #D4A373 transparent !important;
     }
-    .sidebar-brand {
-        font-size: 1.35rem;
-        font-weight: 800;
-        color: #1B4D3E !important;
+    div[data-testid="stSpinner"] {
+        color: #7D4E27 !important;
+        font-weight: 600 !important;
+    }
+
+    /* Light-colored 3D Splash Loader */
+    .faslyn-loader-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at 45% 35%, #F0FDF4 0%, #E0F2FE 45%, #E6F7EE 75%, #DCEEFE 100%);
+        z-index: 9999999;
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 4px 0 10px 0;
+        justify-content: center;
+        overflow: hidden;
+        pointer-events: auto;
+        animation: faslynContainerFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .sidebar-tagline {
-        font-size: 0.78rem;
-        color: #4B5563 !important;
-        line-height: 1.35;
-        font-style: italic;
+    .faslyn-loader-card {
+        background: #FFFFFF;
+        border: 1px solid rgba(220, 240, 230, 0.9);
+        border-bottom: 4px solid #10B981;
+        border-radius: 24px;
+        padding: 28px 38px;
+        box-shadow: 0 20px 50px -10px rgba(16, 114, 85, 0.16), 0 8px 20px -6px rgba(2, 132, 199, 0.12);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+        max-width: 340px;
+        width: 88%;
+        box-sizing: border-box;
+        animation: faslynCardFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    section[data-testid="stSidebar"] div[role="radiogroup"] {
-        gap: 3px !important;
+    .faslyn-spinner-wrapper {
+        position: relative;
+        width: 62px;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    section[data-testid="stSidebar"] div[role="radiogroup"] label {
-        padding: 6px 8px !important;
-        font-size: 0.86rem !important;
-        border-radius: 8px !important;
-        margin-bottom: 2px !important;
+    .faslyn-spinner-ring {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 3px solid rgba(16, 185, 129, 0.16);
+        border-top: 3px solid #10B981;
+        border-right: 3px solid #0284C7;
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.18);
+        animation: faslynSpin 0.65s linear infinite;
+    }
+    .faslyn-spinner-icon {
+        font-size: 26px;
+        animation: faslynPulse 0.8s ease-in-out infinite;
+    }
+    .faslyn-loader-brand {
+        font-size: 1.55rem;
+        font-weight: 800;
+        color: #1B4D3E;
+        letter-spacing: -0.5px;
+    }
+    .faslyn-loader-subtitle {
+        font-size: 0.80rem;
+        font-weight: 600;
+        color: #4B5563;
+    }
+    .faslyn-loader-track {
+        width: 180px;
+        height: 5px;
+        background: rgba(2, 132, 199, 0.12);
+        border-radius: 9999px;
+        overflow: hidden;
+    }
+    .faslyn-loader-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
+        border-radius: 9999px;
+        animation: faslynProgressFill 1.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+    }
+    .faslyn-loader-status {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: #6B7280;
     }
 
-    /* -----------------------------------------------------------------------
-       DESKTOP VIEWPORT LAYOUT (@media (min-width: 992px))
-       Sidebar sits naturally in flex flow: physically impossible to overlap!
-       ----------------------------------------------------------------------- */
-    @media (min-width: 992px) {
-        /* Flex row wrapper */
+    @keyframes faslynProgressFill {
+        0% { width: 0%; }
+        35% { width: 55%; }
+        75% { width: 88%; }
+        100% { width: 100%; }
+    }
+    @keyframes faslynSpin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes faslynPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.12); }
+    }
+    @keyframes faslynCardFlow {
+        0% { transform: scale(0.92); opacity: 0; }
+        12% { transform: scale(1); opacity: 1; }
+        82% { transform: scale(1); opacity: 1; }
+        96% { transform: scale(1.10); opacity: 0; visibility: hidden; }
+        100% { transform: scale(1.10); opacity: 0; visibility: hidden; display: none !important; }
+    }
+    @keyframes faslynContainerFlow {
+        0% { opacity: 1; visibility: visible; }
+        80% { opacity: 1; visibility: visible; }
+        96% { opacity: 0; visibility: hidden; pointer-events: none; }
+        100% { opacity: 0; visibility: hidden; pointer-events: none; display: none !important; }
+    }
+    @keyframes dashboard3DZoomIn {
+        0% { opacity: 0; transform: perspective(1200px) translateZ(-110px) scale(0.91) translateY(26px); filter: blur(3px); }
+        60% { opacity: 1; filter: blur(0px); }
+        100% { opacity: 1; transform: perspective(1200px) translateZ(0px) scale(1) translateY(0); filter: blur(0px); }
+    }
+    @keyframes kpi3DZoomIn {
+        0% { opacity: 0; transform: perspective(900px) translateZ(-65px) scale(0.88) translateY(18px); }
+        100% { opacity: 1; transform: perspective(900px) translateZ(0px) scale(1) translateY(0); }
+    }
+    @keyframes card3DZoomIn {
+        0% { opacity: 0; transform: perspective(1000px) translateZ(-75px) scale(0.90) translateY(22px); }
+        100% { opacity: 1; transform: perspective(1000px) translateZ(0px) scale(1) translateY(0); }
+    }
+    @keyframes sidebarSlideIn {
+        0% { opacity: 0; transform: translateX(-35px) scale(0.98); }
+        100% { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+
+    /* =======================================================================
+       2. DESKTOP LAYOUT (min-width: 1025px) - Laptops & Desktops
+       ======================================================================= */
+    @media (min-width: 1025px) {
+        /* Desktop Flex Flow - physically impossible for sidebar to overlap content */
         [data-testid="stAppViewContainer"] {
             display: flex !important;
             flex-direction: row !important;
@@ -1035,7 +1008,7 @@ render_html(
             overflow-x: hidden !important;
         }
 
-        /* Desktop Sidebar - When OPEN / EXPANDED */
+        /* Desktop Sidebar - EXPANDED */
         section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
             position: relative !important;
             flex: 0 0 260px !important;
@@ -1057,7 +1030,7 @@ render_html(
             max-width: 260px !important;
         }
 
-        /* Desktop Sidebar - When COLLAPSED */
+        /* Desktop Sidebar - COLLAPSED */
         section[data-testid="stSidebar"][aria-expanded="false"] {
             position: relative !important;
             flex: 0 0 0px !important;
@@ -1065,7 +1038,6 @@ render_html(
             min-width: 0px !important;
             max-width: 0px !important;
             margin: 0 !important;
-            margin-left: 0 !important;
             padding: 0 !important;
             transform: none !important;
             overflow: hidden !important;
@@ -1075,28 +1047,18 @@ render_html(
             border-right: none !important;
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        section[data-testid="stSidebar"][aria-expanded="false"] div[data-testid="stSidebarContent"] {
-            width: 0px !important;
-            min-width: 0px !important;
-            max-width: 0px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
 
-        /* Main Container on Desktop - Dynamically occupies all remaining space */
+        /* Main Container on Desktop - Occupies remaining width up to 1400px centered */
         div[data-testid="stMain"],
         section.main,
         .stMain {
             flex: 1 1 auto !important;
             min-width: 0 !important;
             width: 100% !important;
-            margin-left: 0 !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-
-        /* Block container margins & paddings on desktop */
         .main .block-container,
         div[data-testid="stMain"] .block-container {
             max-width: 1400px !important;
@@ -1105,86 +1067,127 @@ render_html(
             margin-right: auto !important;
         }
 
-        /* Floating sidebar open toggle button on desktop */
-        div[data-testid="stSidebarCollapsedControl"],
-        button[data-testid="stExpandSidebarButton"] {
-            position: fixed !important;
-            top: 14px !important;
-            left: 14px !important;
-            z-index: 999999 !important;
-            background-color: #FFFFFF !important;
-            border-radius: 10px !important;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12) !important;
-            border: 1px solid #E5E7EB !important;
-            transition: all 0.2s ease !important;
+        /* Row 1: KPI Cards - 4 in a row */
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 16px !important;
+            width: 100% !important;
         }
-        button[data-testid="stExpandSidebarButton"]:hover {
-            background-color: #F3F4F6 !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
+            flex: 1 1 25% !important;
+            width: 25% !important;
+            min-width: 0 !important;
         }
-    }
 
-    /* -----------------------------------------------------------------------
-       TABLET & MINIMIZED DESKTOP TAB RESPONSIVENESS (@media (max-width: 1100px))
-       Prevents column collisions and horizontal overflows when tab is minimized
-       ----------------------------------------------------------------------- */
-    @media (max-width: 1100px) {
-        /* Row 2: Fields and AI Insights stack vertically cleanly */
+        /* Row 2: Side-by-side Map (62%) and AI Insights (38%) */
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
-            flex-direction: column !important;
+            flex-direction: row !important;
+            gap: 20px !important;
             width: 100% !important;
-            gap: 16px !important;
+            align-items: stretch !important;
         }
-        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 1.85 1 0 !important;
+            min-width: 0 !important;
+            width: 62% !important;
+        }
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 0 !important;
+            flex: 1.15 1 0 !important;
+            min-width: 0 !important;
+            width: 38% !important;
         }
 
-        /* Row 3: Farm Overview, Quick Actions, Upcoming Alerts stack vertically */
-        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: column !important;
-            width: 100% !important;
-            gap: 16px !important;
-        }
-        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 0 !important;
-        }
-        .st-key-home_qa_card_box,
-        .home-row3-card {
-            min-height: auto !important;
-        }
-    }
-
-    /* Small screens (<= 768px): Map and parcel details stack vertically */
-    @media (max-width: 768px) {
+        /* Row 2: Inner Map (1.35) and Detail Box (1.0) */
         .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
-            flex-direction: column !important;
+            flex-direction: row !important;
+            gap: 16px !important;
             width: 100% !important;
-            gap: 12px !important;
         }
-        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 1.35 1 0 !important;
+            width: 57% !important;
+        }
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            flex: 1 1 0 !important;
+            width: 43% !important;
+        }
+
+        /* Row 3: 3 Columns side-by-side */
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 16px !important;
             width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 0 !important;
+            align-items: stretch !important;
+        }
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            width: 33.333% !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        .home-row3-card,
+        .st-key-home_qa_card_box {
+            min-height: 255px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 50% !important;
+            width: 50% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+        }
+        .st-key-home_qa_card_box .stButton > button {
+            width: 100% !important;
+            min-height: 48px !important;
+            height: 48px !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Search Form on Desktop */
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 8px !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 1 1 auto !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            flex: 0 0 auto !important;
+            min-width: 130px !important;
         }
     }
 
-    /* -----------------------------------------------------------------------
-       MOBILE & TABLET RESPONSIVE SYSTEM (@media (max-width: 991px))
-       Off-canvas drawer with smooth slide, backdrop dimming, and touch layout
-       ----------------------------------------------------------------------- */
-    @media (max-width: 991px) {
-        /* Mobile Sidebar Drawer */
+
+    /* =======================================================================
+       3. TABLET LAYOUT (769px to 1024px) - iPads & Tablets
+       ======================================================================= */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        /* Tablet Padding */
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            max-width: 100% !important;
+            padding: 1.8rem 1.6rem 3rem 1.6rem !important;
+        }
+
+        /* Tablet Sidebar - Off-canvas drawer with smooth slide & backdrop dimming */
         section[data-testid="stSidebar"] {
             position: fixed !important;
             top: 0 !important;
@@ -1195,8 +1198,168 @@ render_html(
             z-index: 999999 !important;
             border-right: 1.5px solid #D1D5DB !important;
         }
+        section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
+            width: 280px !important;
+            min-width: 260px !important;
+            max-width: 80vw !important;
+            transform: translateX(0) !important;
+            box-shadow: 14px 0 45px rgba(0, 0, 0, 0.3), 0 0 0 100vw rgba(0, 0, 0, 0.45) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+        }
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            width: 0 !important;
+            transform: translateX(-100%) !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+        }
 
-        /* When Open on Mobile: Slide in with luxurious backdrop overlay */
+        /* Main Container on Tablet */
+        div[data-testid="stMain"], section.main, .stMain {
+            width: 100% !important;
+            min-width: 100% !important;
+            margin-left: 0 !important;
+        }
+
+        /* Row 1: KPI Cards - Sleek 2x2 Tablet Grid */
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 12px !important;
+            width: 100% !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
+            flex: 1 1 calc(50% - 6px) !important;
+            width: calc(50% - 6px) !important;
+            min-width: calc(50% - 6px) !important;
+            max-width: calc(50% - 6px) !important;
+        }
+        .kpi-card {
+            padding: 12px 14px !important;
+            min-height: 86px !important;
+        }
+        .kpi-icon-box {
+            width: 42px !important;
+            height: 42px !important;
+            min-width: 42px !important;
+            font-size: 20px !important;
+        }
+
+        /* Row 2: Stacks vertically for optimal tablet readability */
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 16px !important;
+        }
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        /* Row 2: Map and Parcel details stack vertically */
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 14px !important;
+        }
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        /* Row 3: Stacks vertically on Tablet */
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 16px !important;
+        }
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+        .home-row3-card, .st-key-home_qa_card_box {
+            min-height: auto !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 50% !important;
+            width: 50% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+        }
+        .st-key-home_qa_card_box .stButton > button {
+            min-height: 46px !important;
+            height: 46px !important;
+        }
+
+        /* Sustainability Banner on Tablet */
+        .impact-banner {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 14px !important;
+        }
+        .impact-banner > div:last-child {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        .impact-chip {
+            flex: 1 1 calc(33.333% - 7px) !important;
+        }
+    }
+
+
+    /* =======================================================================
+       4. MOBILE LAYOUT (481px to 768px & base for <= 768px)
+       ======================================================================= */
+    @media (max-width: 768px) {
+        /* Mobile Main Container Padding with Top Clearance for Toggle Button */
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            padding-top: 4.2rem !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-bottom: 2.8rem !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+
+        div[data-testid="stMain"], section.main, .stMain {
+            width: 100% !important;
+            min-width: 100% !important;
+            margin-left: 0 !important;
+        }
+
+        /* Mobile Sidebar - Off-canvas smooth drawer */
+        section[data-testid="stSidebar"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            z-index: 999999 !important;
+            border-right: 1.5px solid #D1D5DB !important;
+        }
         section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
             width: 280px !important;
             min-width: 260px !important;
@@ -1208,47 +1371,16 @@ render_html(
             pointer-events: auto !important;
             transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
         }
-        section[data-testid="stSidebar"]:not([aria-expanded="false"]) div[data-testid="stSidebarContent"] {
-            width: 280px !important;
-            max-width: 85vw !important;
-        }
-
-        /* When Closed on Mobile: Fully translated off-screen */
         section[data-testid="stSidebar"][aria-expanded="false"] {
             width: 0 !important;
-            min-width: 0 !important;
-            max-width: 0 !important;
             transform: translateX(-100%) !important;
-            box-shadow: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
             pointer-events: none !important;
             transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
         }
-        section[data-testid="stSidebar"][aria-expanded="false"] div[data-testid="stSidebarContent"] {
-            width: 0 !important;
-            min-width: 0 !important;
-            max-width: 0 !important;
-        }
 
-        /* Main View on Mobile: 100% width with ample top clearance for toggle button */
-        div[data-testid="stMain"],
-        section.main,
-        .stMain {
-            width: 100% !important;
-            min-width: 100% !important;
-            margin-left: 0 !important;
-        }
-        .main .block-container,
-        div[data-testid="stMain"] .block-container {
-            padding-top: 4.2rem !important;
-            padding-left: 0.95rem !important;
-            padding-right: 0.95rem !important;
-            padding-bottom: 2.8rem !important;
-            max-width: 100% !important;
-        }
-
-        /* Sidebar toggle button (Hamburger) on mobile */
+        /* Floating Hamburger Toggle Button on Mobile */
         div[data-testid="stSidebarCollapsedControl"],
         button[data-testid="stExpandSidebarButton"] {
             position: fixed !important;
@@ -1266,39 +1398,57 @@ render_html(
             padding: 8px 12px !important;
         }
 
-        /* Top Header Wrapper on Mobile: greeting on top, action bar below or side */
+        /* Top Header on Mobile: Greeting on top, action bar below or flex-wrap */
         div[data-testid="stHorizontalBlock"]:has(.top-header) {
             display: flex !important;
             flex-direction: column !important;
-            gap: 10px !important;
+            gap: 8px !important;
             margin-bottom: 8px !important;
         }
         div[data-testid="stHorizontalBlock"]:has(.top-header) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
-            margin-bottom: 0 !important;
         }
-
         .top-header {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 6px !important;
             padding-bottom: 4px !important;
         }
-        .greeting-title {
-            font-size: 1.30rem !important;
-            line-height: 1.25 !important;
-            font-weight: 800 !important;
+
+        /* Header Action Bar (Bell, Language, User profile) on Mobile */
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 6px !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            width: 100% !important;
         }
-        .greeting-subtitle {
-            font-size: 0.80rem !important;
-            line-height: 1.35 !important;
-            color: #4B5563 !important;
-            margin-top: 2px !important;
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+            width: auto !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+        }
+        div[data-testid="stPopover"] > button {
+            padding: 0.32rem 0.65rem !important;
+            font-size: 0.82rem !important;
+            min-height: 42px !important;
+            height: 42px !important;
+        }
+        div[data-baseweb="select"] {
+            min-height: 42px !important;
+            height: 42px !important;
+        }
+        div[data-baseweb="select"] * {
+            font-size: 0.82rem !important;
         }
 
-        /* Subpage Breadcrumb Header on mobile */
+        /* Subpage Breadcrumb Header on Mobile */
         div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) {
             display: flex !important;
             flex-direction: row !important;
@@ -1316,62 +1466,26 @@ render_html(
             width: auto !important;
         }
 
-        /* Top Header Action Bar (Bell, Language, User profile) on ONE compact horizontal row */
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 6px !important;
-            align-items: center !important;
-            justify-content: flex-end !important;
-            width: 100% !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
-            width: auto !important;
-            flex: 1 1 auto !important;
-            min-width: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button {
-            padding: 0.32rem 0.65rem !important;
-            font-size: 0.82rem !important;
-            min-height: 38px !important;
-            height: 38px !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-baseweb="select"] {
-            min-height: 38px !important;
-            height: 38px !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-baseweb="select"] * {
-            font-size: 0.80rem !important;
-        }
-
-        /* -------------------------------------------------------------------
-           ROW 1: TOP 4 KPI CARDS — SLEEK 2x2 RESPONSIVE MOBILE GRID
-           Transforms 4 vertically stacked giant blocks into a sleek 2x2 grid!
-           ------------------------------------------------------------------- */
+        /* Row 1: KPI Cards - Sleek 2x2 Responsive Mobile Grid */
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: wrap !important;
             gap: 8px !important;
             margin-bottom: 6px !important;
+            width: 100% !important;
         }
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
-            flex: 1 1 calc(50% - 5px) !important;
-            width: calc(50% - 5px) !important;
-            min-width: calc(50% - 5px) !important;
-            max-width: calc(50% - 5px) !important;
-            margin-bottom: 0 !important;
+            flex: 1 1 calc(50% - 4px) !important;
+            width: calc(50% - 4px) !important;
+            min-width: calc(50% - 4px) !important;
+            max-width: calc(50% - 4px) !important;
         }
         .kpi-card {
             padding: 10px 12px !important;
             gap: 10px !important;
-            margin-bottom: 0 !important;
             border-radius: 14px !important;
             min-height: 82px !important;
-            display: flex !important;
-            align-items: center !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
             border-bottom-width: 2.5px !important;
         }
@@ -1386,13 +1500,10 @@ render_html(
         .kpi-val {
             font-size: 1.25rem !important;
             line-height: 1.15 !important;
-            font-weight: 800 !important;
         }
         .kpi-label {
             font-size: 0.68rem !important;
             line-height: 1.15 !important;
-            font-weight: 600 !important;
-            color: #4B5563 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
@@ -1400,16 +1511,12 @@ render_html(
         .kpi-subtext {
             font-size: 0.65rem !important;
             line-height: 1.15 !important;
-            margin-top: 2px !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
 
-        /* -------------------------------------------------------------------
-           SECTION SUB-HEADERS ("My Fields", "AI Insights", "Farm Overview", etc.)
-           Keeps Section Title and "View all →" button gracefully on ONE ROW!
-           ------------------------------------------------------------------- */
+        /* Section Sub-Headers ("My Fields", "AI Insights", etc.) */
         div[data-testid="stHorizontalBlock"]:has(.card-header-title) {
             display: flex !important;
             flex-direction: row !important;
@@ -1424,43 +1531,14 @@ render_html(
             flex: 1 1 auto !important;
             width: auto !important;
             min-width: 0 !important;
-            margin-bottom: 0 !important;
         }
         div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:last-child {
             flex: 0 0 auto !important;
             width: auto !important;
             min-width: 0 !important;
-            margin-bottom: 0 !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) button {
-            width: auto !important;
-            min-height: 32px !important;
-            height: 32px !important;
-            padding: 2px 10px !important;
-            font-size: 0.78rem !important;
-            border-radius: 8px !important;
-        }
-        .card-header-title {
-            font-size: 1.05rem !important;
-            margin: 0 !important;
-            line-height: 1.25 !important;
         }
 
-        /* -------------------------------------------------------------------
-           LOCATION SEARCH FORM ROW
-           Keeps search input & submit button seamlessly on ONE ROW on mobile
-           ------------------------------------------------------------------- */
-        div[data-testid="stForm"] {
-            border: 1px solid #E5E7EB !important;
-            border-radius: 14px !important;
-            padding: 6px 8px !important;
-            background: #FFFFFF !important;
-            margin-bottom: 10px !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
-            overflow: hidden !important;
-            box-sizing: border-box !important;
-            width: 100% !important;
-        }
+        /* Location Search Form Row */
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
@@ -1473,59 +1551,81 @@ render_html(
             flex: 1 1 auto !important;
             width: auto !important;
             min-width: 0 !important;
-            margin-bottom: 0 !important;
         }
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
             flex: 0 0 auto !important;
             width: auto !important;
             min-width: 120px !important;
             max-width: 50% !important;
-            margin-bottom: 0 !important;
         }
         div[data-testid="stForm"] input {
-            height: 38px !important;
-            font-size: 14px !important;
+            height: 42px !important;
+            font-size: 16px !important;
             border-radius: 10px !important;
             padding: 4px 10px !important;
         }
         div[data-testid="stForm"] button {
-            height: 38px !important;
-            min-height: 38px !important;
+            height: 42px !important;
+            min-height: 42px !important;
             padding: 0 10px !important;
             font-size: 0.80rem !important;
             border-radius: 10px !important;
-            margin: 0 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
 
-        /* -------------------------------------------------------------------
-           CONTENT COLUMNS COLLAPSE SAFELY (Full-width for cards & containers)
-           ------------------------------------------------------------------- */
-        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)) > div[data-testid="column"]:not(.st-key-home_qa_card_box div) {
+        /* Row 2 & Inner Map Box: Vertical Stack */
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"],
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 14px !important;
+        }
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
-            margin-bottom: 12px !important;
+        }
+        iframe {
+            min-height: 250px !important;
+            height: 260px !important;
+            max-height: 280px !important;
+            border-radius: 14px !important;
+            width: 100% !important;
         }
 
-        /* -------------------------------------------------------------------
-           QUICK ACTIONS: 2x2 ACTION TILES (Scoped cleanly to home_qa_card_box)
-           ------------------------------------------------------------------- */
+        /* Row 3: Vertical Stack */
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 14px !important;
+        }
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+        .home-row3-card,
+        .st-key-home_qa_card_box {
+            min-height: auto !important;
+        }
+
+        /* Quick Actions: 2x2 Action Tiles */
         .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             gap: 8px !important;
             width: 100% !important;
-            margin-bottom: 0 !important;
         }
         .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             flex: 1 1 50% !important;
             width: 50% !important;
             min-width: 0 !important;
-            margin-bottom: 0 !important;
             display: flex !important;
             flex-direction: column !important;
             gap: 8px !important;
@@ -1536,46 +1636,17 @@ render_html(
             font-size: 0.82rem !important;
             padding: 4px 8px !important;
             border-radius: 12px !important;
-            margin-bottom: 0 !important;
         }
 
-        /* -------------------------------------------------------------------
-           INTERACTIVE SATELLITE MAP FRAME & DETAILS CARD
-           ------------------------------------------------------------------- */
-        iframe {
-            min-height: 250px !important;
-            height: 260px !important;
-            max-height: 280px !important;
-            border-radius: 14px !important;
-            width: 100% !important;
-        }
-        div[data-testid="stIFrame"] {
-            border-radius: 14px !important;
-            overflow: hidden !important;
-            width: 100% !important;
-        }
-
-        /* Section Cards styling on mobile */
-        .dashboard-card {
-            padding: 14px 15px !important;
-            border-radius: 16px !important;
-            margin-bottom: 12px !important;
-        }
-
-        /* -------------------------------------------------------------------
-           SUSTAINABILITY IMPACT BANNER: 2x2 GRID OF IMPACT CHIPS
-           ------------------------------------------------------------------- */
+        /* Sustainability Impact Banner: 2x2 Grid of Chips */
         .impact-banner {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 12px !important;
             padding: 14px 16px !important;
             border-radius: 16px !important;
-            margin-top: 8px !important;
-            margin-bottom: 12px !important;
         }
         .impact-banner > div:first-child {
-            max-width: 100% !important;
             width: 100% !important;
         }
         .impact-banner > div:last-child {
@@ -1592,36 +1663,21 @@ render_html(
             max-width: calc(50% - 4px) !important;
             padding: 8px 10px !important;
             border-radius: 12px !important;
-            box-sizing: border-box !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-        }
-        .impact-chip span {
-            font-size: 18px !important;
         }
 
-        /* Smooth horizontal scrollbar for tab navigation */
-        div[data-baseweb="tab-list"] {
-            overflow-x: auto !important;
-            flex-wrap: nowrap !important;
-            scrollbar-width: none !important;
-            -webkit-overflow-scrolling: touch !important;
-            padding-bottom: 4px !important;
-        }
-        div[data-baseweb="tab-list"]::-webkit-scrollbar {
-            display: none !important;
-        }
-        button[data-baseweb="tab"] {
-            white-space: nowrap !important;
-            padding: 8px 12px !important;
-            font-size: 0.88rem !important;
-        }
-
-        /* Touch-friendly buttons (Comfortable 42px touch targets on mobile) */
-        .stButton > button {
+        /* General Fallback for multi-column content blocks collapsing cleanly */
+        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
             width: 100% !important;
-            min-height: 42px !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+        }
+
+        /* Touch-Friendly Action Buttons */
+        .stButton > button,
+        button[data-testid="baseButton-primary"],
+        button[data-testid="baseButton-secondary"] {
+            width: 100% !important;
+            min-height: 44px !important;
             font-size: 0.90rem !important;
             display: flex !important;
             align-items: center !important;
@@ -1630,7 +1686,12 @@ render_html(
             padding: 6px 14px !important;
         }
 
-        /* Popover dropdowns on mobile */
+        /* Inputs & Selects: 16px font prevents iOS Safari auto-zoom blowout */
+        .stTextInput input, .stSelectbox div {
+            font-size: 16px !important;
+        }
+
+        /* Popover dropdowns on Mobile */
         div[data-testid="stPopoverBody"] {
             max-width: 92vw !important;
             width: 92vw !important;
@@ -1638,14 +1699,7 @@ render_html(
             border-radius: 16px !important;
         }
 
-        /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
-        .stTextInput input, .stSelectbox div {
-            font-size: 16px !important;
-        }
-
-        /* -------------------------------------------------------------------
-           LOGIN FORM CONTAINER: 100% WIDTH ON MOBILE
-           ------------------------------------------------------------------- */
+        /* Login Form Container: 100% width on Mobile */
         .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
         .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
             display: none !important;
@@ -1658,9 +1712,7 @@ render_html(
             margin: 0 !important;
         }
 
-        /* -------------------------------------------------------------------
-           SATELLITE VIEW: HORIZONTAL QUICK JUMP CHIPS CAROUSEL
-           ------------------------------------------------------------------- */
+        /* Satellite View Quick Jump Chips Carousel */
         .st-key-sat_quick_chips_container div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
@@ -1678,21 +1730,18 @@ render_html(
         .st-key-sat_quick_chips_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             flex: 0 0 auto !important;
             width: auto !important;
-            min-width: 150px !important;
-            margin-bottom: 0 !important;
+            min-width: 140px !important;
         }
         .st-key-sat_quick_chips_container button {
             white-space: nowrap !important;
             border-radius: 9999px !important;
             padding: 4px 12px !important;
             font-size: 0.80rem !important;
-            height: 36px !important;
-            min-height: 36px !important;
+            height: 38px !important;
+            min-height: 38px !important;
         }
 
-        /* -------------------------------------------------------------------
-           TELEMETRY & SOIL METRICS: 2x2 RESPONSIVE MOBILE GRIDS
-           ------------------------------------------------------------------- */
+        /* Telemetry & Soil Metrics 2x2 Grids */
         .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"],
         .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"],
         .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"] {
@@ -1709,24 +1758,10 @@ render_html(
             width: calc(50% - 4px) !important;
             min-width: calc(50% - 4px) !important;
             max-width: calc(50% - 4px) !important;
-            margin-bottom: 0 !important;
         }
 
-        /* -------------------------------------------------------------------
-           AI SAMPLES, REGEN CARDS & SETTINGS: FULL-WIDTH CLEAN STACKING
-           ------------------------------------------------------------------- */
-        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 6px !important;
-            width: 100% !important;
-        }
-        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            margin-bottom: 0 !important;
-        }
-
+        /* AI Samples, Regen Cards, Settings: Full-width clean stacking */
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"],
         .st-key-regen_cards_row1 div[data-testid="stHorizontalBlock"],
         .st-key-regen_cards_row2 div[data-testid="stHorizontalBlock"],
         .st-key-settings_inputs_container div[data-testid="stHorizontalBlock"] {
@@ -1735,31 +1770,46 @@ render_html(
             gap: 8px !important;
             width: 100% !important;
         }
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-regen_cards_row1 div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-regen_cards_row2 div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-settings_inputs_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
-            margin-bottom: 0 !important;
         }
     }
 
-    /* -----------------------------------------------------------------------
-       ULTRA-COMPACT POLISH FOR SMALL PHONES (@media (max-width: 480px))
-       ----------------------------------------------------------------------- */
+
+    /* =======================================================================
+       5. SMALL MOBILE LAYOUT (320px to 480px) - iPhone SE, Mini Phones
+       ======================================================================= */
     @media (max-width: 480px) {
+        /* Ultra-Compact Block Container Padding */
         .main .block-container,
         div[data-testid="stMain"] .block-container {
+            padding-top: 4.0rem !important;
             padding-left: 0.65rem !important;
             padding-right: 0.65rem !important;
+            padding-bottom: 2.5rem !important;
         }
+
+        /* Fluid Typography Clamps for Small Screens */
         .greeting-title {
-            font-size: 1.18rem !important;
+            font-size: clamp(1.10rem, 5vw, 1.25rem) !important;
         }
+        .greeting-subtitle {
+            font-size: 0.76rem !important;
+        }
+        .card-header-title {
+            font-size: 0.95rem !important;
+        }
+
+        /* Compact KPI Cards */
         .kpi-card {
             padding: 8px 10px !important;
-            min-height: 74px !important;
+            min-height: 72px !important;
             gap: 8px !important;
+            border-radius: 12px !important;
         }
         .kpi-icon-box {
             width: 32px !important;
@@ -1769,262 +1819,82 @@ render_html(
             border-radius: 8px !important;
         }
         .kpi-val {
-            font-size: 1.15rem !important;
+            font-size: 1.12rem !important;
         }
         .kpi-label {
-            font-size: 0.64rem !important;
+            font-size: 0.62rem !important;
         }
         .kpi-subtext {
-            font-size: 0.60rem !important;
+            font-size: 0.58rem !important;
+        }
+
+        /* Compact Action Bar */
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+            gap: 4px !important;
+        }
+        div[data-testid="stPopover"] > button {
+            padding: 0.28rem 0.5rem !important;
+            font-size: 0.78rem !important;
+            min-height: 40px !important;
+            height: 40px !important;
+        }
+
+        /* Location Search Form: Clean vertical stack on narrow phones prevents text cutoff */
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            gap: 6px !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            width: 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+        }
+        div[data-testid="stForm"] button {
+            width: 100% !important;
+            min-height: 44px !important;
+            height: 44px !important;
+        }
+
+        /* Quick Action Buttons on Small Mobile */
+        .st-key-home_qa_card_box .stButton > button {
+            font-size: 0.78rem !important;
+            padding: 4px 6px !important;
+            min-height: 44px !important;
+        }
+
+        /* Impact Banner on Small Mobile */
+        .impact-banner {
+            padding: 12px 12px !important;
         }
         .impact-chip {
             padding: 6px 8px !important;
-            font-size: 0.82rem !important;
-        }
-        .card-header-title {
-            font-size: 0.98rem !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button {
-            padding: 0.28rem 0.5rem !important;
             font-size: 0.78rem !important;
         }
-    }
 
-    /* -----------------------------------------------------------------------
-       LIGHT-COLORED 3D SPLASH LOADER
-       ----------------------------------------------------------------------- */
-    /* -----------------------------------------------------------------------
-       LIGHT GREEN & BLUE MIX 3D SPLASH LOADER (2 SECONDS WITH SMOOTH ZOOM-IN FLOW)
-       ----------------------------------------------------------------------- */
-    .faslyn-loader-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: radial-gradient(circle at 45% 35%, #F0FDF4 0%, #E0F2FE 45%, #E6F7EE 75%, #DCEEFE 100%);
-        z-index: 9999999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        pointer-events: auto;
-        will-change: opacity;
-        animation: faslynContainerFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .faslyn-loader-card {
-        background: #FFFFFF;
-        border: 1px solid rgba(220, 240, 230, 0.9);
-        border-bottom: 4px solid #10B981;
-        border-radius: 24px;
-        padding: 28px 38px;
-        box-shadow: 0 20px 50px -10px rgba(16, 114, 85, 0.16),
-                    0 8px 20px -6px rgba(2, 132, 199, 0.12),
-                    0 0 0 1px rgba(255, 255, 255, 0.9);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 12px;
-        max-width: 340px;
-        width: 88%;
-        box-sizing: border-box;
-        will-change: transform, opacity;
-        animation: faslynCardFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .faslyn-spinner-wrapper {
-        position: relative;
-        width: 62px;
-        height: 62px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 2px;
-    }
-
-    .faslyn-spinner-ring {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        border: 3px solid rgba(16, 185, 129, 0.16);
-        border-top: 3px solid #10B981;
-        border-right: 3px solid #0284C7;
-        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.18);
-        animation: faslynSpin 0.65s linear infinite;
-    }
-
-    .faslyn-spinner-icon {
-        font-size: 26px;
-        animation: faslynPulse 0.8s ease-in-out infinite;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .faslyn-loader-brand {
-        font-size: 1.55rem;
-        font-weight: 800;
-        color: #1B4D3E;
-        letter-spacing: -0.5px;
-        line-height: 1.1;
-    }
-
-    .faslyn-loader-subtitle {
-        font-size: 0.80rem;
-        font-weight: 600;
-        color: #4B5563;
-        line-height: 1.25;
-    }
-
-    .faslyn-loader-track {
-        width: 180px;
-        height: 5px;
-        background: rgba(2, 132, 199, 0.12);
-        border-radius: 9999px;
-        overflow: hidden;
-        margin-top: 2px;
-    }
-
-    .faslyn-loader-bar {
-        height: 100%;
-        background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
-        border-radius: 9999px;
-        animation: faslynProgressFill 1.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
-    }
-
-    .faslyn-loader-status {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #6B7280;
-        letter-spacing: 0.2px;
-    }
-
-    @keyframes faslynProgressFill {
-        0% { width: 0%; }
-        35% { width: 55%; }
-        75% { width: 88%; }
-        100% { width: 100%; }
-    }
-
-    @keyframes faslynSpin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    @keyframes faslynPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.12); }
-    }
-
-    @keyframes faslynCardFlow {
-        0% {
-            transform: scale(0.92);
-            opacity: 0;
-        }
-        12% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        82% {
-            transform: scale(1);
-            opacity: 1;
-        }
-        96% {
-            transform: scale(1.10);
-            opacity: 0;
-            visibility: hidden;
-        }
-        100% {
-            transform: scale(1.10);
-            opacity: 0;
-            visibility: hidden;
-            display: none !important;
+        /* Popover body spans comfortable phone width */
+        div[data-testid="stPopoverBody"] {
+            max-width: 95vw !important;
+            width: 95vw !important;
+            left: 2.5vw !important;
         }
     }
 
-    @keyframes faslynContainerFlow {
-        0% {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
+    /* Ultra-Narrow Mobile Safety (<= 350px, e.g. iPhone SE 1st gen) */
+    @media (max-width: 350px) {
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            padding-left: 0.50rem !important;
+            padding-right: 0.50rem !important;
         }
-        80% {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
         }
-        96% {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        100% {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            display: none !important;
-        }
-    }
-
-    /* Style Streamlit's inline spinners with light theme colors */
-    div[data-testid="stSpinner"] > div {
-        border-color: #D4A373 transparent #D4A373 transparent !important;
-    }
-    div[data-testid="stSpinner"] {
-        color: #7D4E27 !important;
-        font-weight: 600 !important;
-    }
-
-    /* -----------------------------------------------------------------------
-       3D ZOOM-IN ANIMATION SYSTEM (LOGIN TO DASHBOARD CINEMATIC TRANSITION)
-       ----------------------------------------------------------------------- */
-    @keyframes dashboard3DZoomIn {
-        0% {
-            opacity: 0;
-            transform: perspective(1200px) translateZ(-110px) scale(0.91) translateY(26px);
-            filter: blur(3px);
-        }
-        60% {
-            opacity: 1;
-            filter: blur(0px);
-        }
-        100% {
-            opacity: 1;
-            transform: perspective(1200px) translateZ(0px) scale(1) translateY(0);
-            filter: blur(0px);
-        }
-    }
-    @keyframes kpi3DZoomIn {
-        0% {
-            opacity: 0;
-            transform: perspective(900px) translateZ(-65px) scale(0.88) translateY(18px);
-        }
-        100% {
-            opacity: 1;
-            transform: perspective(900px) translateZ(0px) scale(1) translateY(0);
-        }
-    }
-    @keyframes card3DZoomIn {
-        0% {
-            opacity: 0;
-            transform: perspective(1000px) translateZ(-75px) scale(0.90) translateY(22px);
-        }
-        100% {
-            opacity: 1;
-            transform: perspective(1000px) translateZ(0px) scale(1) translateY(0);
-        }
-    }
-    @keyframes sidebarSlideIn {
-        0% {
-            opacity: 0;
-            transform: translateX(-35px) scale(0.98);
-        }
-        100% {
-            opacity: 1;
-            transform: translateX(0) scale(1);
+        .kpi-card {
+            min-height: 68px !important;
         }
     }
     </style>
@@ -3057,7 +2927,8 @@ with st.sidebar:
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
 # ===========================================================================
 def render_header_actions():
-    c_bell, c_lang, c_user = st.columns([1.1, 2.5, 3], vertical_alignment="center")
+    c_hdr_actions = st.container(key="header_action_bar_container")
+    c_bell, c_lang, c_user = c_hdr_actions.columns([1.1, 2.5, 3], vertical_alignment="center")
     with c_bell:
         unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
         bell_label = f"🔔 {unread_count}" if unread_count > 0 else "🔔"
@@ -3401,7 +3272,8 @@ if st.session_state.active_tab_id == "home":
             else:
                 st.error(f"❌ Location '{home_loc_q}' not found.")
 
-        col_map_inner, col_detail_inner = st.columns([1.35, 1])
+        c_map_box = st.container(key="home_map_and_details_box")
+        col_map_inner, col_detail_inner = c_map_box.columns([1.35, 1])
 
         with col_map_inner:
             center_lat = st.session_state.coords["lat"]
