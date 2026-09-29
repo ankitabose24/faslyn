@@ -162,22 +162,30 @@ render_html(
         color: #1B4D3E !important;
     }
 
-    /* Sidebar & Collapse Controls: clean native integration */
+    /* Sidebar Width, Background & Sizing (Compact 240px Layout) */
     section[data-testid="stSidebar"] {
+        width: 240px !important;
+        min-width: 240px !important;
+        max-width: 240px !important;
         background-color: #F8FAF7 !important;
         border-right: 1px solid #EBF2EB !important;
     }
-    
-    /* Sidebar text colors */
-    section[data-testid="stSidebar"] {
-        background-color: #F8FAF7 !important;
-        border-right: 1px solid #EBF2EB !important;
+    div[data-testid="stSidebarContent"] {
+        width: 240px !important;
+    }
+    div[data-testid="stSidebarUserContent"] {
+        padding: 1.1rem 0.85rem !important;
     }
     section[data-testid="stSidebar"] p,
     section[data-testid="stSidebar"] span,
     section[data-testid="stSidebar"] label,
     section[data-testid="stSidebar"] div {
         color: #1F2937 !important;
+    }
+    section[data-testid="stSidebar"] h4 {
+        font-size: 0.92rem !important;
+        margin-top: 0.4rem !important;
+        margin-bottom: 0.2rem !important;
     }
     
     /* Radio options in sidebar and main page */
@@ -688,31 +696,60 @@ render_html(
         box-shadow: 0 16px 36px -4px rgba(27, 77, 62, 0.15), 0 6px 14px -2px rgba(0, 0, 0, 0.05) !important;
     }
     
-    /* Sidebar Styling */
+    /* Sidebar Styling & Compact Layout */
     section[data-testid="stSidebar"] {
+        width: 240px !important;
+        min-width: 240px !important;
+        max-width: 240px !important;
         background-color: #F8FAF7 !important;
         border-right: 1px solid #EBF2EB !important;
     }
+    div[data-testid="stSidebarContent"] {
+        width: 240px !important;
+    }
+    div[data-testid="stSidebarUserContent"] {
+        padding: 1.1rem 0.85rem !important;
+    }
     .sidebar-brand {
-        font-size: 1.6rem;
+        font-size: 1.35rem;
         font-weight: 800;
         color: #1B4D3E !important;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 0 16px 0;
+        gap: 6px;
+        padding: 4px 0 10px 0;
     }
     .sidebar-tagline {
-        font-size: 0.85rem;
+        font-size: 0.78rem;
         color: #4B5563 !important;
-        line-height: 1.4;
+        line-height: 1.35;
         font-style: italic;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] {
+        gap: 3px !important;
+    }
+    section[data-testid="stSidebar"] div[role="radiogroup"] label {
+        padding: 6px 8px !important;
+        font-size: 0.86rem !important;
+        border-radius: 8px !important;
+        margin-bottom: 2px !important;
     }
 
     /* -----------------------------------------------------------------------
        RESPONSIVE MOBILE & TOUCH DESIGN SYSTEM (PHONES & TABLETS <= 768px)
        ----------------------------------------------------------------------- */
     @media (max-width: 768px) {
+        /* Mobile sidebar sizing */
+        section[data-testid="stSidebar"] {
+            width: 240px !important;
+            min-width: 200px !important;
+            max-width: 78vw !important;
+        }
+        div[data-testid="stSidebarContent"] {
+            width: 240px !important;
+            max-width: 78vw !important;
+        }
+
         /* Optimize screen real estate: eliminate excess desktop margins */
         .main .block-container {
             padding: 0.85rem 0.65rem 2.5rem 0.65rem !important;
