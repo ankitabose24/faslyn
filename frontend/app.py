@@ -1092,17 +1092,17 @@ render_html(
 if "is_authenticated" not in st.session_state:
     st.session_state.is_authenticated = False
 if "user_name" not in st.session_state:
-    st.session_state.user_name = "Ramesh Kumar"
+    st.session_state.user_name = ""
 if "user_avatar" not in st.session_state:
-    st.session_state.user_avatar = "RK"
+    st.session_state.user_avatar = ""
 if "user_role" not in st.session_state:
-    st.session_state.user_role = "Smallholder Farmer"
+    st.session_state.user_role = ""
 if "user_phone" not in st.session_state:
-    st.session_state.user_phone = "+91 98765 43210"
+    st.session_state.user_phone = ""
 if "user_region" not in st.session_state:
-    st.session_state.user_region = "Odisha, India"
+    st.session_state.user_region = ""
 if "farmer_id" not in st.session_state:
-    st.session_state.farmer_id = "IN-OD-2026-4482"
+    st.session_state.farmer_id = ""
 if "current_language" not in st.session_state:
     st.session_state.current_language = "English"
 if "active_tab_id" not in st.session_state:
@@ -1341,7 +1341,8 @@ def render_login_page():
 
         login_name = st.text_input(
             "Farmer Full Name",
-            value=st.session_state.get("user_name", "Ramesh Pradhan"),
+            value="",
+            placeholder="Enter your full name",
             key="login_farmer_name",
             help="Enter your name as you would like it displayed across the dashboard.",
         )
@@ -1350,31 +1351,35 @@ def render_login_page():
         with col_id:
             login_id = st.text_input(
                 "Mobile / Cooperative ID",
-                value=st.session_state.get("user_phone", "+91 98765 43210"),
+                value="",
+                placeholder="e.g. +91 98765 43210",
                 key="login_mobile_id",
                 help="Your registered mobile number or cooperative member ID.",
             )
         with col_pin:
             login_pin = st.text_input(
                 "Security PIN",
-                value="123456",
+                value="",
+                placeholder="••••••",
                 type="password",
                 key="login_pin_code",
-                help="Default demo PIN is 123456 (or any 4+ digits)",
+                help="Enter any 4-6 digit security PIN",
             )
 
         col_reg, col_role = st.columns(2)
         with col_reg:
             login_region = st.text_input(
                 "Farm Region / Village",
-                value=st.session_state.get("user_region", "Odisha, India"),
+                value="",
+                placeholder="e.g. Odisha, India or Punjab",
                 key="login_region_input",
                 help="Your farm location, district, or agricultural zone.",
             )
         with col_role:
             login_role = st.text_input(
                 "Farming Role & Crops",
-                value=st.session_state.get("user_role", "Smallholder Lead (Rice & Pulses)"),
+                value="",
+                placeholder="e.g. Smallholder Farmer (Rice & Pulses)",
                 key="login_role_input",
                 help="e.g. Smallholder Farmer, Organic Producer, Lead Agronomist.",
             )
@@ -1397,21 +1402,24 @@ def render_login_page():
         st.caption("🔒 Verified via Sovereign ODbL 1.0 DPG Protocol · End-to-End Encrypted")
 
         if st.button("🌱 Sign In to Dashboard →", type="primary", use_container_width=True, key="login_submit_btn"):
-            entered_name = login_name.strip() if login_name.strip() else "Farmer"
-            entered_phone = login_id.strip() if login_id.strip() else "+91 98765 43210"
-            entered_region = login_region.strip() if login_region.strip() else "Local Agricultural Belt"
-            entered_role = login_role.strip() if login_role.strip() else "Smallholder Producer"
-
-            # Compute avatar initials from entered name
-            name_parts = entered_name.split()
-            if len(name_parts) >= 2:
-                initials = f"{name_parts[0][0]}{name_parts[1][0]}".upper()
-            elif len(name_parts) == 1 and len(name_parts[0]) >= 2:
-                initials = name_parts[0][:2].upper()
-            elif len(name_parts) == 1 and len(name_parts[0]) == 1:
-                initials = name_parts[0].upper()
+            entered_name = login_name.strip()
+            if not entered_name:
+                st.error("⚠️ Please enter your Farmer Full Name before signing in.")
             else:
-                initials = "FP"
+                entered_phone = login_id.strip() if login_id.strip() else "+91 98765 43210"
+                entered_region = login_region.strip() if login_region.strip() else (chosen_hub.split("—")[1].split("(")[0].strip() if "—" in chosen_hub else "Local Agricultural Belt")
+                entered_role = login_role.strip() if login_role.strip() else "Smallholder Producer"
+
+                # Compute avatar initials from entered name
+                name_parts = entered_name.split()
+                if len(name_parts) >= 2:
+                    initials = f"{name_parts[0][0]}{name_parts[1][0]}".upper()
+                elif len(name_parts) == 1 and len(name_parts[0]) >= 2:
+                    initials = name_parts[0][:2].upper()
+                elif len(name_parts) == 1 and len(name_parts[0]) == 1:
+                    initials = name_parts[0].upper()
+                else:
+                    initials = "FP"
 
             st.session_state.is_authenticated = True
             st.session_state.user_name = entered_name
@@ -1650,6 +1658,12 @@ with st.sidebar:
     )
     if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
         st.session_state.is_authenticated = False
+        st.session_state.user_name = ""
+        st.session_state.user_phone = ""
+        st.session_state.user_region = ""
+        st.session_state.user_role = ""
+        st.session_state.user_avatar = ""
+        st.session_state.farmer_id = ""
         st.session_state.active_tab_id = "home"
         st.session_state.nav_stack = ["home"]
         st.rerun()
@@ -1800,6 +1814,12 @@ with hdr_right:
             )
             if st.button("🚪 Log Out / Change Details", key="popover_logout_btn", use_container_width=True, type="secondary"):
                 st.session_state.is_authenticated = False
+                st.session_state.user_name = ""
+                st.session_state.user_phone = ""
+                st.session_state.user_region = ""
+                st.session_state.user_role = ""
+                st.session_state.user_avatar = ""
+                st.session_state.farmer_id = ""
                 st.session_state.active_tab_id = "home"
                 st.session_state.nav_stack = ["home"]
                 st.rerun()
