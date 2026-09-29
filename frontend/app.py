@@ -46,9 +46,12 @@ from backend.telemetry_service import fetch_soil_telemetry
 from backend.translations import t
 from frontend.tts import speak_text
 
+# Dynamic port assignment (configurable via FASLYN_API_PORT env variable)
+API_PORT = int(os.environ.get("FASLYN_API_PORT", 8000))
+
 # Initialize local SQLite persistence and start interoperable REST API service (zero-cost)
 init_db()
-start_api_server_background(8000)
+start_api_server_background(API_PORT)
 
 
 # High-performance caching for telemetry, satellite data, soil & geocoding
@@ -2743,7 +2746,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         "endpoint": "/api/v1/export",
         "method": "GET",
         "schema_version": "2.0.0",
-        "api_service_url": "http://localhost:8000/api/v1/export",
+        "api_service_url": f"http://localhost:{API_PORT}/api/v1/export",
         "ai_engine": "xAI Grok-2",
         "node": {
             "node_id": "faslyn-brics-node-001",
@@ -2800,7 +2803,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
     }
 
     render_html(
-        """
+        f"""
         <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 14px; padding: 18px 22px; color: #F8FAFC; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -2812,7 +2815,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
                 </div>
                 <div style="display:flex; align-items:center; gap:8px; background:#064E3B; border:1px solid #059669; padding:4px 14px; border-radius:9999px;">
                     <span style="width:8px; height:8px; border-radius:50%; background:#10B981; display:inline-block;"></span>
-                    <span style="font-size:0.75rem; font-weight:700; color:#34D399;">Live REST Service on Port 8000</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:#34D399;">Live REST Service on Port {API_PORT}</span>
                 </div>
             </div>
             <div style="font-size:0.82rem; color:#CBD5E1; line-height:1.5;">
@@ -2840,7 +2843,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
 
     with api_tab_live_test:
         st.markdown("#### ⚡ Live Machine-to-Machine Query Console")
-        st.caption("Send real HTTP GET requests to the local daemonized REST API server running on port 8000.")
+        st.caption(f"Send real HTTP GET requests to the local daemonized REST API server running on port {API_PORT}.")
 
         endpoint_choice = st.selectbox(
             "Select REST Endpoint",
@@ -2855,7 +2858,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
             key="api_endpoint_select",
         )
         endpoint_path = endpoint_choice.split()[0]
-        test_url = f"http://localhost:8000{endpoint_path}"
+        test_url = f"http://localhost:{API_PORT}{endpoint_path}"
 
         c_test_btn, c_test_url = st.columns([1, 3], vertical_alignment="center")
         with c_test_url:
@@ -2878,7 +2881,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
                 st.success(f"✅ HTTP {status_code} OK · Latency: {latency_ms} ms · Content-Type: {headers.get('content-type', 'application/json')}")
                 st.json(payload)
             except Exception as e:
-                st.error(f"❌ Connection error: {e}. Please ensure background server on port 8000 is running.")
+                st.error(f"❌ Connection error: {e}. Please ensure background server on port {API_PORT} is running.")
 
     with api_tab_code:
         st.markdown("#### 💻 Programmatic Integration Code")
@@ -2887,25 +2890,25 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         st.markdown("**cURL Terminal Command:**")
         st.code(
             f'# Query complete ODbL Digital Public Good payload\n'
-            f'curl -X GET "http://localhost:8000/api/v1/export" \\\n'
+            f'curl -X GET "http://localhost:{API_PORT}/api/v1/export" \\\n'
             f'  -H "Accept: application/json"\n\n'
             f'# Query live soil telemetry for specific coordinates\n'
-            f'curl -X GET "http://localhost:8000/api/v1/telemetry?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"\n\n'
+            f'curl -X GET "http://localhost:{API_PORT}/api/v1/telemetry?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"\n\n'
             f'# Query ISRIC SoilGrids chemical profile\n'
-            f'curl -X GET "http://localhost:8000/api/v1/soil?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"',
+            f'curl -X GET "http://localhost:{API_PORT}/api/v1/soil?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"',
             language="bash",
         )
 
         st.markdown("**Python `requests` Integration:**")
         st.code(
-            'import requests\n\n'
-            '# Fetch live interoperability bundle\n'
-            'response = requests.get("http://localhost:8000/api/v1/export", timeout=5.0)\n'
-            'data = response.json()\n\n'
-            'print("Node:", data["node"]["node_id"])\n'
-            'print("Soil Moisture:", data["ground_telemetry"]["soil_moisture_0_7cm_m3m3"], "m3/m3")\n'
-            'print("Soil pH:", data["soil_chemical_fertility"]["ph"])\n'
-            'print("License:", data["interoperability"]["data_license"])\n',
+            f'import requests\n\n'
+            f'# Fetch live interoperability bundle\n'
+            f'response = requests.get("http://localhost:{API_PORT}/api/v1/export", timeout=5.0)\n'
+            f'data = response.json()\n\n'
+            f'print("Node:", data["node"]["node_id"])\n'
+            f'print("Soil Moisture:", data["ground_telemetry"]["soil_moisture_0_7cm_m3m3"], "m3/m3")\n'
+            f'print("Soil pH:", data["soil_chemical_fertility"]["ph"])\n'
+            f'print("License:", data["interoperability"]["data_license"])\n',
             language="python",
         )
 

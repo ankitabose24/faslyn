@@ -33,7 +33,7 @@ from backend.soil_service import fetch_soil_profile
 from backend.telemetry_service import fetch_soil_telemetry
 
 API_VERSION = "2.0.0"
-API_PORT = 8000
+API_PORT = int(os.environ.get("FASLYN_API_PORT", 8000))
 
 
 class FaslynApiHandler(BaseHTTPRequestHandler):
