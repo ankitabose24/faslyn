@@ -1500,12 +1500,9 @@ def render_login_page():
                     BRICS Sovereign Agricultural Intelligence Network
                 </span>
             </div>
-            <h2 style="font-size: 1.6rem; font-weight: 800; color: #111827; margin: 12px 0 6px 0;">
+            <h2 style="font-size: 1.6rem; font-weight: 800; color: #111827; margin: 12px 0 0 0;">
                 Cooperative Farmer Sign-In
             </h2>
-            <p style="color: #4B5563; font-size: 0.92rem; max-width: 620px; margin: 0 auto; line-height: 1.45;">
-                Sign in with your national farmer cooperative ID or choose a verified demo profile to access AI satellite agro-telemetry, regenerative advisory, and sovereign credit scoring.
-            </p>
         </div>
         """
     )
@@ -1513,12 +1510,6 @@ def render_login_page():
     col_left, col_right = st.columns([1, 1], gap="large")
 
     with col_left:
-        render_html(
-            """
-            <div class="login-card-head">🔐 Cooperative Member Sign-In</div>
-            <div class="login-card-sub">Enter your details to customize your farm dashboard</div>
-            """
-        )
 
         login_name = st.text_input(
             "Farmer Full Name",
@@ -1634,12 +1625,16 @@ def render_login_page():
     with col_right:
         render_html(
             """
-            <div class="login-card-head">⚡ 1-Click Quick Demo Profiles</div>
+            <div class="login-card-head">⚡ 1-Click Demo Profile</div>
             <div class="login-card-sub">Instant login with pre-configured BRICS agricultural telemetry</div>
             """
         )
 
-        for idx, prof in enumerate(DEMO_PROFILES):
+        ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
+        if not ramesh_profile and len(DEMO_PROFILES) > 0:
+            ramesh_profile = [DEMO_PROFILES[0]]
+
+        for idx, prof in enumerate(ramesh_profile):
             render_html(
                 f"""
                 <div class="demo-card-item">
