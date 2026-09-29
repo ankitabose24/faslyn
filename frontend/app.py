@@ -1332,6 +1332,29 @@ render_html(
        4. MOBILE LAYOUT (481px to 768px & base for <= 768px)
        ======================================================================= */
     @media (max-width: 768px) {
+        /* Enforce Zero Horizontal Overflow Across All Mobile Viewports */
+        html, body, .stApp, 
+        div[data-testid="stAppViewContainer"], 
+        div[data-testid="stMain"], 
+        section.main, 
+        .block-container, 
+        div[data-testid="stMainBlockContainer"],
+        div[data-testid="stVerticalBlock"], 
+        div[data-testid="stVerticalBlockBorderWrapper"], 
+        div[data-testid="stHorizontalBlock"] {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        html, body, .stApp, 
+        div[data-testid="stAppViewContainer"], 
+        div[data-testid="stMain"], 
+        section.main, 
+        .block-container {
+            overflow-x: clip !important;
+            overflow-x: hidden !important;
+        }
+
         /* Mobile Main Container Padding with Top Clearance for Toggle Button */
         .main .block-container,
         div[data-testid="stMain"] .block-container {
@@ -1341,12 +1364,16 @@ render_html(
             padding-bottom: 2.8rem !important;
             max-width: 100% !important;
             width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         div[data-testid="stMain"], section.main, .stMain {
             width: 100% !important;
             min-width: 100% !important;
             margin-left: 0 !important;
+            box-sizing: border-box !important;
+            overflow-x: clip !important;
+            overflow-x: hidden !important;
         }
 
         /* Mobile Sidebar - Off-canvas smooth drawer */
@@ -1398,41 +1425,58 @@ render_html(
             padding: 8px 12px !important;
         }
 
-        /* Top Header on Mobile: Greeting on top, action bar below or flex-wrap */
+        /* Hero Top Header Row: Stack greeting on top, action bar below on mobile */
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"],
         div[data-testid="stHorizontalBlock"]:has(.top-header) {
             display: flex !important;
             flex-direction: column !important;
-            gap: 8px !important;
+            align-items: stretch !important;
+            gap: 10px !important;
             margin-bottom: 8px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.top-header) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
-            min-width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
         .top-header {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 6px !important;
             padding-bottom: 4px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* Header Action Bar (Bell, Language, User profile) on Mobile */
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
-            flex-wrap: wrap !important;
+            flex-wrap: nowrap !important;
             gap: 6px !important;
             align-items: center !important;
             justify-content: flex-end !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: auto !important;
             flex: 1 1 auto !important;
             min-width: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 0 0 auto !important;
+            min-width: 44px !important;
         }
         div[data-testid="stPopover"] > button {
             padding: 0.32rem 0.65rem !important;
@@ -1455,6 +1499,9 @@ render_html(
             align-items: center !important;
             gap: 8px !important;
             margin-bottom: 6px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
         div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:first-child {
             flex: 0 0 auto !important;
@@ -1464,9 +1511,11 @@ render_html(
         div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:last-child {
             flex: 1 1 auto !important;
             width: auto !important;
+            min-width: 0 !important;
         }
 
         /* Row 1: KPI Cards - Sleek 2x2 Responsive Mobile Grid */
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
             display: flex !important;
             flex-direction: row !important;
@@ -1474,42 +1523,59 @@ render_html(
             gap: 8px !important;
             margin-bottom: 6px !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
             flex: 1 1 calc(50% - 4px) !important;
             width: calc(50% - 4px) !important;
-            min-width: calc(50% - 4px) !important;
+            min-width: 0 !important;
             max-width: calc(50% - 4px) !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
         .kpi-card {
-            padding: 10px 12px !important;
-            gap: 10px !important;
+            padding: 10px 10px !important;
+            gap: 8px !important;
             border-radius: 14px !important;
-            min-height: 82px !important;
+            min-height: 80px !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
             border-bottom-width: 2.5px !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .kpi-card > div:last-child {
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+            overflow: hidden !important;
         }
         .kpi-icon-box {
-            width: 38px !important;
-            height: 38px !important;
-            min-width: 38px !important;
-            font-size: 18px !important;
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            font-size: 17px !important;
             border-radius: 10px !important;
             flex-shrink: 0 !important;
         }
         .kpi-val {
-            font-size: 1.25rem !important;
+            font-size: 1.18rem !important;
             line-height: 1.15 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         .kpi-label {
-            font-size: 0.68rem !important;
+            font-size: 0.66rem !important;
             line-height: 1.15 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
         .kpi-subtext {
-            font-size: 0.65rem !important;
+            font-size: 0.62rem !important;
             line-height: 1.15 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
@@ -1638,35 +1704,56 @@ render_html(
             border-radius: 12px !important;
         }
 
-        /* Sustainability Impact Banner: 2x2 Grid of Chips */
+        /* Farm Overview 2-Column Grid on Mobile */
+        .home-overview-grid {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Sustainability Impact Banner: Responsive Stack */
         .impact-banner {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 12px !important;
-            padding: 14px 16px !important;
+            padding: 14px 14px !important;
             border-radius: 16px !important;
-        }
-        .impact-banner > div:first-child {
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
-        .impact-banner > div:last-child {
+        .impact-banner-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .impact-chips-wrap {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: wrap !important;
-            gap: 8px !important;
+            gap: 6px !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .impact-chips-wrap .impact-chip,
         .impact-chip {
-            flex: 1 1 calc(50% - 4px) !important;
-            width: calc(50% - 4px) !important;
-            min-width: calc(50% - 4px) !important;
-            max-width: calc(50% - 4px) !important;
-            padding: 8px 10px !important;
+            flex: 1 1 calc(50% - 3px) !important;
+            width: calc(50% - 3px) !important;
+            min-width: 0 !important;
+            max-width: calc(50% - 3px) !important;
+            padding: 8px 8px !important;
             border-radius: 12px !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* General Fallback for multi-column content blocks collapsing cleanly */
-        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]:not(.st-key-header_action_bar_container div):not(.st-key-hero_kpi_metrics_row div):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
@@ -1829,8 +1916,7 @@ render_html(
         }
 
         /* Compact Action Bar */
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
             gap: 4px !important;
         }
         div[data-testid="stPopover"] > button {
@@ -1881,20 +1967,32 @@ render_html(
         }
     }
 
-    /* Ultra-Narrow Mobile Safety (<= 350px, e.g. iPhone SE 1st gen) */
-    @media (max-width: 350px) {
+    /* Ultra-Narrow Mobile Safety (<= 360px, e.g. iPhone SE 1st gen, Galaxy Fold) */
+    @media (max-width: 360px) {
         .main .block-container,
         div[data-testid="stMain"] .block-container {
-            padding-left: 0.50rem !important;
-            padding-right: 0.50rem !important;
+            padding-left: 0.45rem !important;
+            padding-right: 0.45rem !important;
         }
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
             flex: 1 1 100% !important;
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 0 !important;
+        }
+        .home-overview-grid {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+        }
+        .impact-chips-wrap .impact-chip {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
         }
         .kpi-card {
-            min-height: 68px !important;
+            min-height: 64px !important;
         }
     }
     </style>
@@ -1909,8 +2007,21 @@ if hero_bg_data_uri:
     hero_css = """
         <style>
         /* Dashboard Hero Section - Farmer & Agtech Background (Strictly isolated to hero section) */
-        .st-key-dashboard_hero_section,
-        div[class*="st-key-dashboard_hero_section"],
+        /* Outer container stays clean, zero padding blowout */
+        .st-key-dashboard_hero_section:not([data-testid="stVerticalBlockBorderWrapper"]) {
+            background: transparent !important;
+            background-image: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 0 16px 0 !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* Inner border wrapper gets the image background, border, and single padding layer */
         div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
             background-image: 
                 linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(246, 250, 247, 0.52) 100%),
@@ -1920,11 +2031,15 @@ if hero_bg_data_uri:
             background-repeat: no-repeat !important;
             border-radius: 24px !important;
             padding: 24px 26px 20px 26px !important;
-            margin-bottom: 22px !important;
+            margin: 0 !important;
             border: 1.5px solid rgba(200, 225, 210, 0.85) !important;
             border-bottom: 3.5px solid rgba(160, 205, 180, 0.9) !important;
             box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
             position: relative !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* Ensure whole page and non-hero containers NEVER have the background image */
@@ -1965,6 +2080,9 @@ if hero_bg_data_uri:
             border: 1px solid rgba(255, 255, 255, 0.85) !important;
             border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
             box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
         }
         .st-key-dashboard_hero_section .kpi-card:hover {
             background: rgba(255, 255, 255, 0.96) !important;
@@ -1975,22 +2093,26 @@ if hero_bg_data_uri:
 
         /* Tablet & Mobile Hero Responsiveness */
         @media (max-width: 991px) {
-            .st-key-dashboard_hero_section,
-            div[class*="st-key-dashboard_hero_section"],
             div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
                 padding: 14px 14px 12px 14px !important;
                 border-radius: 18px !important;
-                margin-bottom: 14px !important;
+                margin-bottom: 0 !important;
                 background-position: center 25% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
         }
         @media (max-width: 480px) {
-            .st-key-dashboard_hero_section,
-            div[class*="st-key-dashboard_hero_section"],
             div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
-                padding: 12px 10px 10px 10px !important;
-                border-radius: 16px !important;
-                margin-bottom: 12px !important;
+                padding: 10px 8px 8px 8px !important;
+                border-radius: 14px !important;
+                margin-bottom: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
         }
         </style>
@@ -3143,7 +3265,8 @@ if st.session_state.active_tab_id == "home":
     # -----------------------------------------------------------------------
     with st.container(key="dashboard_hero_section", border=True):
         # Top Header Greeting & Quick Actions Row
-        hdr_left, hdr_right = st.columns([3, 2])
+        c_hero_hdr = st.container(key="hero_top_header_row")
+        hdr_left, hdr_right = c_hero_hdr.columns([3, 2])
         with hdr_left:
             current_farmer = st.session_state.get("user_name", "Farmer")
             greeting_text = _('greeting')
@@ -3157,11 +3280,11 @@ if st.session_state.active_tab_id == "home":
             render_html(
                 f"""
                 <div class="top-header">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <h1 class="greeting-title">{greeting_text}</h1>
-                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); backdrop-filter: blur(4px);">
-                                <span style="display:inline-block; width:7px; height:7px; background:#10B981; border-radius:50%;"></span>
+                    <div style="max-width: 100%; overflow: hidden;">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; max-width: 100%;">
+                            <h1 class="greeting-title" style="word-break: break-word;">{greeting_text}</h1>
+                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.70rem; font-weight: 700; padding: 3px 8px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); max-width: 100%; white-space: nowrap;">
+                                <span style="display:inline-block; width:6px; height:6px; background:#10B981; border-radius:50%;"></span>
                                 LIVE NASA & SENSOR FEEDS
                             </span>
                         </div>
@@ -3176,14 +3299,15 @@ if st.session_state.active_tab_id == "home":
         # -------------------------------------------------------------------
         # ROW 1: TOP 4 KPI CARDS (LIVE DATA ENGINE)
         # -------------------------------------------------------------------
-        kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+        c_hero_kpis = st.container(key="hero_kpi_metrics_row")
+        kpi1, kpi2, kpi3, kpi4 = c_hero_kpis.columns(4)
 
         with kpi1:
             render_html(
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-green">🏡</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('total_fields')}</div>
                         <div class="kpi-val">{total_fields}</div>
                         <div class="kpi-subtext">📍 {active_hub_clean}</div>
@@ -3197,7 +3321,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-green">🍃</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('healthy_fields')}</div>
                         <div class="kpi-val">{healthy_fields}</div>
                         <div class="kpi-subtext">{healthy_pct}% {_('of_total')}</div>
@@ -3211,7 +3335,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-orange">⚠️</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('fields_at_risk')}</div>
                         <div class="kpi-val">{risk_fields}</div>
                         <div class="kpi-subtext">{risk_pct}% {_('of_total')}</div>
@@ -3225,7 +3349,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-teal">🪴</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('overall_health')}</div>
                         <div class="kpi-val">{overall_health}<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
                         <div class="kpi-subtext" style="color:{trend_color}; font-weight:700;">↑ {trend_sign}{trend_val}% {_('vs_last_month')}</div>
@@ -3578,23 +3702,23 @@ if st.session_state.active_tab_id == "home":
 
         cards_html = "".join([
             f"""
-            <div style="background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFA 100%); border: 1.5px solid #E5EBE7; border-bottom: 2.5px solid #D5E0D8; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03), inset 0 1px 0 #ffffff; transition: all 0.22s ease;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                        <span style="color:{f['dot_color']};">●</span> {f['name']}
+            <div style="background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFA 100%); border: 1.5px solid #E5EBE7; border-bottom: 2.5px solid #D5E0D8; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03), inset 0 1px 0 #ffffff; transition: all 0.22s ease; min-width: 0; overflow: hidden; box-sizing: border-box;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap: 4px;">
+                    <span style="display:flex; align-items:center; gap:5px; font-weight:700; font-size:0.80rem; color:#111827; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <span style="color:{f['dot_color']}; flex-shrink:0;">●</span> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['name']}</span>
                     </span>
-                    <span style="font-size:0.75rem; font-weight:700; color:{f['dot_color']};">{f['score']}%</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:{f['dot_color']}; flex-shrink: 0;">{f['score']}%</span>
                 </div>
-                <div class="badge {f['badge_class']}" style="margin:4px 0;">{f['badge_label']}</div>
-                <div style="font-size:0.75rem; color:#6B7280;">{f['icon']} {f['crop']} • {f['area']}</div>
+                <div class="badge {f['badge_class']}" style="margin:4px 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['badge_label']}</div>
+                <div style="font-size:0.72rem; color:#6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['icon']} {f['crop']} • {f['area']}</div>
             </div>
             """ for f in fields_data
         ])
 
         render_html(
             f"""
-            <div class="dashboard-card home-row3-card" style="height: 100%;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="dashboard-card home-row3-card" style="height: 100%; overflow: hidden;">
+                <div class="home-overview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px;">
                     {cards_html}
                 </div>
             </div>
@@ -3747,7 +3871,7 @@ if st.session_state.active_tab_id == "home":
     render_html(
         f"""
         <div class="impact-banner">
-            <div style="max-width: 50%;">
+            <div class="impact-banner-content">
                 <div style="display:inline-flex; align-items:center; gap:6px; background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:9999px; font-size:0.74rem; font-weight:700; margin-bottom:8px;">
                     <span style="font-size:9px;">●</span> LIVE AGROCLIMATIC IMPACT MODEL
                 </div>
@@ -3759,35 +3883,35 @@ if st.session_state.active_tab_id == "home":
                 </p>
             </div>
             
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="impact-chips-wrap">
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🪴</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('soil_health')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🪴</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('soil_health')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +{impact_soil}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">💧</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('water_use')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">💧</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('water_use')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#0284C7;">↓ -{impact_water}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🧪</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('input_dep')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🧪</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('input_dep')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↓ -{impact_input}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🌿</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('regen_score')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🌿</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('regen_score')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +{impact_regen}%</div>
                     </div>
                 </div>
