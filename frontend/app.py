@@ -1029,6 +1029,20 @@ render_html(
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
+if "is_authenticated" not in st.session_state:
+    st.session_state.is_authenticated = False
+if "user_name" not in st.session_state:
+    st.session_state.user_name = "Ramesh Kumar"
+if "user_avatar" not in st.session_state:
+    st.session_state.user_avatar = "RK"
+if "user_role" not in st.session_state:
+    st.session_state.user_role = "Smallholder Farmer"
+if "user_phone" not in st.session_state:
+    st.session_state.user_phone = "+91 98765 43210"
+if "user_region" not in st.session_state:
+    st.session_state.user_region = "Odisha, India"
+if "farmer_id" not in st.session_state:
+    st.session_state.farmer_id = "IN-OD-2026-4482"
 if "current_language" not in st.session_state:
     st.session_state.current_language = "English"
 if "active_tab_id" not in st.session_state:
@@ -1148,6 +1162,345 @@ def get_client():
     return build_grok_client(api_key)
 
 
+# ---------------------------------------------------------------------------
+# DEMO USER PROFILES FOR 1-CLICK COOPERATIVE ACCESS
+# ---------------------------------------------------------------------------
+DEMO_PROFILES = [
+    {
+        "name": "Ramesh Kumar",
+        "avatar": "RK",
+        "role": "Smallholder Farmer",
+        "id": "IN-OD-2026-4482",
+        "phone": "+91 98765 43210",
+        "region": "Odisha, India",
+        "hub": "🇮🇳 India — Odisha (Coastal Rice Belt)",
+        "crops": "Paddy Rice, Kharif Maize, Vegetables",
+        "lang": "English",
+        "flag": "🇮🇳",
+        "badge": "Coastal Rice Belt",
+    },
+    {
+        "name": "Maria Silva",
+        "avatar": "MS",
+        "role": "Agroforestry Producer",
+        "id": "BR-MT-2026-7819",
+        "phone": "+55 65 99123-4567",
+        "region": "Mato Grosso, Brazil",
+        "hub": "🇧🇷 Brazil — Mato Grosso (Soy/Maize Belt)",
+        "crops": "Soja Precoce, Milho Safrinha, Algodão",
+        "lang": "Portuguese",
+        "flag": "🇧🇷",
+        "badge": "Cerrado Biome",
+    },
+    {
+        "name": "Thabo Molefe",
+        "avatar": "TM",
+        "role": "Cooperative Farmer",
+        "id": "ZA-LP-2026-3104",
+        "phone": "+27 82 555 0192",
+        "region": "Limpopo, South Africa",
+        "hub": "🇿🇦 South Africa — Limpopo (Mixed Farming Belt)",
+        "crops": "White Maize, Grain Sorghum, Groundnuts",
+        "lang": "English",
+        "flag": "🇿🇦",
+        "badge": "Limpopo Mixed Belt",
+    },
+    {
+        "name": "Dmitry Ivanov",
+        "avatar": "DI",
+        "role": "Grain Cooperative Member",
+        "id": "RU-KD-2026-5520",
+        "phone": "+7 918 123-45-67",
+        "region": "Krasnodar Krai, Russia",
+        "hub": "🇷🇺 Russia — Krasnodar Krai (Black Earth Belt)",
+        "crops": "Winter Wheat, Sunflower, Barley",
+        "lang": "Russian",
+        "flag": "🇷🇺",
+        "badge": "Black Earth Belt",
+    },
+    {
+        "name": "Wang Wei (王伟)",
+        "avatar": "WW",
+        "role": "Smallholder Lead",
+        "id": "CN-HL-2026-9041",
+        "phone": "+86 138 0013 8000",
+        "region": "Heilongjiang, China",
+        "hub": "🇨🇳 China — Heilongjiang (Grain Belt)",
+        "crops": "Soybean, Corn, Japonica Rice",
+        "lang": "Mandarin",
+        "flag": "🇨🇳",
+        "badge": "Heilongjiang Grain Belt",
+    },
+]
+
+
+def render_login_page():
+    """Render a dedicated, tactile 3D authentication screen for BRICS smallholders."""
+    render_html(
+        """
+        <style>
+        [data-testid="stSidebar"], [data-testid="collapsedControl"] {
+            display: none !important;
+        }
+        header[data-testid="stHeader"] {
+            background: transparent !important;
+        }
+        .main .block-container {
+            max-width: 1040px !important;
+            padding-top: 2rem !important;
+            padding-bottom: 3.5rem !important;
+        }
+        .login-header-wrapper {
+            text-align: center;
+            margin-bottom: 26px;
+        }
+        .login-brand-title {
+            font-size: 2.7rem;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -0.03em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .login-pill-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ECFDF5;
+            border: 1px solid #A7F3D0;
+            border-radius: 9999px;
+            padding: 4px 14px;
+            margin-top: 8px;
+        }
+        .login-pill-dot {
+            width: 8px;
+            height: 8px;
+            background: #10B981;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .login-card-head {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .login-card-sub {
+            font-size: 0.82rem;
+            color: #6B7280;
+            margin-bottom: 14px;
+        }
+        .demo-card-item {
+            background: #FFFFFF;
+            border: 1.5px solid #E2EBE5;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            transition: all 0.2s ease;
+        }
+        .demo-card-item:hover {
+            border-color: #10B981;
+            background: #F0FDF4;
+        }
+        </style>
+        """
+    )
+
+    render_html(
+        """
+        <div class="login-header-wrapper">
+            <div class="login-brand-title">
+                🌿 faslyn
+            </div>
+            <div class="login-pill-badge">
+                <span class="login-pill-dot"></span>
+                <span style="font-size: 0.76rem; font-weight: 700; color: #047857; text-transform: uppercase; letter-spacing: 0.05em;">
+                    BRICS Sovereign Agricultural Intelligence Network
+                </span>
+            </div>
+            <h2 style="font-size: 1.6rem; font-weight: 800; color: #111827; margin: 12px 0 6px 0;">
+                Cooperative Farmer Sign-In
+            </h2>
+            <p style="color: #4B5563; font-size: 0.92rem; max-width: 620px; margin: 0 auto; line-height: 1.45;">
+                Sign in with your national farmer cooperative ID or choose a verified demo profile to access AI satellite agro-telemetry, regenerative advisory, and sovereign credit scoring.
+            </p>
+        </div>
+        """
+    )
+
+    col_left, col_right = st.columns([1, 1], gap="large")
+
+    with col_left:
+        render_html(
+            """
+            <div class="login-card-head">🔐 Cooperative Member Sign-In</div>
+            <div class="login-card-sub">Enter your registered farmer phone number or ID</div>
+            """
+        )
+
+        login_id = st.text_input(
+            "Farmer ID or Mobile Number",
+            value="+91 98765 43210",
+            key="login_mobile_id",
+            help="Enter your cooperative-registered mobile number or National Farmer Registry ID.",
+        )
+        login_pin = st.text_input(
+            "Security PIN / Password",
+            value="123456",
+            type="password",
+            key="login_pin_code",
+            help="Default demo PIN is 123456 (or any 4+ digits)",
+        )
+
+        hub_names = list(BRICS_HUBS.keys())
+        chosen_hub = st.selectbox(
+            "Cooperative Agricultural Hub",
+            hub_names,
+            index=0,
+            key="login_hub_select",
+        )
+
+        chosen_lang = st.selectbox(
+            "Preferred Language",
+            list(LANGUAGES.keys()),
+            index=list(LANGUAGES.keys()).index(st.session_state.current_language) if st.session_state.current_language in LANGUAGES else 0,
+            key="login_lang_select",
+        )
+
+        st.caption("🔒 Verified via Sovereign ODbL 1.0 DPG Protocol · End-to-End Encrypted")
+
+        if st.button("🌱 Sign In to Dashboard →", type="primary", use_container_width=True, key="login_submit_btn"):
+            st.session_state.is_authenticated = True
+            st.session_state.selected_hub_name = chosen_hub
+            st.session_state.coords = {"lat": BRICS_HUBS[chosen_hub]["lat"], "lon": BRICS_HUBS[chosen_hub]["lon"]}
+            st.session_state.zoom = BRICS_HUBS[chosen_hub]["zoom"]
+            st.session_state.current_language = chosen_lang
+            st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
+            st.session_state.user_phone = login_id.strip() or "+91 98765 43210"
+            st.session_state.farmer_id = f"FAS-{abs(hash(login_id)) % 9000 + 1000}"
+            st.session_state.active_tab_id = "home"
+            st.session_state.nav_stack = ["home"]
+
+            # Derive user profile from selected hub or input
+            if "Brazil" in chosen_hub or "+55" in login_id:
+                st.session_state.user_name = "Maria Silva"
+                st.session_state.user_avatar = "MS"
+                st.session_state.user_role = "Agroforestry Producer"
+                st.session_state.user_region = "Mato Grosso, Brazil"
+            elif "South Africa" in chosen_hub or "+27" in login_id:
+                st.session_state.user_name = "Thabo Molefe"
+                st.session_state.user_avatar = "TM"
+                st.session_state.user_role = "Cooperative Farmer"
+                st.session_state.user_region = "Limpopo, South Africa"
+            elif "Russia" in chosen_hub or "+7" in login_id:
+                st.session_state.user_name = "Dmitry Ivanov"
+                st.session_state.user_avatar = "DI"
+                st.session_state.user_role = "Grain Cooperative Member"
+                st.session_state.user_region = "Krasnodar Krai, Russia"
+            elif "China" in chosen_hub or "+86" in login_id:
+                st.session_state.user_name = "Wang Wei (王伟)"
+                st.session_state.user_avatar = "WW"
+                st.session_state.user_role = "Smallholder Lead"
+                st.session_state.user_region = "Heilongjiang, China"
+            else:
+                st.session_state.user_name = "Ramesh Kumar"
+                st.session_state.user_avatar = "RK"
+                st.session_state.user_role = "Smallholder Farmer"
+                st.session_state.user_region = "Odisha, India"
+
+            st.rerun()
+
+    with col_right:
+        render_html(
+            """
+            <div class="login-card-head">⚡ 1-Click Quick Demo Profiles</div>
+            <div class="login-card-sub">Instant login with pre-configured BRICS agricultural telemetry</div>
+            """
+        )
+
+        for idx, prof in enumerate(DEMO_PROFILES):
+            render_html(
+                f"""
+                <div class="demo-card-item">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div style="width:34px; height:34px; border-radius:50%; background:#10B981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.82rem;">
+                                {prof['avatar']}
+                            </div>
+                            <div>
+                                <div style="font-weight:700; font-size:0.88rem; color:#111827;">{prof['flag']} {prof['name']}</div>
+                                <div style="font-size:0.72rem; color:#6B7280;">{prof['role']} · {prof['region']}</div>
+                            </div>
+                        </div>
+                        <span style="font-size:0.7rem; font-weight:700; background:#ECFDF5; color:#047857; padding:2px 8px; border-radius:9999px; border:1px solid #A7F3D0;">
+                            {prof['badge']}
+                        </span>
+                    </div>
+                    <div style="font-size:0.72rem; color:#4B5563; margin-top:5px; padding-left:44px;">
+                        🌾 <b>Crops:</b> {prof['crops']}
+                    </div>
+                </div>
+                """
+            )
+            if st.button(f"Enter as {prof['name']} ({prof['flag']}) →", key=f"quick_demo_btn_{idx}", use_container_width=True):
+                st.session_state.is_authenticated = True
+                st.session_state.user_name = prof["name"]
+                st.session_state.user_avatar = prof["avatar"]
+                st.session_state.user_role = prof["role"]
+                st.session_state.user_phone = prof["phone"]
+                st.session_state.user_region = prof["region"]
+                st.session_state.farmer_id = prof["id"]
+                st.session_state.selected_hub_name = prof["hub"]
+                st.session_state.coords = {"lat": BRICS_HUBS[prof["hub"]]["lat"], "lon": BRICS_HUBS[prof["hub"]]["lon"]}
+                st.session_state.zoom = BRICS_HUBS[prof["hub"]]["zoom"]
+                st.session_state.current_language = prof["lang"]
+                st.session_state.advisory_lang_code = LANGUAGES[prof["lang"]]
+                st.session_state.active_tab_id = "home"
+                st.session_state.nav_stack = ["home"]
+                st.rerun()
+
+    render_html(
+        """
+        <div style="margin-top: 32px; padding: 18px 24px; background: #FFFFFF; border: 1px solid #E2EBE5; border-radius: 16px; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; gap: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.4rem;">🔒</span>
+                <div>
+                    <div style="font-weight:700; font-size:0.82rem; color:#111827;">Sovereign Security</div>
+                    <div style="font-size:0.72rem; color:#6B7280;">ODbL 1.0 Open Data Public Good</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.4rem;">🛰️</span>
+                <div>
+                    <div style="font-weight:700; font-size:0.82rem; color:#111827;">Zero-Sensor Telemetry</div>
+                    <div style="font-size:0.72rem; color:#6B7280;">NASA POWER & Open-Meteo Feeds</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.4rem;">📞</span>
+                <div>
+                    <div style="font-weight:700; font-size:0.82rem; color:#111827;">Kisan Helpline</div>
+                    <div style="font-size:0.72rem; color:#6B7280;">Toll-Free: 1800-180-1551</div>
+                </div>
+            </div>
+        </div>
+        """
+    )
+
+
+# ---------------------------------------------------------------------------
+# AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD)
+# ---------------------------------------------------------------------------
+if not st.session_state.get("is_authenticated", False):
+    render_login_page()
+    st.stop()
+
+
 # Fetch telemetry & satellite feeds (cached globally with TTL, zero network latency on reruns)
 telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
 satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
@@ -1224,14 +1577,19 @@ with st.sidebar:
     st.markdown("---")
     render_html(
         """
-        <div style="text-align: center; padding: 20px 0;">
-            <div style="font-size: 32px; margin-bottom: 6px;">🌱</div>
+        <div style="text-align: center; padding: 12px 0 8px 0;">
+            <div style="font-size: 30px; margin-bottom: 4px;">🌱</div>
             <div class="sidebar-tagline">
                 Healthier Soil<br>Greener Tomorrow<br><b>Together</b>
             </div>
         </div>
         """
     )
+    if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
+        st.session_state.is_authenticated = False
+        st.session_state.active_tab_id = "home"
+        st.session_state.nav_stack = ["home"]
+        st.rerun()
 
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
@@ -1340,19 +1698,36 @@ with hdr_right:
             st.rerun()
 
     with c_user:
-        render_html(
-            f"""
-            <div style="padding-top: 8px;">
-                <div class="header-user-pill">
-                    <div class="user-avatar">RK</div>
+        u_name = st.session_state.get("user_name", "Ramesh Kumar")
+        u_avatar = st.session_state.get("user_avatar", "RK")
+        u_role = st.session_state.get("user_role", _("farmer_role"))
+        u_region = st.session_state.get("user_region", "Odisha, India")
+        u_id = st.session_state.get("farmer_id", "IN-OD-2026-4482")
+
+        with st.popover(f"👤 {u_name.split()[0]}", use_container_width=True):
+            render_html(
+                f"""
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#10B981; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.95rem; box-shadow:0 2px 6px rgba(16,185,129,0.3);">
+                        {u_avatar}
+                    </div>
                     <div>
-                        <div style="font-size: 0.85rem; font-weight: 700; color:#111827; line-height: 1.1;">Ramesh Kumar</div>
-                        <div style="font-size: 0.72rem; color: #6B7280;">{_('farmer_role')}</div>
+                        <div style="font-size:0.92rem; font-weight:700; color:#111827; line-height:1.2;">{u_name}</div>
+                        <div style="font-size:0.75rem; color:#6B7280;">{u_role}</div>
+                        <div style="font-size:0.72rem; color:#10B981; font-weight:600;">{u_region}</div>
                     </div>
                 </div>
-            </div>
-            """
-        )
+                <div style="background:#F9FBFA; border:1px solid #E2EBE5; border-radius:8px; padding:8px 10px; margin-bottom:12px; font-size:0.74rem; color:#4B5563;">
+                    <div><b>Cooperative ID:</b> {u_id}</div>
+                    <div><b>Network:</b> BRICS AgriN Sovereign DPG</div>
+                </div>
+                """
+            )
+            if st.button("🚪 Log Out", key="popover_logout_btn", use_container_width=True, type="secondary"):
+                st.session_state.is_authenticated = False
+                st.session_state.active_tab_id = "home"
+                st.session_state.nav_stack = ["home"]
+                st.rerun()
 
 if st.session_state.active_tab_id != "home":
     render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
@@ -2269,13 +2644,22 @@ elif st.session_state.active_tab_id == "settings":
 
     s_col1, s_col2 = st.columns(2)
     with s_col1:
-        st.text_input("Farmer Name", value="Ramesh Kumar")
-        st.text_input("Farm Region", value="Odisha, India")
+        edit_name = st.text_input("Farmer Name", value=st.session_state.get("user_name", "Ramesh Kumar"))
+        edit_region = st.text_input("Farm Region", value=st.session_state.get("user_region", "Odisha, India"))
     with s_col2:
-        st.text_input("xAI Grok API Key", type="password", value=st.session_state.get("manual_grok_key", ""))
+        manual_grok_val = st.text_input("xAI Grok API Key", type="password", value=st.session_state.get("manual_grok_key", ""))
         st.checkbox("Enable Offline Field Cache", value=True)
 
     if st.button("Save Settings", type="primary"):
+        st.session_state.user_name = edit_name
+        st.session_state.user_region = edit_region
+        if manual_grok_val:
+            st.session_state.manual_grok_key = manual_grok_val
+        parts = edit_name.strip().split()
+        if len(parts) >= 2:
+            st.session_state.user_avatar = f"{parts[0][0]}{parts[1][0]}".upper()
+        elif len(parts) == 1 and parts[0]:
+            st.session_state.user_avatar = parts[0][:2].upper()
         st.success("Settings saved successfully!")
 
     st.markdown("---")
