@@ -973,12 +973,65 @@ render_html(
             padding: 8px 12px !important;
         }
 
-        /* Keep header action bar (Bell, Language, User profile) on ONE compact horizontal row */
+        /* Top Header Wrapper on Mobile: greeting on top, action bar below or side */
+        div[data-testid="stHorizontalBlock"]:has(.top-header) {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            margin-bottom: 8px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.top-header) > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+
+        .top-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px !important;
+            padding-bottom: 4px !important;
+        }
+        .greeting-title {
+            font-size: 1.30rem !important;
+            line-height: 1.25 !important;
+            font-weight: 800 !important;
+        }
+        .greeting-subtitle {
+            font-size: 0.80rem !important;
+            line-height: 1.35 !important;
+            color: #4B5563 !important;
+            margin-top: 2px !important;
+        }
+
+        /* Subpage Breadcrumb Header on mobile */
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 6px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:first-child {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 85px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:last-child {
+            flex: 1 1 auto !important;
+            width: auto !important;
+        }
+
+        /* Top Header Action Bar (Bell, Language, User profile) on ONE compact horizontal row */
         div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+            display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
-            gap: 8px !important;
+            gap: 6px !important;
             align-items: center !important;
+            justify-content: flex-end !important;
+            width: 100% !important;
         }
         div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
             width: auto !important;
@@ -986,83 +1039,261 @@ render_html(
             min-width: 0 !important;
             margin-bottom: 0 !important;
         }
-
-        /* Content grid columns collapse into full-width touch friendly cards */
-        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])) > div[data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 10px !important;
-        }
-
-        /* Top Header greeting on mobile */
-        .top-header {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 10px !important;
-            padding-bottom: 10px !important;
-        }
-        .greeting-title {
-            font-size: 1.38rem !important;
-            line-height: 1.25 !important;
-        }
-        .greeting-subtitle {
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button {
+            padding: 0.32rem 0.65rem !important;
             font-size: 0.82rem !important;
+            min-height: 38px !important;
+            height: 38px !important;
         }
-        .header-user-pill {
-            width: 100% !important;
-            justify-content: space-between !important;
-            box-sizing: border-box !important;
-            padding: 8px 14px !important;
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-baseweb="select"] {
+            min-height: 38px !important;
+            height: 38px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-baseweb="select"] * {
+            font-size: 0.80rem !important;
         }
 
-        /* KPI cards on mobile: tactile, touch-spaced full-width cards */
+        /* -------------------------------------------------------------------
+           ROW 1: TOP 4 KPI CARDS — SLEEK 2x2 RESPONSIVE MOBILE GRID
+           Transforms 4 vertically stacked giant blocks into a sleek 2x2 grid!
+           ------------------------------------------------------------------- */
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            margin-bottom: 6px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
+            flex: 1 1 calc(50% - 5px) !important;
+            width: calc(50% - 5px) !important;
+            min-width: calc(50% - 5px) !important;
+            max-width: calc(50% - 5px) !important;
+            margin-bottom: 0 !important;
+        }
         .kpi-card {
-            padding: 14px 16px !important;
-            gap: 12px !important;
-            margin-bottom: 10px !important;
-            border-radius: 16px !important;
+            padding: 10px 12px !important;
+            gap: 10px !important;
+            margin-bottom: 0 !important;
+            border-radius: 14px !important;
+            min-height: 82px !important;
+            display: flex !important;
+            align-items: center !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+            border-bottom-width: 2.5px !important;
         }
         .kpi-icon-box {
-            width: 44px !important;
-            height: 44px !important;
-            font-size: 20px !important;
-            border-radius: 12px !important;
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            font-size: 18px !important;
+            border-radius: 10px !important;
+            flex-shrink: 0 !important;
         }
         .kpi-val {
-            font-size: 1.45rem !important;
+            font-size: 1.25rem !important;
+            line-height: 1.15 !important;
+            font-weight: 800 !important;
         }
         .kpi-label {
-            font-size: 0.78rem !important;
+            font-size: 0.68rem !important;
+            line-height: 1.15 !important;
+            font-weight: 600 !important;
+            color: #4B5563 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        .kpi-subtext {
+            font-size: 0.65rem !important;
+            line-height: 1.15 !important;
+            margin-top: 2px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
-        /* Section Cards & Impact Banners on mobile */
-        .dashboard-card {
-            padding: 16px !important;
-            border-radius: 16px !important;
-            margin-bottom: 12px !important;
+        /* -------------------------------------------------------------------
+           SECTION SUB-HEADERS ("My Fields", "AI Insights", "Farm Overview", etc.)
+           Keeps Section Title and "View all →" button gracefully on ONE ROW!
+           ------------------------------------------------------------------- */
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 8px !important;
+            margin-bottom: 6px !important;
+            margin-top: 6px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:first-child {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:last-child {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) button {
+            width: auto !important;
+            min-height: 32px !important;
+            height: 32px !important;
+            padding: 2px 10px !important;
+            font-size: 0.78rem !important;
+            border-radius: 8px !important;
         }
         .card-header-title {
             font-size: 1.05rem !important;
+            margin: 0 !important;
+            line-height: 1.25 !important;
         }
+
+        /* -------------------------------------------------------------------
+           LOCATION SEARCH FORM ROW
+           Keeps search input & submit button seamlessly on ONE ROW on mobile
+           ------------------------------------------------------------------- */
+        div[data-testid="stForm"] {
+            border: 1px solid #E5E7EB !important;
+            border-radius: 14px !important;
+            padding: 6px 8px !important;
+            background: #FFFFFF !important;
+            margin-bottom: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
+            align-items: center !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 72px !important;
+            margin-bottom: 0 !important;
+        }
+        div[data-testid="stForm"] input {
+            height: 38px !important;
+            font-size: 14px !important;
+            border-radius: 10px !important;
+            padding: 4px 10px !important;
+        }
+        div[data-testid="stForm"] button {
+            height: 38px !important;
+            min-height: 38px !important;
+            padding: 0 12px !important;
+            font-size: 0.82rem !important;
+            border-radius: 10px !important;
+            margin: 0 !important;
+        }
+
+        /* -------------------------------------------------------------------
+           CONTENT COLUMNS COLLAPSE SAFELY (Full-width for cards & containers)
+           ------------------------------------------------------------------- */
+        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(form)):not(:has(> div[data-testid="column"] .stButton)):not(:has(button[key="global_header_back"])) > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 12px !important;
+        }
+
+        /* -------------------------------------------------------------------
+           QUICK ACTIONS: 2x2 ACTION TILES (Instead of 4 tall stacked bars)
+           ------------------------------------------------------------------- */
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            margin-bottom: 6px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) > div[data-testid="column"] {
+            flex: 1 1 50% !important;
+            width: 50% !important;
+            min-width: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) .stButton > button {
+            min-height: 42px !important;
+            height: 42px !important;
+            font-size: 0.82rem !important;
+            padding: 4px 8px !important;
+            border-radius: 12px !important;
+            margin-bottom: 8px !important;
+        }
+
+        /* -------------------------------------------------------------------
+           INTERACTIVE SATELLITE MAP FRAME & DETAILS CARD
+           ------------------------------------------------------------------- */
+        iframe {
+            min-height: 250px !important;
+            height: 260px !important;
+            max-height: 280px !important;
+            border-radius: 14px !important;
+            width: 100% !important;
+        }
+        div[data-testid="stIFrame"] {
+            border-radius: 14px !important;
+            overflow: hidden !important;
+            width: 100% !important;
+        }
+
+        /* Section Cards styling on mobile */
+        .dashboard-card {
+            padding: 14px 15px !important;
+            border-radius: 16px !important;
+            margin-bottom: 12px !important;
+        }
+
+        /* -------------------------------------------------------------------
+           SUSTAINABILITY IMPACT BANNER: 2x2 GRID OF IMPACT CHIPS
+           ------------------------------------------------------------------- */
         .impact-banner {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 12px !important;
-            padding: 16px !important;
+            padding: 14px 16px !important;
             border-radius: 16px !important;
+            margin-top: 8px !important;
+            margin-bottom: 12px !important;
+        }
+        .impact-banner > div:first-child {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        .impact-banner > div:last-child {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            width: 100% !important;
         }
         .impact-chip {
-            width: 100% !important;
-            justify-content: flex-start !important;
+            flex: 1 1 calc(50% - 4px) !important;
+            width: calc(50% - 4px) !important;
+            min-width: calc(50% - 4px) !important;
+            max-width: calc(50% - 4px) !important;
+            padding: 8px 10px !important;
+            border-radius: 12px !important;
             box-sizing: border-box !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
         }
-
-        /* Interactive Map Frame on mobile */
-        iframe {
-            min-height: 240px !important;
-            height: 250px !important;
-            border-radius: 14px !important;
+        .impact-chip span {
+            font-size: 18px !important;
         }
 
         /* Smooth horizontal scrollbar for tab navigation */
@@ -1082,15 +1313,16 @@ render_html(
             font-size: 0.88rem !important;
         }
 
-        /* Touch-friendly buttons (Apple HIG / Android Material 48px touch targets) */
+        /* Touch-friendly buttons (Comfortable 42px touch targets on mobile) */
         .stButton > button {
             width: 100% !important;
-            min-height: 48px !important;
-            font-size: 0.95rem !important;
+            min-height: 42px !important;
+            font-size: 0.90rem !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             border-radius: 12px !important;
+            padding: 6px 14px !important;
         }
 
         /* Popover dropdowns on mobile */
@@ -1104,6 +1336,52 @@ render_html(
         /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
         .stTextInput input, .stSelectbox div {
             font-size: 16px !important;
+        }
+    }
+
+    /* -----------------------------------------------------------------------
+       ULTRA-COMPACT POLISH FOR SMALL PHONES (@media (max-width: 480px))
+       ----------------------------------------------------------------------- */
+    @media (max-width: 480px) {
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            padding-left: 0.65rem !important;
+            padding-right: 0.65rem !important;
+        }
+        .greeting-title {
+            font-size: 1.18rem !important;
+        }
+        .kpi-card {
+            padding: 8px 10px !important;
+            min-height: 74px !important;
+            gap: 8px !important;
+        }
+        .kpi-icon-box {
+            width: 32px !important;
+            height: 32px !important;
+            min-width: 32px !important;
+            font-size: 15px !important;
+            border-radius: 8px !important;
+        }
+        .kpi-val {
+            font-size: 1.15rem !important;
+        }
+        .kpi-label {
+            font-size: 0.64rem !important;
+        }
+        .kpi-subtext {
+            font-size: 0.60rem !important;
+        }
+        .impact-chip {
+            padding: 6px 8px !important;
+            font-size: 0.82rem !important;
+        }
+        .card-header-title {
+            font-size: 0.98rem !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) div[data-testid="stPopover"] > button {
+            padding: 0.28rem 0.5rem !important;
+            font-size: 0.78rem !important;
         }
     }
 
