@@ -826,8 +826,10 @@ render_html(
             width: 0px !important;
             min-width: 0px !important;
             max-width: 0px !important;
-            margin-left: -260px !important;
-            transform: translateX(-100%) !important;
+            margin: 0 !important;
+            margin-left: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
             overflow: hidden !important;
             pointer-events: none !important;
             visibility: hidden !important;
@@ -839,6 +841,8 @@ render_html(
             width: 0px !important;
             min-width: 0px !important;
             max-width: 0px !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         /* Main Container on Desktop - Dynamically occupies all remaining space */
@@ -848,6 +852,7 @@ render_html(
             flex: 1 1 auto !important;
             min-width: 0 !important;
             width: 100% !important;
+            margin-left: 0 !important;
             overflow-y: auto !important;
             overflow-x: hidden !important;
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
@@ -857,7 +862,7 @@ render_html(
         .main .block-container,
         div[data-testid="stMain"] .block-container {
             max-width: 1400px !important;
-            padding: 1.8rem 2.5rem 3.5rem 2.5rem !important;
+            padding: 2.2rem 2.8rem 3.5rem 2.8rem !important;
             margin-left: auto !important;
             margin-right: auto !important;
         }
@@ -869,6 +874,15 @@ render_html(
             top: 14px !important;
             left: 14px !important;
             z-index: 999999 !important;
+            background-color: #FFFFFF !important;
+            border-radius: 10px !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12) !important;
+            border: 1px solid #E5E7EB !important;
+            transition: all 0.2s ease !important;
+        }
+        button[data-testid="stExpandSidebarButton"]:hover {
+            background-color: #F3F4F6 !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
         }
     }
 
