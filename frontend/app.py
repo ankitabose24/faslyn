@@ -50,8 +50,11 @@ from frontend.tts import speak_text
 API_PORT = int(os.environ.get("FASLYN_API_PORT", 8000))
 
 # Initialize local SQLite persistence and start interoperable REST API service (zero-cost)
-init_db()
-start_api_server_background(API_PORT)
+try:
+    init_db()
+    start_api_server_background(API_PORT)
+except Exception:
+    pass
 
 
 # High-performance caching for telemetry, satellite data, soil & geocoding

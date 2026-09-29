@@ -18,10 +18,16 @@ DB_PATH = os.path.join(DB_DIR, "faslyn.db")
 
 def get_connection() -> sqlite3.Connection:
     """Ensure directory exists and return an active SQLite connection."""
-    os.makedirs(DB_DIR, exist_ok=True)
-    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
-    conn.row_factory = sqlite3.Row
-    return conn
+    try:
+        os.makedirs(DB_DIR, exist_ok=True)
+        conn = sqlite3.connect(DB_PATH, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        return conn
+    except Exception:
+        fallback_path = os.path.join(os.environ.get("TMPDIR", "/tmp"), "faslyn.db")
+        conn = sqlite3.connect(fallback_path, check_same_thread=False)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 
 def init_db() -> None:
