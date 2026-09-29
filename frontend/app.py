@@ -415,20 +415,150 @@ render_html(
     }
     
     /* Section Cards - Soft 3D Elevation */
-    .dashboard-card {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
-        border-radius: 20px;
-        padding: 20px;
-        border: 1px solid rgba(228, 236, 231, 0.95);
-        border-bottom: 3.5px solid rgba(200, 218, 206, 0.85);
-        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95);
-        margin-bottom: 16px;
-        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Section Cards - Soft 3D Elevation */
+    .dashboard-card,
+    .st-key-home_qa_card_box {
+        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
+        border-radius: 20px !important;
+        padding: 20px !important;
+        border: 1px solid rgba(228, 236, 231, 0.95) !important;
+        border-bottom: 3.5px solid rgba(200, 218, 206, 0.85) !important;
+        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        margin-bottom: 16px !important;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        box-sizing: border-box !important;
     }
-    .dashboard-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.1), 0 5px 10px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px #FFFFFF;
+    .dashboard-card:hover,
+    .st-key-home_qa_card_box:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.1), 0 5px 10px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px #FFFFFF !important;
     }
+
+    /* Row 3 Uniform Cards - Farm Overview, Quick Actions, Upcoming Alerts */
+    .home-row3-card,
+    .st-key-home_qa_card_box {
+        min-height: 255px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+    }
+    .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 12px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+    }
+    .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 50% !important;
+        width: 50% !important;
+        min-width: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin-bottom: 0 !important;
+    }
+    .st-key-home_qa_card_box .stButton {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    .st-key-home_qa_card_box .stButton > button {
+        width: 100% !important;
+        min-height: 48px !important;
+        height: 48px !important;
+        border-radius: 14px !important;
+        font-size: 0.85rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+        padding: 4px 8px !important;
+    }
+
+    /* Row 3 Columns on Desktop */
+    .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 16px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+    }
+    .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        width: 33.333% !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    /* Row 2 Columns on Desktop */
+    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 20px !important;
+        width: 100% !important;
+        align-items: stretch !important;
+    }
+    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+        flex: 1.85 1 0 !important;
+        min-width: 0 !important;
+        width: 62% !important;
+    }
+    .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+        flex: 1.15 1 0 !important;
+        min-width: 0 !important;
+        width: 38% !important;
+    }
+
+    /* Universal Location Search Form */
+    div[data-testid="stForm"] {
+        border: 1px solid #E5EBE7 !important;
+        border-bottom: 2.5px solid #D5E0D8 !important;
+        border-radius: 14px !important;
+        padding: 6px 10px !important;
+        background: #FFFFFF !important;
+        margin-bottom: 12px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 8px !important;
+        align-items: center !important;
+        width: 100% !important;
+    }
+    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+    }
+    div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 130px !important;
+        max-width: 48% !important;
+    }
+    div[data-testid="stForm"] input {
+        height: 38px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+        padding: 4px 10px !important;
+    }
+    div[data-testid="stForm"] button {
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 12px !important;
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        border-radius: 10px !important;
+        margin: 0 !important;
+    }
+
     .card-header-row {
         display: flex;
         justify-content: space-between;
@@ -946,6 +1076,61 @@ render_html(
     }
 
     /* -----------------------------------------------------------------------
+       TABLET & MINIMIZED DESKTOP TAB RESPONSIVENESS (@media (max-width: 1100px))
+       Prevents column collisions and horizontal overflows when tab is minimized
+       ----------------------------------------------------------------------- */
+    @media (max-width: 1100px) {
+        /* Row 2: Fields and AI Insights stack vertically cleanly */
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 16px !important;
+        }
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Row 3: Farm Overview, Quick Actions, Upcoming Alerts stack vertically */
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 16px !important;
+        }
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+        .st-key-home_qa_card_box,
+        .home-row3-card {
+            min-height: auto !important;
+        }
+    }
+
+    /* Small screens (<= 768px): Map and parcel details stack vertically */
+    @media (max-width: 768px) {
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            width: 100% !important;
+            gap: 12px !important;
+        }
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 0 !important;
+        }
+    }
+
+    /* -----------------------------------------------------------------------
        MOBILE & TABLET RESPONSIVE SYSTEM (@media (max-width: 991px))
        Off-canvas drawer with smooth slide, backdrop dimming, and touch layout
        ----------------------------------------------------------------------- */
@@ -1223,6 +1408,9 @@ render_html(
             background: #FFFFFF !important;
             margin-bottom: 10px !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+            width: 100% !important;
         }
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
@@ -1230,6 +1418,7 @@ render_html(
             flex-wrap: nowrap !important;
             gap: 6px !important;
             align-items: center !important;
+            width: 100% !important;
         }
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
             flex: 1 1 auto !important;
@@ -1240,7 +1429,8 @@ render_html(
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
             flex: 0 0 auto !important;
             width: auto !important;
-            min-width: 72px !important;
+            min-width: 120px !important;
+            max-width: 50% !important;
             margin-bottom: 0 !important;
         }
         div[data-testid="stForm"] input {
@@ -1252,16 +1442,19 @@ render_html(
         div[data-testid="stForm"] button {
             height: 38px !important;
             min-height: 38px !important;
-            padding: 0 12px !important;
-            font-size: 0.82rem !important;
+            padding: 0 10px !important;
+            font-size: 0.80rem !important;
             border-radius: 10px !important;
             margin: 0 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
 
         /* -------------------------------------------------------------------
            CONTENT COLUMNS COLLAPSE SAFELY (Full-width for cards & containers)
            ------------------------------------------------------------------- */
-        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(form)):not(:has(> div[data-testid="column"] .stButton)):not(:has(button[key="global_header_back"])) > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)) > div[data-testid="column"]:not(.st-key-home_qa_card_box div) {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
@@ -1269,28 +1462,32 @@ render_html(
         }
 
         /* -------------------------------------------------------------------
-           QUICK ACTIONS: 2x2 ACTION TILES (Instead of 4 tall stacked bars)
+           QUICK ACTIONS: 2x2 ACTION TILES (Scoped cleanly to home_qa_card_box)
            ------------------------------------------------------------------- */
-        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) {
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             gap: 8px !important;
-            margin-bottom: 6px !important;
+            width: 100% !important;
+            margin-bottom: 0 !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) > div[data-testid="column"] {
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             flex: 1 1 50% !important;
             width: 50% !important;
             min-width: 0 !important;
             margin-bottom: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .stButton):not(:has(.card-header-title)):not(:has(iframe)):not(:has(input)):not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(button[key="global_header_back"])) .stButton > button {
-            min-height: 42px !important;
-            height: 42px !important;
+        .st-key-home_qa_card_box .stButton > button {
+            min-height: 44px !important;
+            height: 44px !important;
             font-size: 0.82rem !important;
             padding: 4px 8px !important;
             border-radius: 12px !important;
-            margin-bottom: 8px !important;
+            margin-bottom: 0 !important;
         }
 
         /* -------------------------------------------------------------------
@@ -2957,7 +3154,8 @@ if st.session_state.active_tab_id == "home":
     # -----------------------------------------------------------------------
     # ROW 2: "MY FIELDS" MAP (LEFT) & "AI INSIGHTS" (RIGHT)
     # -----------------------------------------------------------------------
-    mid_left, mid_right = st.columns([2, 1])
+    c_row2 = st.container(key="dashboard_row2_container")
+    mid_left, mid_right = c_row2.columns([1.85, 1.15])
 
     with mid_left:
         mf_c1, mf_c2 = st.columns([3, 1], vertical_alignment="center")
@@ -2968,7 +3166,7 @@ if st.session_state.active_tab_id == "home":
                 navigate_to("sat")
 
         with st.form("home_quick_loc_search", clear_on_submit=False):
-            hs1, hs2 = st.columns([3.4, 1.3], vertical_alignment="center")
+            hs1, hs2 = st.columns([3.0, 1.4], vertical_alignment="center")
             with hs1:
                 home_loc_q = st.text_input(
                     "Search Farmland Location",
@@ -3245,7 +3443,7 @@ if st.session_state.active_tab_id == "home":
 
         render_html(
             f"""
-            <div class="dashboard-card" style="margin-top: 4px;">
+            <div class="dashboard-card home-ai-card" style="margin-top: 4px;">
                 <div style="background: #FEF2F2; border: 1px solid #FEE2E2; border-radius: 14px; padding: 14px; margin-bottom: 16px;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
                         <span style="font-weight:700; color:#DC2626; font-size:0.92rem; display:flex; align-items:center; gap:6px;">
@@ -3281,7 +3479,8 @@ if st.session_state.active_tab_id == "home":
     # -----------------------------------------------------------------------
     # ROW 3: FARM OVERVIEW | QUICK ACTIONS | UPCOMING & ALERTS
     # -----------------------------------------------------------------------
-    col_ov, col_act, col_alt = st.columns(3)
+    c_row3 = st.container(key="dashboard_row3_container")
+    col_ov, col_act, col_alt = c_row3.columns(3)
 
     with col_ov:
         fo_c1, fo_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
@@ -3308,7 +3507,7 @@ if st.session_state.active_tab_id == "home":
 
         render_html(
             f"""
-            <div class="dashboard-card" style="height: 100%;">
+            <div class="dashboard-card home-row3-card" style="height: 100%;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     {cards_html}
                 </div>
@@ -3328,18 +3527,19 @@ if st.session_state.active_tab_id == "home":
                 st.session_state.satellite = None
                 st.rerun()
 
-        qa1, qa2 = st.columns(2)
-        with qa1:
-            if st.button(_("qa_upload"), use_container_width=True, key="qa_upload"):
-                navigate_to("ai")
-            if st.button(_("qa_speak"), use_container_width=True, key="qa_speak"):
-                navigate_to("ai")
+        with st.container(key="home_qa_card_box"):
+            qa1, qa2 = st.columns(2)
+            with qa1:
+                if st.button(_("qa_upload"), use_container_width=True, key="qa_upload"):
+                    navigate_to("ai")
+                if st.button(_("qa_speak"), use_container_width=True, key="qa_speak"):
+                    navigate_to("ai")
 
-        with qa2:
-            if st.button(_("qa_sat"), use_container_width=True, key="qa_sat"):
-                navigate_to("sat")
-            if st.button(_("qa_down"), use_container_width=True, key="qa_down"):
-                navigate_to("brics")
+            with qa2:
+                if st.button(_("qa_sat"), use_container_width=True, key="qa_sat"):
+                    navigate_to("sat")
+                if st.button(_("qa_down"), use_container_width=True, key="qa_down"):
+                    navigate_to("brics")
 
     with col_alt:
         ua_c1, ua_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
@@ -3418,7 +3618,7 @@ if st.session_state.active_tab_id == "home":
 
         render_html(
             f"""
-            <div class="dashboard-card" style="height: 100%;">
+            <div class="dashboard-card home-row3-card" style="height: 100%;">
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt1_bg}; border: 1px solid {alt1_border}; border-bottom: 2.5px solid {alt1_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
                         <div>
