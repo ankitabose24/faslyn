@@ -106,14 +106,13 @@ render_html(
     /* Top Streamlit App Header bar */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
+        z-index: 99999 !important;
     }
     
-    /* Hide Deploy button, 3-dots Menu, and Streamlit Footer */
+    /* Hide Deploy button, 3-dots Menu, and Streamlit Footer ONLY */
     .stAppDeployButton,
     [data-testid="stAppDeployButton"],
     #MainMenu,
-    [data-testid="stToolbar"],
-    [data-testid="stToolbarActions"],
     footer {
         display: none !important;
         visibility: hidden !important;
@@ -121,6 +120,81 @@ render_html(
         width: 0 !important;
         opacity: 0 !important;
         pointer-events: none !important;
+    }
+
+    /* Ensure Sidebar Collapse/Expand Toggle is ALWAYS visible and clickable */
+    div[data-testid="stSidebarCollapsedControl"],
+    button[data-testid="stSidebarCollapseButton"],
+    button[data-testid="baseButton-headerNoPadding"],
+    div[data-testid="stSidebarHeader"] button {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 9999999 !important;
+    }
+
+    /* Style the Sidebar Open / Toggle Button */
+    div[data-testid="stSidebarCollapsedControl"] {
+        top: 10px !important;
+        left: 10px !important;
+        display: flex !important;
+    }
+    div[data-testid="stSidebarCollapsedControl"] button,
+    button[data-testid="stSidebarCollapseButton"] {
+        background: #FFFFFF !important;
+        color: #1B4D3E !important;
+        border: 1.5px solid #C8D6CC !important;
+        border-bottom: 3px solid #10B981 !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.15) !important;
+        padding: 6px 12px !important;
+        cursor: pointer !important;
+    }
+    div[data-testid="stSidebarCollapsedControl"] button:hover,
+    button[data-testid="stSidebarCollapseButton"]:hover {
+        background: #ECFDF5 !important;
+        transform: translateY(-1.5px) !important;
+    }
+    div[data-testid="stSidebarCollapsedControl"] svg,
+    button[data-testid="stSidebarCollapseButton"] svg {
+        fill: #1B4D3E !important;
+        color: #1B4D3E !important;
+    }
+
+    /* Guarantee Sidebar is visible and expanded on desktop screens */
+    @media (min-width: 769px) {
+        section[data-testid="stSidebar"] {
+            display: block !important;
+            visibility: visible !important;
+            width: 320px !important;
+            min-width: 320px !important;
+            transform: none !important;
+            margin-left: 0 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            height: 100vh !important;
+            z-index: 100 !important;
+            opacity: 1 !important;
+            background-color: #F8FAF7 !important;
+            border-right: 1px solid #EBF2EB !important;
+        }
+        div[data-testid="stAppViewContainer"] > section.main {
+            margin-left: 320px !important;
+            width: calc(100% - 320px) !important;
+            max-width: calc(100% - 320px) !important;
+        }
+    }
+
+    /* Mobile: Sidebar smoothly slides over screen when opened */
+    @media (max-width: 768px) {
+        section[data-testid="stSidebar"] {
+            z-index: 999999 !important;
+            width: 85vw !important;
+            max-width: 330px !important;
+            box-shadow: 6px 0 28px rgba(0, 0, 0, 0.18) !important;
+        }
     }
     
     /* Sidebar text colors */
