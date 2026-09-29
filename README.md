@@ -103,23 +103,41 @@ source venv/bin/activate
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. (Optional) Run the automated test suite
-python scripts/test_everything.py
+# 4. Launch the application (Choose either method):
+# Option A: 1-Click launcher
+# Windows Command Prompt:
+run.bat
+# Windows PowerShell:
+.\run.ps1
 
-# 5. Launch the application
-streamlit run frontend/app.py
+# Option B: Direct Python/Streamlit command
+python -m streamlit run frontend/app.py
+
+# 5. Access the services:
+# Web Dashboard: http://localhost:8501
+# Live REST API: http://localhost:8000/api/v1/export
 ```
 
 Open your browser at `http://localhost:8501`.
 
 ---
 
+## 🌐 Live Interoperable REST API (Port 8000)
+Faslyn includes a built-in, zero-dependency HTTP REST API service implementing the BRICS AgriN Open Data protocol:
+* `GET http://localhost:8000/api/v1/health` — API health status
+* `GET http://localhost:8000/api/v1/export` — Full ODbL Digital Public Good payload
+* `GET http://localhost:8000/api/v1/telemetry?lat={lat}&lon={lon}` — Live topsoil telemetry
+* `GET http://localhost:8000/api/v1/soil?lat={lat}&lon={lon}` — ISRIC SoilGrids chemical profile
+* `GET http://localhost:8000/api/v1/hubs` — BRICS regional agricultural hub registry
+
+---
+
 ## 🧪 Testing & Verification
-Faslyn includes an automated test suite verifying live API connectivity, data bounds, translations, and AI models:
+Faslyn includes a comprehensive automated test suite verifying live telemetry, satellite feeds, soil chemistry, translations, SQLite persistence, REST endpoints, and foliar pathology heuristics:
 ```bash
 python scripts/test_everything.py
 ```
-**Results:** `26 Passed, 0 Failed (100% Pass Rate)`.
+**Results:** `37 Passed, 0 Failed (100% Pass Rate across 13 suites)`.
 
 ---
 
