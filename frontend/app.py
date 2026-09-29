@@ -79,6 +79,22 @@ def get_cached_geocoding(query: str):
     return geocode_location(query)
 
 
+@st.cache_data
+def get_hero_bg_base64() -> str:
+    """Return base64 data URI for the farmer hero section background image."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    webp_path = os.path.join(current_dir, "assets", "hero_farmer_bg.webp")
+    png_path = os.path.join(current_dir, "assets", "hero_farmer_bg.png")
+    target = webp_path if os.path.exists(webp_path) else png_path
+    if os.path.exists(target):
+        ext = "webp" if target.endswith(".webp") else "png"
+        with open(target, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode("utf-8")
+        return f"data:image/{ext};base64,{b64}"
+    return ""
+
+
+
 # ---------------------------------------------------------------------------
 # PAGE CONFIGURATION
 # ---------------------------------------------------------------------------
@@ -1626,6 +1642,101 @@ render_html(
     """
 )
 
+# ---------------------------------------------------------------------------
+# FARMER HERO SECTION STYLING WITH SMART AGRI BACKGROUND
+# ---------------------------------------------------------------------------
+hero_bg_data_uri = get_hero_bg_base64()
+if hero_bg_data_uri:
+    render_html(
+        f"""
+        <style>
+        /* Dashboard Hero Section - Farmer & Agtech Background */
+        .st-key-dashboard_hero_section,
+        div[class*="st-key-dashboard_hero_section"],
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+            background-image: 
+                linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(246, 250, 247, 0.52) 100%),
+                url('{hero_bg_data_uri}') !important;
+            background-size: cover !important;
+            background-position: center 30% !important;
+            background-repeat: no-repeat !important;
+            border-radius: 24px !important;
+            padding: 24px 26px 20px 26px !important;
+            margin-bottom: 22px !important;
+            border: 1.5px solid rgba(200, 225, 210, 0.85) !important;
+            border-bottom: 3.5px solid rgba(160, 205, 180, 0.9) !important;
+            box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+            position: relative !important;
+        }}
+
+        /* Hero Section Header Title & Subtitle */
+        .st-key-dashboard_hero_section .greeting-title,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .greeting-title {{
+            color: #0d281e !important;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 2px 10px rgba(255, 255, 255, 0.75) !important;
+        }}
+        .st-key-dashboard_hero_section .greeting-subtitle,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .greeting-subtitle {{
+            color: #1e3a2f !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+        }}
+
+        /* Frosted Glass Header Action Widgets (Bell, Language, Profile) */
+        .st-key-dashboard_hero_section div[data-testid="stPopover"] > button,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) div[data-testid="stPopover"] > button,
+        .st-key-dashboard_hero_section div[data-baseweb="select"] > div,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) div[data-baseweb="select"] > div {{
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(220, 235, 225, 0.85) !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+        }}
+
+        /* Frosted Glass 4 KPI Cards inside Hero Section */
+        .st-key-dashboard_hero_section .kpi-card,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .kpi-card {{
+            background: rgba(255, 255, 255, 0.88) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.85) !important;
+            border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
+            box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        }}
+        .st-key-dashboard_hero_section .kpi-card:hover,
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .kpi-card:hover {{
+            background: rgba(255, 255, 255, 0.96) !important;
+            transform: translateY(-3px) scale(1.006) !important;
+            border-bottom-color: rgba(181, 131, 90, 0.7) !important;
+            box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.18), inset 0 1px 1px #FFFFFF !important;
+        }}
+
+        /* Tablet & Mobile Hero Responsiveness */
+        @media (max-width: 991px) {{
+            .st-key-dashboard_hero_section,
+            div[class*="st-key-dashboard_hero_section"],
+            div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+                padding: 14px 14px 12px 14px !important;
+                border-radius: 18px !important;
+                margin-bottom: 14px !important;
+                background-position: center 25% !important;
+            }}
+        }}
+        @media (max-width: 480px) {{
+            .st-key-dashboard_hero_section,
+            div[class*="st-key-dashboard_hero_section"],
+            div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+                padding: 12px 10px 10px 10px !important;
+                border-radius: 16px !important;
+                margin-bottom: 12px !important;
+            }}
+        }}
+        </style>
+        """
+    )
+
+
 
 def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
     """Render high-polish 3D green & blue splash loader that smoothly zooms in and fades out quickly."""
@@ -2225,6 +2336,12 @@ if st.session_state.get("just_logged_in", False):
             animation: kpi3DZoomIn 0.52s cubic-bezier(0.16, 1, 0.3, 1) both !important;
             transform-origin: center center !important;
         }
+        .st-key-dashboard_hero_section,
+        div[class*="st-key-dashboard_hero_section"],
+        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {
+            animation: card3DZoomIn 0.58s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+            transform-origin: center top !important;
+        }
         .dashboard-card,
         iframe,
         div[data-testid="stIFrame"],
@@ -2370,55 +2487,7 @@ except Exception:
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
 # ===========================================================================
-hdr_left, hdr_right = st.columns([3, 2])
-
-with hdr_left:
-    if st.session_state.active_tab_id == "home":
-        current_farmer = st.session_state.get("user_name", "Farmer")
-        greeting_text = _('greeting')
-        for generic in ["Farmer!", "Farmer", "किसान भाई!", "किसान भाई", "କୃଷକ ଭାଇ!", "କୃଷକ ଭାଇ", "Produtor Rural!", "Produtor Rural", "Фермер!", "Фермер", "农户朋友！", "农户朋友"]:
-            if generic in greeting_text:
-                greeting_text = greeting_text.replace(generic, f"{current_farmer}!")
-                break
-        else:
-            greeting_text = f"{greeting_text} {current_farmer}!"
-
-        render_html(
-            f"""
-            <div class="top-header">
-                <div>
-                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <h1 class="greeting-title">{greeting_text}</h1>
-                        <span style="background: #ECFDF5; color: #047857; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 5px;">
-                            <span style="display:inline-block; width:7px; height:7px; background:#10B981; border-radius:50%;"></span>
-                            LIVE NASA & SENSOR FEEDS
-                        </span>
-                    </div>
-                    <p class="greeting-subtitle">{_('subtitle')}</p>
-                </div>
-            </div>
-            """
-        )
-    else:
-        b_c1, b_c2 = st.columns([1.5, 3.5], vertical_alignment="center")
-        with b_c1:
-            if st.button(_("back_to_home"), key="global_header_back", type="secondary", use_container_width=True):
-                navigate_back()
-        with b_c2:
-            current_title = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
-            render_html(
-                f"""
-                <div style="display:flex; align-items:center; gap:8px; padding-left:6px;">
-                    <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">{_('nav_home')}</span>
-                    <span style="color:#9CA3AF; font-size:0.86rem;">›</span>
-                    <span style="background:#F5EBE1; color:#7D4E27; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #E3D1C2;">
-                        {current_title}
-                    </span>
-                </div>
-                """
-            )
-
-with hdr_right:
+def render_header_actions():
     c_bell, c_lang, c_user = st.columns([1.1, 2.5, 3], vertical_alignment="center")
     with c_bell:
         unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
@@ -2527,6 +2596,27 @@ with hdr_right:
                 st.rerun()
 
 if st.session_state.active_tab_id != "home":
+    hdr_left, hdr_right = st.columns([3, 2])
+    with hdr_left:
+        b_c1, b_c2 = st.columns([1.5, 3.5], vertical_alignment="center")
+        with b_c1:
+            if st.button(_("back_to_home"), key="global_header_back", type="secondary", use_container_width=True):
+                navigate_back()
+        with b_c2:
+            current_title = id_to_label.get(st.session_state.active_tab_id, _("nav_home"))
+            render_html(
+                f"""
+                <div style="display:flex; align-items:center; gap:8px; padding-left:6px;">
+                    <span style="font-size:0.86rem; color:#6B7280; font-weight:600;">{_('nav_home')}</span>
+                    <span style="color:#9CA3AF; font-size:0.86rem;">›</span>
+                    <span style="background:#F5EBE1; color:#7D4E27; font-size:0.82rem; font-weight:700; padding:3px 12px; border-radius:9999px; border:1px solid #E3D1C2;">
+                        {current_title}
+                    </span>
+                </div>
+                """
+            )
+    with hdr_right:
+        render_header_actions()
     render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
 
 # ===========================================================================
@@ -2534,9 +2624,6 @@ if st.session_state.active_tab_id != "home":
 # ===========================================================================
 if st.session_state.active_tab_id == "home":
 
-    # -----------------------------------------------------------------------
-    # ROW 1: TOP 4 KPI CARDS
-    # -----------------------------------------------------------------------
     # -----------------------------------------------------------------------
     # DYNAMIC LIVE FEEDS: OPEN-METEO TELEMETRY & NASA POWER SATELLITE
     # -----------------------------------------------------------------------
@@ -2611,65 +2698,103 @@ if st.session_state.active_tab_id == "home":
     )
 
     # -----------------------------------------------------------------------
-    # ROW 1: TOP 4 KPI CARDS (LIVE DATA ENGINE)
+    # DASHBOARD HERO SECTION: TOP GREETING & HEADER + 4 KPI METRIC CARDS
+    # Framed with smart agriculture farmer photo background
     # -----------------------------------------------------------------------
-    kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+    with st.container(key="dashboard_hero_section"):
+        render_html('<div class="dashboard-hero-marker" style="display:none;"></div>')
+        
+        # Top Header Greeting & Quick Actions Row
+        hdr_left, hdr_right = st.columns([3, 2])
+        with hdr_left:
+            current_farmer = st.session_state.get("user_name", "Farmer")
+            greeting_text = _('greeting')
+            for generic in ["Farmer!", "Farmer", "किसान भाई!", "किसान भाई", "କୃଷକ ଭାଇ!", "କୃଷକ ଭାଇ", "Produtor Rural!", "Produtor Rural", "Фермер!", "Фермер", "农户朋友！", "农户朋友"]:
+                if generic in greeting_text:
+                    greeting_text = greeting_text.replace(generic, f"{current_farmer}!")
+                    break
+            else:
+                greeting_text = f"{greeting_text} {current_farmer}!"
 
-    with kpi1:
-        render_html(
-            f"""
-            <div class="kpi-card">
-                <div class="kpi-icon-box icon-green">🏡</div>
-                <div>
-                    <div class="kpi-label">{_('total_fields')}</div>
-                    <div class="kpi-val">{total_fields}</div>
-                    <div class="kpi-subtext">📍 {active_hub_clean}</div>
+            render_html(
+                f"""
+                <div class="top-header">
+                    <div>
+                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                            <h1 class="greeting-title">{greeting_text}</h1>
+                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); backdrop-filter: blur(4px);">
+                                <span style="display:inline-block; width:7px; height:7px; background:#10B981; border-radius:50%;"></span>
+                                LIVE NASA & SENSOR FEEDS
+                            </span>
+                        </div>
+                        <p class="greeting-subtitle">{_('subtitle')}</p>
+                    </div>
                 </div>
-            </div>
-            """
-        )
+                """
+            )
+        with hdr_right:
+            render_header_actions()
 
-    with kpi2:
-        render_html(
-            f"""
-            <div class="kpi-card">
-                <div class="kpi-icon-box icon-green">🍃</div>
-                <div>
-                    <div class="kpi-label">{_('healthy_fields')}</div>
-                    <div class="kpi-val">{healthy_fields}</div>
-                    <div class="kpi-subtext">{healthy_pct}% {_('of_total')}</div>
-                </div>
-            </div>
-            """
-        )
+        # -------------------------------------------------------------------
+        # ROW 1: TOP 4 KPI CARDS (LIVE DATA ENGINE)
+        # -------------------------------------------------------------------
+        kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
-    with kpi3:
-        render_html(
-            f"""
-            <div class="kpi-card">
-                <div class="kpi-icon-box icon-orange">⚠️</div>
-                <div>
-                    <div class="kpi-label">{_('fields_at_risk')}</div>
-                    <div class="kpi-val">{risk_fields}</div>
-                    <div class="kpi-subtext">{risk_pct}% {_('of_total')}</div>
+        with kpi1:
+            render_html(
+                f"""
+                <div class="kpi-card">
+                    <div class="kpi-icon-box icon-green">🏡</div>
+                    <div>
+                        <div class="kpi-label">{_('total_fields')}</div>
+                        <div class="kpi-val">{total_fields}</div>
+                        <div class="kpi-subtext">📍 {active_hub_clean}</div>
+                    </div>
                 </div>
-            </div>
-            """
-        )
+                """
+            )
 
-    with kpi4:
-        render_html(
-            f"""
-            <div class="kpi-card">
-                <div class="kpi-icon-box icon-teal">🪴</div>
-                <div>
-                    <div class="kpi-label">{_('overall_health')}</div>
-                    <div class="kpi-val">{overall_health}<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
-                    <div class="kpi-subtext" style="color:{trend_color}; font-weight:700;">↑ {trend_sign}{trend_val}% {_('vs_last_month')}</div>
+        with kpi2:
+            render_html(
+                f"""
+                <div class="kpi-card">
+                    <div class="kpi-icon-box icon-green">🍃</div>
+                    <div>
+                        <div class="kpi-label">{_('healthy_fields')}</div>
+                        <div class="kpi-val">{healthy_fields}</div>
+                        <div class="kpi-subtext">{healthy_pct}% {_('of_total')}</div>
+                    </div>
                 </div>
-            </div>
-            """
-        )
+                """
+            )
+
+        with kpi3:
+            render_html(
+                f"""
+                <div class="kpi-card">
+                    <div class="kpi-icon-box icon-orange">⚠️</div>
+                    <div>
+                        <div class="kpi-label">{_('fields_at_risk')}</div>
+                        <div class="kpi-val">{risk_fields}</div>
+                        <div class="kpi-subtext">{risk_pct}% {_('of_total')}</div>
+                    </div>
+                </div>
+                """
+            )
+
+        with kpi4:
+            render_html(
+                f"""
+                <div class="kpi-card">
+                    <div class="kpi-icon-box icon-teal">🪴</div>
+                    <div>
+                        <div class="kpi-label">{_('overall_health')}</div>
+                        <div class="kpi-val">{overall_health}<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
+                        <div class="kpi-subtext" style="color:{trend_color}; font-weight:700;">↑ {trend_sign}{trend_val}% {_('vs_last_month')}</div>
+                    </div>
+                </div>
+                """
+            )
 
     st.write("")
 
