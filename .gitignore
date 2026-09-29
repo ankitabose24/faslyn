@@ -11,6 +11,8 @@ __pycache__/
 
 # Streamlit secrets & local config
 .streamlit/secrets.toml
+.env
+.env.local
 
 # OS & IDE files
 .DS_Store

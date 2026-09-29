@@ -1208,12 +1208,14 @@ def set_coords(lat, lon, zoom=None, hub_name=None):
 
 
 def get_client():
-    """Resolve a Grok (xAI) client from Streamlit secrets or user input."""
+    """Resolve a Grok (xAI) client from .env (os.environ), Streamlit secrets, or user input."""
     api_key = None
     try:
         api_key = st.secrets.get("GROK_API_KEY") or st.secrets.get("XAI_API_KEY")
     except Exception:
         api_key = None
+    if not api_key:
+        api_key = os.environ.get("GROK_API_KEY") or os.environ.get("XAI_API_KEY")
     if not api_key:
         api_key = st.session_state.get("manual_grok_key")
     return build_grok_client(api_key)

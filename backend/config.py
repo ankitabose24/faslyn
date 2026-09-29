@@ -1,8 +1,36 @@
-"""
-Static configuration for Faslyn.
-Holds BRICS hub coordinates and supported advisory languages —
-no logic, no side effects, safe to import anywhere.
-"""
+import os
+
+def load_env_file():
+    """Load variables from .env into os.environ (supports python-dotenv with standard-lib fallback)."""
+    try:
+        from dotenv import load_dotenv
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+        if os.path.exists(env_path):
+            load_dotenv(env_path)
+            return True
+    except Exception:
+        pass
+
+    try:
+        env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    k, v = line.split("=", 1)
+                    k = k.strip()
+                    v = v.strip().strip("'\"")
+                    if k and k not in os.environ:
+                        os.environ[k] = v
+            return True
+    except Exception:
+        pass
+    return False
+
+# Initialize environment variables from .env immediately on import
+load_env_file()
 
 BRICS_HUBS = {
     "🇮🇳 India — Odisha (Coastal Rice Belt)": {"lat": 20.2961, "lon": 85.8245, "zoom": 8},

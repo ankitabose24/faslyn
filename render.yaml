@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: faslyn
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run frontend/app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12
+      - key: FASLYN_API_PORT
+        value: 8000
+      - key: XAI_API_KEY
+        sync: false
