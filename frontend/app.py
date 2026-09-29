@@ -1405,7 +1405,7 @@ render_html(
         overflow: hidden;
         pointer-events: auto;
         will-change: opacity;
-        animation: faslynContainerFlow 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: faslynContainerFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .faslyn-loader-card {
@@ -1426,7 +1426,7 @@ render_html(
         width: 88%;
         box-sizing: border-box;
         will-change: transform, opacity;
-        animation: faslynCardFlow 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        animation: faslynCardFlow 2.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .faslyn-spinner-wrapper {
@@ -1487,7 +1487,7 @@ render_html(
         height: 100%;
         background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
         border-radius: 9999px;
-        animation: faslynProgressFill 0.48s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+        animation: faslynProgressFill 1.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
     }
 
     .faslyn-loader-status {
@@ -1499,8 +1499,8 @@ render_html(
 
     @keyframes faslynProgressFill {
         0% { width: 0%; }
-        40% { width: 60%; }
-        80% { width: 90%; }
+        35% { width: 55%; }
+        75% { width: 88%; }
         100% { width: 100%; }
     }
 
@@ -1519,21 +1519,21 @@ render_html(
             transform: scale(0.92);
             opacity: 0;
         }
-        20% {
+        12% {
             transform: scale(1);
             opacity: 1;
         }
-        65% {
+        82% {
             transform: scale(1);
             opacity: 1;
         }
-        95% {
-            transform: scale(1.15);
+        96% {
+            transform: scale(1.10);
             opacity: 0;
             visibility: hidden;
         }
         100% {
-            transform: scale(1.15);
+            transform: scale(1.10);
             opacity: 0;
             visibility: hidden;
             display: none !important;
@@ -1546,12 +1546,12 @@ render_html(
             visibility: visible;
             pointer-events: auto;
         }
-        55% {
+        80% {
             opacity: 1;
             visibility: visible;
-            pointer-events: none;
+            pointer-events: auto;
         }
-        95% {
+        96% {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
@@ -1658,8 +1658,8 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
                             if (loader.parentNode) {{
                                 loader.parentNode.removeChild(loader);
                             }}
-                        }}, 180);
-                    }}, 550);
+                        }}, 200);
+                    }}, 2050);
                 }}
             }} catch(e) {{}}
         }})();
