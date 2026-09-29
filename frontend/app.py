@@ -1127,38 +1127,38 @@ render_html(
         overflow: hidden;
         pointer-events: auto;
         will-change: opacity;
-        animation: faslynContainerFlow 2.0s forwards;
+        animation: faslynContainerFlow 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .faslyn-loader-card {
         background: #FFFFFF;
         border: 1px solid rgba(220, 240, 230, 0.9);
         border-bottom: 4px solid #10B981;
-        border-radius: 26px;
-        padding: 36px 44px;
-        box-shadow: 0 24px 60px -12px rgba(16, 114, 85, 0.16),
-                    0 10px 25px -6px rgba(2, 132, 199, 0.12),
+        border-radius: 24px;
+        padding: 28px 38px;
+        box-shadow: 0 20px 50px -10px rgba(16, 114, 85, 0.16),
+                    0 8px 20px -6px rgba(2, 132, 199, 0.12),
                     0 0 0 1px rgba(255, 255, 255, 0.9);
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
-        gap: 14px;
-        max-width: 360px;
-        width: 90%;
+        gap: 12px;
+        max-width: 340px;
+        width: 88%;
         box-sizing: border-box;
         will-change: transform, opacity;
-        animation: faslynCardFlow 2.0s forwards;
+        animation: faslynCardFlow 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     .faslyn-spinner-wrapper {
         position: relative;
-        width: 70px;
-        height: 70px;
+        width: 62px;
+        height: 62px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 4px;
+        margin-bottom: 2px;
     }
 
     .faslyn-spinner-ring {
@@ -1166,23 +1166,23 @@ render_html(
         width: 100%;
         height: 100%;
         border-radius: 50%;
-        border: 3.5px solid rgba(16, 185, 129, 0.16);
-        border-top: 3.5px solid #10B981;
-        border-right: 3.5px solid #0284C7;
-        box-shadow: 0 4px 14px rgba(2, 132, 199, 0.18);
-        animation: faslynSpin 1.0s linear infinite;
+        border: 3px solid rgba(16, 185, 129, 0.16);
+        border-top: 3px solid #10B981;
+        border-right: 3px solid #0284C7;
+        box-shadow: 0 3px 10px rgba(2, 132, 199, 0.18);
+        animation: faslynSpin 0.65s linear infinite;
     }
 
     .faslyn-spinner-icon {
-        font-size: 30px;
-        animation: faslynPulse 1.4s ease-in-out infinite;
+        font-size: 26px;
+        animation: faslynPulse 0.8s ease-in-out infinite;
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
     .faslyn-loader-brand {
-        font-size: 1.65rem;
+        font-size: 1.55rem;
         font-weight: 800;
         color: #1B4D3E;
         letter-spacing: -0.5px;
@@ -1190,30 +1190,30 @@ render_html(
     }
 
     .faslyn-loader-subtitle {
-        font-size: 0.84rem;
+        font-size: 0.80rem;
         font-weight: 600;
         color: #4B5563;
-        line-height: 1.3;
+        line-height: 1.25;
     }
 
     .faslyn-loader-track {
-        width: 190px;
-        height: 6px;
+        width: 180px;
+        height: 5px;
         background: rgba(2, 132, 199, 0.12);
         border-radius: 9999px;
         overflow: hidden;
-        margin-top: 4px;
+        margin-top: 2px;
     }
 
     .faslyn-loader-bar {
         height: 100%;
         background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
         border-radius: 9999px;
-        animation: faslynProgressFill 1.35s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+        animation: faslynProgressFill 0.48s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
     }
 
     .faslyn-loader-status {
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         font-weight: 600;
         color: #6B7280;
         letter-spacing: 0.2px;
@@ -1221,9 +1221,8 @@ render_html(
 
     @keyframes faslynProgressFill {
         0% { width: 0%; }
-        25% { width: 35%; }
-        65% { width: 75%; }
-        90% { width: 95%; }
+        40% { width: 60%; }
+        80% { width: 90%; }
         100% { width: 100%; }
     }
 
@@ -1241,24 +1240,22 @@ render_html(
         0% {
             transform: scale(0.92);
             opacity: 0;
-            animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
-        18% {
+        20% {
             transform: scale(1);
             opacity: 1;
-            animation-timing-function: linear;
         }
-        67% {
+        65% {
             transform: scale(1);
             opacity: 1;
-            animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-        99% {
-            transform: scale(1.28);
+        }
+        95% {
+            transform: scale(1.15);
             opacity: 0;
             visibility: hidden;
         }
         100% {
-            transform: scale(1.28);
+            transform: scale(1.15);
             opacity: 0;
             visibility: hidden;
             display: none !important;
@@ -1270,15 +1267,13 @@ render_html(
             opacity: 1;
             visibility: visible;
             pointer-events: auto;
-            animation-timing-function: linear;
         }
-        67% {
+        55% {
             opacity: 1;
             visibility: visible;
-            pointer-events: auto;
-            animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
         }
-        99% {
+        95% {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
@@ -1305,7 +1300,7 @@ render_html(
 
 
 def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
-    """Render high-polish 3D green & blue splash loader that smoothly zooms in and fades out."""
+    """Render high-polish 3D green & blue splash loader that smoothly zooms in and fades out quickly."""
     render_html(
         f"""
         <div id="faslyn-loader-overlay" class="faslyn-loader-container">
@@ -1335,8 +1330,8 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
                             if (loader.parentNode) {{
                                 loader.parentNode.removeChild(loader);
                             }}
-                        }}, 450);
-                    }}, 1750);
+                        }}, 180);
+                    }}, 550);
                 }}
             }} catch(e) {{}}
         }})();
