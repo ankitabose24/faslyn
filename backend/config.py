@@ -54,10 +54,10 @@ FIRST_HUB = list(BRICS_HUBS.values())[0]
 
 REGIONAL_FIELDS = {
     "🇮🇳 India — Odisha (Coastal Rice Belt)": [
-        {"name": "Field 01 (North)", "crop_en": "Rice (Paddy)", "crop_key": "rice", "area": "1.2 ha", "icon": "🌾", "stress_bias": 1.0},
-        {"name": "Field 02 (East)", "crop_en": "Kharif Maize", "crop_key": "maize", "area": "0.8 ha", "icon": "🌽", "stress_bias": 0.85},
-        {"name": "Field 03 (Lowland)", "crop_en": "Basmati Rice", "crop_key": "rice", "area": "1.1 ha", "icon": "🌾", "stress_bias": 0.65},
-        {"name": "Field 04 (South)", "crop_en": "Vegetables", "crop_key": "veg", "area": "0.6 ha", "icon": "🥬", "stress_bias": 0.95},
+        {"name": "Field 01 (North)", "crop_en": "Rice (Paddy)", "crop_key": "rice", "area": "1.2 ha", "icon": "🌾", "stress_bias": 0.90},
+        {"name": "Field 02 (East)", "crop_en": "Kharif Maize", "crop_key": "maize", "area": "0.8 ha", "icon": "🌽", "stress_bias": 0.68},
+        {"name": "Field 03 (Lowland)", "crop_en": "Basmati Rice", "crop_key": "rice", "area": "1.1 ha", "icon": "🌾", "stress_bias": 0.58},
+        {"name": "Field 04 (South)", "crop_en": "Vegetables", "crop_key": "veg", "area": "0.6 ha", "icon": "🥬", "stress_bias": 0.88},
     ],
     "🇧🇷 Brazil — Mato Grosso (Soy/Maize Belt)": [
         {"name": "Talhão 01 (Norte)", "crop_en": "Soja Precoce", "crop_key": "soy", "area": "45 ha", "icon": "🌱", "stress_bias": 0.95},

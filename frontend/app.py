@@ -21,6 +21,7 @@ import textwrap
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import folium
+from folium.plugins import LocateControl
 import streamlit as st
 from PIL import Image
 from streamlit_folium import st_folium
@@ -2199,42 +2200,185 @@ if st.session_state.active_tab_id == "home":
 
             m = folium.Map(
                 location=[center_lat, center_lon],
-                zoom_start=14,
-                tiles="OpenStreetMap",
+                zoom_start=16,
+                max_zoom=18,
+                tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                attr="Esri World Imagery",
                 control_scale=False,
+                zoom_control=True,
             )
 
-            import math
-            n_f = len(fields_data)
-            radius = 0.0055
+            LocateControl(
+                auto_start=False,
+                position="topleft",
+                drawCircle=False,
+                strings={"title": "Locate Device GPS"},
+            ).add_to(m)
+
+            # Field parcel geometries matching high-resolution satellite parcel outlines in screenshot
+            parcel_shapes = [
+                # Field 01: Northwest - irregular polygon with southeast notch
+                [
+                    (0.0037, -0.0024),
+                    (0.0032, -0.0003),
+                    (0.0015, -0.0007),
+                    (0.0016, -0.0014),
+                    (0.0011, -0.0015),
+                    (0.0014, -0.0033),
+                    (0.0031, -0.0032),
+                ],
+                # Field 02: Northeast - tilted agricultural rectangle
+                [
+                    (0.0033, 0.0022),
+                    (0.0028, 0.0047),
+                    (0.0007, 0.0041),
+                    (0.0011, 0.0017),
+                ],
+                # Field 03: Southeast - tilted large plot
+                [
+                    (0.0000, 0.0005),
+                    (-0.0005, 0.0029),
+                    (-0.0028, 0.0021),
+                    (-0.0021, -0.0002),
+                ],
+                # Field 04: Southwest - irregular parcel with angled southern boundary
+                [
+                    (-0.0013, -0.0035),
+                    (-0.0012, -0.0015),
+                    (-0.0016, -0.0010),
+                    (-0.0021, -0.0008),
+                    (-0.0038, -0.0014),
+                    (-0.0038, -0.0018),
+                    (-0.0032, -0.0037),
+                    (-0.0021, -0.0036),
+                ],
+                # Field 05 (for regions with 5 parcels): North-Central plot
+                [
+                    (0.0039, -0.0001),
+                    (0.0038, 0.0019),
+                    (0.0018, 0.0016),
+                    (0.0019, -0.0003),
+                ],
+            ]
+
             for idx, fld in enumerate(fields_data):
-                angle = (2 * math.pi / n_f) * idx
-                lat_off = radius * math.cos(angle)
-                lon_off = radius * math.sin(angle)
-                f_lat = center_lat + lat_off
-                f_lon = center_lon + lon_off
-                d_lat = 0.002
-                d_lon = 0.0025
-                poly_pts = [
-                    [f_lat - d_lat * 0.7, f_lon - d_lon],
-                    [f_lat + d_lat, f_lon - d_lon * 0.6],
-                    [f_lat + d_lat * 0.8, f_lon + d_lon * 0.9],
-                    [f_lat - d_lat * 0.9, f_lon + d_lon * 0.7],
-                ]
+                shape_tpl = parcel_shapes[idx % len(parcel_shapes)]
+                poly_pts = [[center_lat + dlat, center_lon + dlon] for (dlat, dlon) in shape_tpl]
+                c_lat = sum(p[0] for p in poly_pts) / len(poly_pts)
+                c_lon = sum(p[1] for p in poly_pts) / len(poly_pts)
+
+                status = fld.get("status", "warning")
+                if status == "critical":
+                    poly_color = "#EF4444"
+                elif status == "warning":
+                    poly_color = "#F59E0B"
+                else:
+                    poly_color = "#10B981"
+
                 folium.Polygon(
                     locations=poly_pts,
-                    color=fld["dot_color"],
+                    color=poly_color,
+                    weight=2.8,
+                    opacity=0.96,
                     fill=True,
-                    fill_color=fld["dot_color"],
-                    fill_opacity=0.65,
+                    fill_color=poly_color,
+                    fill_opacity=0.30,
                     tooltip=f"{fld['name']} • {fld['crop']} ({fld['score']}%)",
                 ).add_to(m)
 
-            st_folium(m, height=275, use_container_width=True, key="dashboard_map", returned_objects=[])
+                # Permanent on-map centered label matching uploaded design
+                clean_name = fld["name"].split("(")[0].strip()
+                area_txt = fld.get("area", "")
+                label_html = f"""<div style="font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif; text-align:center; color:#FFFFFF; font-weight:700; line-height:1.25; text-shadow:0 1px 4px rgba(0,0,0,0.95), 0 0 6px rgba(0,0,0,0.85); white-space:nowrap; transform:translate(-50%,-50%); pointer-events:none; user-select:none;"><div style="font-size:12px; font-weight:700; letter-spacing:0.2px;">{clean_name}</div><div style="font-size:10px; font-weight:500; opacity:0.92;">({area_txt})</div></div>"""
+                folium.Marker(
+                    location=[c_lat, c_lon],
+                    icon=folium.DivIcon(
+                        html=label_html,
+                        icon_size=(100, 36),
+                        icon_anchor=(50, 18),
+                    ),
+                ).add_to(m)
+
+            # Custom styling and navigation controls matching the uploaded screenshot
+            map_custom_html = f"""
+            <style>
+            .leaflet-bar {{
+                border: none !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28) !important;
+                border-radius: 8px !important;
+                overflow: hidden;
+            }}
+            .leaflet-bar a {{
+                background-color: #FFFFFF !important;
+                color: #1F2937 !important;
+                border-bottom: 1px solid #E5E7EB !important;
+                width: 32px !important;
+                height: 32px !important;
+                line-height: 32px !important;
+                font-size: 15px !important;
+                font-weight: 700 !important;
+                transition: background-color 0.15s ease;
+            }}
+            .leaflet-bar a:hover {{
+                background-color: #F3F4F6 !important;
+                color: #111827 !important;
+            }}
+            .leaflet-control-locate {{
+                margin-top: 8px !important;
+            }}
+            .leaflet-control-locate a {{
+                border-radius: 8px !important;
+                border-bottom: none !important;
+            }}
+            .faslyn-nav-btn {{
+                position: absolute;
+                bottom: 16px;
+                left: 14px;
+                z-index: 999;
+                width: 36px;
+                height: 36px;
+                background: #FFFFFF;
+                border-radius: 50%;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                border: 1.5px solid rgba(255, 255, 255, 0.9);
+                transition: transform 0.18s ease;
+            }}
+            .faslyn-nav-btn:hover {{
+                transform: scale(1.08);
+            }}
+            </style>
+            <div id="faslyn-recenter-btn" class="faslyn-nav-btn" title="Re-center Farmland">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="3 11 22 2 13 21 11 13 3 11" fill="#3B82F6" fill-opacity="0.18"></polygon>
+                </svg>
+            </div>
+            <script>
+            setTimeout(function() {{
+                var mapDiv = document.querySelector('.folium-map');
+                if (!mapDiv) return;
+                var mapId = mapDiv.id;
+                var mapInst = window[mapId];
+                var navBtn = document.getElementById('faslyn-recenter-btn');
+                if (navBtn && mapInst) {{
+                    navBtn.onclick = function(e) {{
+                        e.stopPropagation();
+                        mapInst.flyTo([{center_lat}, {center_lon}], 16, {{ animate: true, duration: 1.0 }});
+                    }};
+                }}
+            }}, 500);
+            </script>
+            """
+            folium.Element(map_custom_html).add_to(m.get_root().html)
+
+            st_folium(m, height=310, use_container_width=True, key="dashboard_map", returned_objects=[])
 
             render_html(
                 f"""
-                <div style="display:flex; justify-content:center; gap: 16px; font-size: 0.78rem; font-weight:600; color: #4B5563; margin-top: 4px;">
+                <div style="display:flex; justify-content:center; gap: 16px; font-size: 0.78rem; font-weight:600; color: #4B5563; margin-top: 6px;">
                     <span>🟢 {_('healthy')}</span>
                     <span>🟡 {_('moderate_risk')}</span>
                     <span>🔴 {_('critical')}</span>
