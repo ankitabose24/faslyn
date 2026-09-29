@@ -132,7 +132,7 @@ render_html(
         z-index: 99999 !important;
     }
     
-    /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar (Share, GitHub, Edit, Star), Badges and Footer */
+    /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar Actions (Share, GitHub, Edit, Star), Badges and Footer */
     .stAppDeployButton,
     [data-testid="stAppDeployButton"],
     #MainMenu,
@@ -141,8 +141,6 @@ render_html(
     .stToolbarActions,
     [data-testid="stToolbarActionButton"],
     .stToolbarActionButton,
-    [data-testid="stToolbar"],
-    .stAppToolbar,
     div[data-testid="stDecoration"],
     [data-testid="manage-app-button"],
     button[kind="manageApp"],
@@ -159,6 +157,7 @@ render_html(
 
     /* Ensure Sidebar Collapse/Expand Toggle is ALWAYS visible and clickable */
     div[data-testid="stSidebarCollapsedControl"],
+    button[data-testid="stExpandSidebarButton"],
     button[data-testid="stSidebarCollapseButton"],
     button[data-testid="baseButton-headerNoPadding"],
     div[data-testid="stSidebarHeader"] button {
@@ -170,29 +169,36 @@ render_html(
     }
 
     /* Style the Sidebar Open / Toggle Button */
-    div[data-testid="stSidebarCollapsedControl"] {
-        top: 10px !important;
-        left: 10px !important;
+    div[data-testid="stSidebarCollapsedControl"],
+    button[data-testid="stExpandSidebarButton"] {
+        top: 12px !important;
+        left: 12px !important;
         display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: fixed !important;
     }
     div[data-testid="stSidebarCollapsedControl"] button,
-    button[data-testid="stSidebarCollapseButton"] {
+    button[data-testid="stSidebarCollapseButton"],
+    button[data-testid="stExpandSidebarButton"] {
         background: #FFFFFF !important;
         color: #1B4D3E !important;
         border: 1.5px solid #C8D6CC !important;
         border-bottom: 3px solid #10B981 !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 12px rgba(27, 77, 62, 0.15) !important;
+        box-shadow: 0 4px 14px rgba(27, 77, 62, 0.16) !important;
         padding: 6px 12px !important;
         cursor: pointer !important;
     }
     div[data-testid="stSidebarCollapsedControl"] button:hover,
-    button[data-testid="stSidebarCollapseButton"]:hover {
+    button[data-testid="stSidebarCollapseButton"]:hover,
+    button[data-testid="stExpandSidebarButton"]:hover {
         background: #ECFDF5 !important;
         transform: translateY(-1.5px) !important;
     }
     div[data-testid="stSidebarCollapsedControl"] svg,
-    button[data-testid="stSidebarCollapseButton"] svg {
+    button[data-testid="stSidebarCollapseButton"] svg,
+    button[data-testid="stExpandSidebarButton"] svg {
         fill: #1B4D3E !important;
         color: #1B4D3E !important;
     }
@@ -791,7 +797,7 @@ render_html(
         }
 
         /* Desktop Sidebar - When OPEN / EXPANDED */
-        section[data-testid="stSidebar"][aria-expanded="true"] {
+        section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
             position: relative !important;
             flex: 0 0 260px !important;
             width: 260px !important;
@@ -806,7 +812,7 @@ render_html(
             border-right: 1.5px solid #E2EAE4 !important;
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        section[data-testid="stSidebar"][aria-expanded="true"] div[data-testid="stSidebarContent"] {
+        section[data-testid="stSidebar"]:not([aria-expanded="false"]) div[data-testid="stSidebarContent"] {
             width: 260px !important;
             min-width: 260px !important;
             max-width: 260px !important;
@@ -856,7 +862,8 @@ render_html(
         }
 
         /* Floating sidebar open toggle button on desktop */
-        div[data-testid="stSidebarCollapsedControl"] {
+        div[data-testid="stSidebarCollapsedControl"],
+        button[data-testid="stExpandSidebarButton"] {
             position: fixed !important;
             top: 14px !important;
             left: 14px !important;
@@ -882,7 +889,7 @@ render_html(
         }
 
         /* When Open on Mobile: Slide in with luxurious backdrop overlay */
-        section[data-testid="stSidebar"][aria-expanded="true"] {
+        section[data-testid="stSidebar"]:not([aria-expanded="false"]) {
             width: 280px !important;
             min-width: 260px !important;
             max-width: 85vw !important;
@@ -893,7 +900,7 @@ render_html(
             pointer-events: auto !important;
             transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
         }
-        section[data-testid="stSidebar"][aria-expanded="true"] div[data-testid="stSidebarContent"] {
+        section[data-testid="stSidebar"]:not([aria-expanded="false"]) div[data-testid="stSidebarContent"] {
             width: 280px !important;
             max-width: 85vw !important;
         }
@@ -934,7 +941,8 @@ render_html(
         }
 
         /* Sidebar toggle button (Hamburger) on mobile */
-        div[data-testid="stSidebarCollapsedControl"] {
+        div[data-testid="stSidebarCollapsedControl"],
+        button[data-testid="stExpandSidebarButton"] {
             position: fixed !important;
             top: 12px !important;
             left: 12px !important;
@@ -1416,9 +1424,6 @@ def render_login_page():
     render_html(
         """
         <style>
-        [data-testid="stSidebar"], [data-testid="collapsedControl"] {
-            display: none !important;
-        }
         header[data-testid="stHeader"] {
             background: transparent !important;
         }
@@ -1718,34 +1723,6 @@ def render_login_page():
 
 
 # ---------------------------------------------------------------------------
-# AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD)
-# ---------------------------------------------------------------------------
-if not st.session_state.get("is_authenticated", False):
-    render_login_page()
-    st.stop()
-
-
-# Fetch telemetry, satellite & soil feeds (cached globally with TTL, zero network latency on reruns)
-telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
-satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
-soil_data = get_soil(st.session_state.coords["lat"], st.session_state.coords["lon"], st.session_state.selected_hub_name)
-st.session_state.telemetry = telemetry
-st.session_state.satellite = satellite
-st.session_state.soil_data = soil_data
-
-# Record persistent environmental telemetry snapshot in local SQLite database
-try:
-    log_telemetry_snapshot(
-        st.session_state.coords["lat"],
-        st.session_state.coords["lon"],
-        st.session_state.selected_hub_name,
-        telemetry,
-        satellite,
-    )
-except Exception:
-    pass
-
-# ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
 # ---------------------------------------------------------------------------
 nav_items = [
@@ -1762,7 +1739,7 @@ id_to_label["impact"] = _("nav_brics")
 label_to_id = {v: k for k, v in nav_items}
 
 # ===========================================================================
-# SIDEBAR — BRANDING & NAVIGATION
+# SIDEBAR — BRANDING & NAVIGATION (ALWAYS ACCESSIBLE ACROSS ALL SCREENS)
 # ===========================================================================
 with st.sidebar:
     render_html(
@@ -1772,11 +1749,11 @@ with st.sidebar:
         </div>
         <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 9px 12px; margin: 6px 0 12px 0; display: flex; align-items: center; gap: 10px;">
             <div style="width: 34px; height: 34px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
-                {st.session_state.get('user_avatar', 'FP')}
+                {st.session_state.get('user_avatar') or 'FP'}
             </div>
             <div style="overflow: hidden; line-height: 1.25;">
-                <div style="font-weight: 700; font-size: 0.84rem; color: #111827; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" title="{st.session_state.get('user_name', 'Farmer')}">{st.session_state.get('user_name', 'Farmer')}</div>
-                <div style="font-size: 0.70rem; color: #059669; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{st.session_state.get('user_region', 'Farm Region')}</div>
+                <div style="font-weight: 700; font-size: 0.84rem; color: #111827; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" title="{st.session_state.get('user_name') or 'Farmer'}">{st.session_state.get('user_name') or 'Farmer'}</div>
+                <div style="font-size: 0.70rem; color: #059669; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{st.session_state.get('user_region') or 'BRICS Sovereign Network'}</div>
             </div>
         </div>
         """
@@ -1836,17 +1813,45 @@ with st.sidebar:
         </div>
         """
     )
-    if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
-        st.session_state.is_authenticated = False
-        st.session_state.user_name = ""
-        st.session_state.user_phone = ""
-        st.session_state.user_region = ""
-        st.session_state.user_role = ""
-        st.session_state.user_avatar = ""
-        st.session_state.farmer_id = ""
-        st.session_state.active_tab_id = "home"
-        st.session_state.nav_stack = ["home"]
-        st.rerun()
+    if st.session_state.get("is_authenticated", False):
+        if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
+            st.session_state.is_authenticated = False
+            st.session_state.user_name = ""
+            st.session_state.user_phone = ""
+            st.session_state.user_region = ""
+            st.session_state.user_role = ""
+            st.session_state.user_avatar = ""
+            st.session_state.farmer_id = ""
+            st.session_state.active_tab_id = "home"
+            st.session_state.nav_stack = ["home"]
+            st.rerun()
+
+# ---------------------------------------------------------------------------
+# AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD CONTENT)
+# ---------------------------------------------------------------------------
+if not st.session_state.get("is_authenticated", False):
+    render_login_page()
+    st.stop()
+
+# Fetch telemetry, satellite & soil feeds (cached globally with TTL, zero network latency on reruns)
+telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
+satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
+soil_data = get_soil(st.session_state.coords["lat"], st.session_state.coords["lon"], st.session_state.selected_hub_name)
+st.session_state.telemetry = telemetry
+st.session_state.satellite = satellite
+st.session_state.soil_data = soil_data
+
+# Record persistent environmental telemetry snapshot in local SQLite database
+try:
+    log_telemetry_snapshot(
+        st.session_state.coords["lat"],
+        st.session_state.coords["lon"],
+        st.session_state.selected_hub_name,
+        telemetry,
+        satellite,
+    )
+except Exception:
+    pass
 
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
