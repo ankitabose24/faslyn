@@ -1211,7 +1211,7 @@ def set_coords(lat, lon, zoom=None, hub_name=None):
 
 
 def get_client():
-    """Resolve a Grok (xAI) client from .env (os.environ), Streamlit secrets, or user input."""
+    """Resolve a Grok (xAI) client securely from .env (os.environ) or Streamlit secrets."""
     api_key = None
     try:
         api_key = st.secrets.get("GROK_API_KEY") or st.secrets.get("XAI_API_KEY")
@@ -1219,8 +1219,6 @@ def get_client():
         api_key = None
     if not api_key:
         api_key = os.environ.get("GROK_API_KEY") or os.environ.get("XAI_API_KEY")
-    if not api_key:
-        api_key = st.session_state.get("manual_grok_key")
     return build_grok_client(api_key)
 
 
@@ -1628,22 +1626,26 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # Grok API Key Setup in sidebar
-    st.markdown("#### ⚡ AI Engine (xAI Grok)")
-    manual_grok = st.text_input(
-        "xAI Grok API Key",
-        type="password",
-        value=st.session_state.get("manual_grok_key", ""),
-        help="Enter your Grok API key from console.x.ai. Leave blank to use built-in demo models.",
-    )
-    if manual_grok:
-        st.session_state.manual_grok_key = manual_grok
-
+    # AI Engine Status in sidebar (Keys managed securely via server-side .env / Cloud Secrets)
     client = get_client()
-    if client is None:
-        st.caption("✨ **Demo Mode Active** (Pre-computed AI models ready)")
+    if client is not None:
+        render_html(
+            """
+            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 7px 10px; font-size: 0.74rem; color: #047857; display: flex; align-items: center; gap: 6px;">
+                <span style="width: 7px; height: 7px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                <b>AI Engine:</b> Grok-2 Live
+            </div>
+            """
+        )
     else:
-        st.success("✅ **Grok-2 AI Connected**")
+        render_html(
+            """
+            <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 7px 10px; font-size: 0.74rem; color: #059669; display: flex; align-items: center; gap: 6px;">
+                <span style="width: 7px; height: 7px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
+                <b>AI Engine:</b> Offline Calibrated
+            </div>
+            """
+        )
 
     st.markdown("---")
     render_html(
@@ -2991,38 +2993,48 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
 # ===========================================================================
 elif st.session_state.active_tab_id == "settings":
     st.markdown(f"## {_('nav_settings')}")
-    st.write("Configure your farmer profile, xAI Grok API key, and offline preferences.")
+    st.write("Manage your farmer profile, agricultural region, and cooperative preferences.")
 
     s_col1, s_col2 = st.columns(2)
     with s_col1:
-        edit_name = st.text_input("Farmer Name", value=st.session_state.get("user_name", "Ramesh Kumar"))
-        edit_region = st.text_input("Farm Region", value=st.session_state.get("user_region", "Odisha, India"))
+        edit_name = st.text_input("Farmer Full Name", value=st.session_state.get("user_name", ""), placeholder="e.g. Soman Bose")
+        edit_region = st.text_input("Farm Region / Village", value=st.session_state.get("user_region", ""), placeholder="e.g. Odisha, India")
     with s_col2:
-        manual_grok_val = st.text_input("xAI Grok API Key", type="password", value=st.session_state.get("manual_grok_key", ""))
-        st.checkbox("Enable Offline Field Cache", value=True)
+        edit_role = st.text_input("Farming Role & Crops", value=st.session_state.get("user_role", ""), placeholder="e.g. Smallholder Farmer (Rice & Pulses)")
+        edit_phone = st.text_input("Mobile / Cooperative ID", value=st.session_state.get("user_phone", ""), placeholder="e.g. +91 98765 43210")
 
-    if st.button("Save Settings", type="primary"):
-        st.session_state.user_name = edit_name
-        st.session_state.user_region = edit_region
-        if manual_grok_val:
-            st.session_state.manual_grok_key = manual_grok_val
+    st.checkbox("Enable Offline Field & Telemetry Cache", value=True)
+
+    client = get_client()
+    if client is not None:
+        st.info("🔒 **AI Intelligence Connected:** Grok-2 is running securely via server environment credentials (`.env` / Cloud Secrets).")
+    else:
+        st.info("🌱 **Zero-Cost Engine Active:** Running local calibrated agro-climatology and foliar vision heuristics (100% free, no API key required).")
+
+    if st.button("Save Profile Settings", type="primary"):
+        st.session_state.user_name = edit_name.strip()
+        st.session_state.user_region = edit_region.strip()
+        st.session_state.user_role = edit_role.strip()
+        st.session_state.user_phone = edit_phone.strip()
         parts = edit_name.strip().split()
         if len(parts) >= 2:
             st.session_state.user_avatar = f"{parts[0][0]}{parts[1][0]}".upper()
         elif len(parts) == 1 and parts[0]:
             st.session_state.user_avatar = parts[0][:2].upper()
+        else:
+            st.session_state.user_avatar = "FP"
         try:
             upsert_farmer(
                 st.session_state.get("farmer_id", "FAS-1001"),
                 st.session_state.get("user_phone", "+91 98765 43210"),
                 edit_name,
                 edit_region,
-                st.session_state.get("user_role", "Smallholder Farmer"),
+                edit_role,
                 st.session_state.get("selected_hub_name", "India"),
             )
         except Exception:
             pass
-        st.success("Settings saved successfully!")
+        st.success("Profile updated successfully!")
         st.rerun()
 
     st.markdown("---")
