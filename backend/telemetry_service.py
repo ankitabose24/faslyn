@@ -20,6 +20,8 @@ FALLBACK_TELEMETRY = {
     "source": "fallback",
 }
 
+_TELEMETRY_CACHE = {}
+
 
 def fetch_soil_telemetry(lat: float, lon: float) -> dict:
     """
@@ -30,6 +32,10 @@ def fetch_soil_telemetry(lat: float, lon: float) -> dict:
         soil_moisture, soil_temp, air_temp, windspeed, weathercode,
         trend (list of 3-hour steps), source ("open-meteo" or "fallback")
     """
+    cache_key = (round(lat, 3), round(lon, 3))
+    if cache_key in _TELEMETRY_CACHE:
+        return dict(_TELEMETRY_CACHE[cache_key])
+
     try:
         params = {
             "latitude": lat,
@@ -67,7 +73,7 @@ def fetch_soil_telemetry(lat: float, lon: float) -> dict:
         if soil_moisture is None and soil_temp is None:
             return dict(FALLBACK_TELEMETRY)
 
-        return {
+        result = {
             "soil_moisture": soil_moisture if soil_moisture is not None else FALLBACK_TELEMETRY["soil_moisture"],
             "soil_temp": soil_temp if soil_temp is not None else FALLBACK_TELEMETRY["soil_temp"],
             "air_temp": current.get("temperature", FALLBACK_TELEMETRY["air_temp"]),
@@ -76,6 +82,8 @@ def fetch_soil_telemetry(lat: float, lon: float) -> dict:
             "trend": trend,
             "source": "open-meteo",
         }
+        _TELEMETRY_CACHE[cache_key] = result
+        return dict(result)
     except Exception as e:
         fallback_with_error = dict(FALLBACK_TELEMETRY)
         fallback_with_error["error"] = str(e)

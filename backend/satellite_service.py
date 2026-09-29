@@ -40,6 +40,9 @@ def _latest_valid(series: dict):
     return None, None
 
 
+_SATELLITE_CACHE = {}
+
+
 def fetch_satellite_agroclimatology(lat: float, lon: float) -> dict:
     """
     Fetch satellite-derived solar radiation, precipitation, and root-zone
@@ -49,6 +52,10 @@ def fetch_satellite_agroclimatology(lat: float, lon: float) -> dict:
     short recent window and returns the most recent valid reading per
     parameter, falling back to safe demo values on any failure.
     """
+    cache_key = (round(lat, 3), round(lon, 3))
+    if cache_key in _SATELLITE_CACHE:
+        return dict(_SATELLITE_CACHE[cache_key])
+
     try:
         end_date = datetime.date.today() - datetime.timedelta(days=3)
         start_date = end_date - datetime.timedelta(days=3)
@@ -78,13 +85,15 @@ def fetch_satellite_agroclimatology(lat: float, lon: float) -> dict:
         if solar_val is None and precip_val is None and soil_val is None:
             return dict(FALLBACK_SATELLITE)
 
-        return {
+        result = {
             "solar_radiation": solar_val if solar_val is not None else FALLBACK_SATELLITE["solar_radiation"],
             "precipitation": precip_val if precip_val is not None else FALLBACK_SATELLITE["precipitation"],
             "root_zone_soil_wetness": soil_val if soil_val is not None else FALLBACK_SATELLITE["root_zone_soil_wetness"],
             "data_date": solar_date or precip_date or soil_date,
             "source": "nasa-power",
         }
+        _SATELLITE_CACHE[cache_key] = result
+        return dict(result)
     except Exception as e:
         fallback_with_error = dict(FALLBACK_SATELLITE)
         fallback_with_error["error"] = str(e)

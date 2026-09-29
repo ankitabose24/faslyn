@@ -76,12 +76,19 @@ def get_regional_baseline(hub_name: str | None = None) -> dict:
     return dict(DEFAULT_BASELINE)
 
 
+_SOIL_CACHE = {}
+
+
 def fetch_soil_profile(lat: float, lon: float, hub_name: str | None = None) -> dict:
     """
     Fetch soil chemical properties for (lat, lon).
-    Attempts ISRIC SoilGrids REST API with a fast timeout (2.5s).
+    Attempts ISRIC SoilGrids REST API with a fast timeout (1.5s).
     Falls back gracefully to calibrated regional agronomic baselines.
     """
+    cache_key = (round(lat, 3), round(lon, 3), str(hub_name))
+    if cache_key in _SOIL_CACHE:
+        return dict(_SOIL_CACHE[cache_key])
+
     baseline = get_regional_baseline(hub_name)
     try:
         params = {
@@ -91,7 +98,7 @@ def fetch_soil_profile(lat: float, lon: float, hub_name: str | None = None) -> d
             "depth": ["0-5cm"],
             "value": "mean",
         }
-        resp = requests.get(ISRIC_SOILGRIDS_URL, params=params, timeout=2.5)
+        resp = requests.get(ISRIC_SOILGRIDS_URL, params=params, timeout=1.5)
         if resp.status_code == 200:
             data = resp.json()
             layers = {}
@@ -127,7 +134,8 @@ def fetch_soil_profile(lat: float, lon: float, hub_name: str | None = None) -> d
                 "nutrient_capacity": baseline["nutrient_capacity"],
                 "source": "ISRIC SoilGrids v2.0 (Open API)",
             }
-            return result
+            _SOIL_CACHE[cache_key] = result
+            return dict(result)
     except Exception:
         pass
 
@@ -138,7 +146,8 @@ def fetch_soil_profile(lat: float, lon: float, hub_name: str | None = None) -> d
     fallback_data["ph_label"] = "Acidic" if fallback_data.get("ph", 6.5) < 6.0 else ("Alkaline" if fallback_data.get("ph", 6.5) > 7.5 else "Optimal / Neutral")
     fallback_data["soc_rating"] = fallback_data.get("organic_matter_status", "Moderate")
     fallback_data["source"] = "BRICS Regional Soil Baseline (ICAR/EMBRAPA/ARC)"
-    return fallback_data
+    _SOIL_CACHE[cache_key] = fallback_data
+    return dict(fallback_data)
 
 
 def calculate_soil_health_score(moisture: float, soc_pct: float, ph: float) -> int:

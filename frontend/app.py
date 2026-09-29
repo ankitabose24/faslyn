@@ -12,10 +12,12 @@ Features:
 """
 
 import base64
+import concurrent.futures
 import json
 import os
 import sys
 import textwrap
+import threading
 
 # Make the project root importable
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -94,6 +96,43 @@ def get_hero_bg_base64() -> str:
     return ""
 
 
+# Asynchronously pre-warm BRICS telemetry, satellite & soil feeds in background thread
+_HAS_PREWARMED_HUBS = False
+
+def _trigger_background_prewarm():
+    global _HAS_PREWARMED_HUBS
+    if _HAS_PREWARMED_HUBS:
+        return
+    _HAS_PREWARMED_HUBS = True
+
+    def _worker():
+        import concurrent.futures
+        def _warm_hub(name, hub):
+            try:
+                fetch_soil_telemetry(hub["lat"], hub["lon"])
+            except Exception:
+                pass
+            try:
+                fetch_satellite_agroclimatology(hub["lat"], hub["lon"])
+            except Exception:
+                pass
+            try:
+                fetch_soil_profile(hub["lat"], hub["lon"], name)
+            except Exception:
+                pass
+
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+                for name, hub in BRICS_HUBS.items():
+                    pool.submit(_warm_hub, name, hub)
+        except Exception:
+            pass
+
+    threading.Thread(target=_worker, daemon=True, name="faslyn-prewarm").start()
+
+_trigger_background_prewarm()
+
+
 
 # ---------------------------------------------------------------------------
 # PAGE CONFIGURATION
@@ -108,11 +147,15 @@ st.set_page_config(
 # ---------------------------------------------------------------------------
 # SAFE HTML RENDERER (Prevents Markdown 4-space code block glitch)
 # ---------------------------------------------------------------------------
-def render_html(html_str: str):
+def render_html(html_str: str, unsafe_allow_javascript: bool = False):
     """Render HTML safely without Markdown treating indented lines as code blocks."""
     cleaned = textwrap.dedent(html_str).strip()
+    allow_js = unsafe_allow_javascript or ("<script" in cleaned.lower())
     if hasattr(st, "html"):
-        st.html(cleaned)
+        try:
+            st.html(cleaned, unsafe_allow_javascript=allow_js)
+        except TypeError:
+            st.html(cleaned)
     else:
         st.markdown(cleaned, unsafe_allow_html=True)
 
@@ -2067,7 +2110,51 @@ def render_login_page():
             padding: 16px !important;
             background: #FFFFFF !important;
         }
+        /* Instant 0ms Fullscreen Login Bridge Curtain */
+        #faslyn-login-bridge {
+            position: fixed !important;
+            inset: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            background: radial-gradient(circle at 50% 40%, #0F2D1F 0%, #0A1C13 60%, #05100B 100%) !important;
+            z-index: 999999999 !important;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            pointer-events: all !important;
+        }
+        #faslyn-login-bridge.active {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+        .faslyn-login-exiting div[data-testid="stMain"] .block-container,
+        div[data-testid="stMain"].faslyn-login-exiting .block-container,
+        .main.faslyn-login-exiting .block-container {
+            opacity: 0 !important;
+            transform: scale(0.96) !important;
+            pointer-events: none !important;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        @keyframes bridgeZoomIn {
+            0% { opacity: 0; transform: perspective(1000px) scale(0.92) translateZ(-60px); }
+            100% { opacity: 1; transform: perspective(1000px) scale(1) translateZ(0); }
+        }
+        @keyframes bridgeSproutGlow {
+            0% { transform: scale(0.95); filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4)); }
+            100% { transform: scale(1.08); filter: drop-shadow(0 0 24px rgba(16, 185, 129, 0.9)); }
+        }
         </style>
+        <div id="faslyn-login-bridge">
+            <div style="display:flex; flex-direction:column; align-items:center; text-align:center; animation: bridgeZoomIn 0.38s cubic-bezier(0.16,1,0.3,1) both;">
+                <div style="font-size:3.2rem; margin-bottom:10px; animation: bridgeSproutGlow 1.2s ease-in-out infinite alternate;">🌱</div>
+                <div style="font-size:2.3rem; font-weight:800; color:#FFFFFF; letter-spacing:-0.03em; margin-bottom:6px;">🌿 faslyn</div>
+                <div style="font-size:0.95rem; font-weight:600; color:#A7F3D0; letter-spacing:0.02em; margin-bottom:18px;">Entering Sovereign Farm Workspace...</div>
+                <div style="width:120px; height:3px; background:linear-gradient(90deg, transparent, #10B981, transparent); border-radius:9999px;"></div>
+            </div>
+        </div>
         """
     )
 
@@ -2254,36 +2341,36 @@ def render_login_page():
                 else:
                     initials = "FP"
 
-            st.session_state.is_authenticated = True
-            st.session_state.just_logged_in = True
-            st.session_state.show_login_loader = False
-            st.session_state.user_name = entered_name
-            st.session_state.user_phone = entered_phone
-            st.session_state.user_region = entered_region
-            st.session_state.user_role = entered_role
-            st.session_state.user_avatar = initials
-            st.session_state.farmer_id = f"FAS-{abs(hash(entered_name + entered_phone)) % 9000 + 1000}"
-            st.session_state.selected_hub_name = chosen_hub
-            st.session_state.coords = {"lat": BRICS_HUBS[chosen_hub]["lat"], "lon": BRICS_HUBS[chosen_hub]["lon"]}
-            st.session_state.zoom = BRICS_HUBS[chosen_hub]["zoom"]
-            st.session_state.current_language = chosen_lang
-            st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
-            st.session_state.active_tab_id = "home"
-            st.session_state.nav_stack = ["home"]
+                st.session_state.is_authenticated = True
+                st.session_state.just_logged_in = True
+                st.session_state.show_login_loader = False
+                st.session_state.user_name = entered_name
+                st.session_state.user_phone = entered_phone
+                st.session_state.user_region = entered_region
+                st.session_state.user_role = entered_role
+                st.session_state.user_avatar = initials
+                st.session_state.farmer_id = f"FAS-{abs(hash(entered_name + entered_phone)) % 9000 + 1000}"
+                st.session_state.selected_hub_name = chosen_hub
+                st.session_state.coords = {"lat": BRICS_HUBS[chosen_hub]["lat"], "lon": BRICS_HUBS[chosen_hub]["lon"]}
+                st.session_state.zoom = BRICS_HUBS[chosen_hub]["zoom"]
+                st.session_state.current_language = chosen_lang
+                st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
+                st.session_state.active_tab_id = "home"
+                st.session_state.nav_stack = ["home"]
 
-            try:
-                upsert_farmer(
-                    st.session_state.farmer_id,
-                    st.session_state.user_phone,
-                    st.session_state.user_name,
-                    st.session_state.user_region,
-                    st.session_state.user_role,
-                    st.session_state.selected_hub_name,
-                )
-            except Exception:
-                pass
+                try:
+                    upsert_farmer(
+                        st.session_state.farmer_id,
+                        st.session_state.user_phone,
+                        st.session_state.user_name,
+                        st.session_state.user_region,
+                        st.session_state.user_role,
+                        st.session_state.selected_hub_name,
+                    )
+                except Exception:
+                    pass
 
-            st.rerun()
+                st.rerun()
 
     render_html(
         """
@@ -2311,6 +2398,61 @@ def render_login_page():
             </div>
         </div>
         """
+    )
+
+    render_html(
+        """
+        <script>
+        (function() {
+            function initLoginTransition() {
+                var bridge = document.getElementById("faslyn-login-bridge");
+                if (!bridge) return;
+
+                function triggerExit() {
+                    bridge.classList.add("active");
+                    var mainEl = document.querySelector('div[data-testid="stMain"]');
+                    if (mainEl) {
+                        mainEl.classList.add("faslyn-login-exiting");
+                    }
+                }
+
+                // Check custom login button
+                var loginBtn = document.querySelector('div[class*="st-key-login_submit_btn"] button');
+                if (loginBtn && !loginBtn.dataset.bridgeBound) {
+                    loginBtn.dataset.bridgeBound = "true";
+                    loginBtn.addEventListener("click", function() {
+                        var nameInp = document.querySelector('div[class*="st-key-login_farmer_name"] input');
+                        if (nameInp && nameInp.value && nameInp.value.trim().length > 0) {
+                            triggerExit();
+                        }
+                    });
+                }
+
+                // Check all demo buttons (in popover or anywhere on page)
+                var demoBtns = document.querySelectorAll('div[class*="st-key-quick_demo_btn_"] button');
+                demoBtns.forEach(function(btn) {
+                    if (!btn.dataset.bridgeBound) {
+                        btn.dataset.bridgeBound = "true";
+                        btn.addEventListener("click", function() {
+                            triggerExit();
+                        });
+                    }
+                });
+            }
+
+            if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", initLoginTransition);
+            } else {
+                initLoginTransition();
+            }
+            try {
+                var obs = new MutationObserver(initLoginTransition);
+                obs.observe(document.body, { childList: true, subtree: true });
+            } catch(e) {}
+        })();
+        </script>
+        """,
+        unsafe_allow_javascript=True,
     )
 
 
@@ -2359,6 +2501,40 @@ if st.session_state.get("just_logged_in", False):
         """
     )
     st.session_state.just_logged_in = False
+
+# Fast concurrent ingestion of telemetry, satellite & soil feeds (cached in-memory for sub-millisecond response)
+def _fetch_dashboard_feeds(lat: float, lon: float, hub_name: str):
+    import concurrent.futures
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+        f_tel = pool.submit(get_telemetry, lat, lon)
+        f_sat = pool.submit(get_satellite, lat, lon)
+        f_soil = pool.submit(get_soil, lat, lon, hub_name)
+        return f_tel.result(), f_sat.result(), f_soil.result()
+
+telemetry, satellite, soil_data = _fetch_dashboard_feeds(
+    st.session_state.coords["lat"],
+    st.session_state.coords["lon"],
+    st.session_state.selected_hub_name,
+)
+st.session_state.telemetry = telemetry
+st.session_state.satellite = satellite
+st.session_state.soil_data = soil_data
+
+# Record persistent environmental telemetry snapshot asynchronously in background thread
+try:
+    threading.Thread(
+        target=log_telemetry_snapshot,
+        args=(
+            st.session_state.coords["lat"],
+            st.session_state.coords["lon"],
+            st.session_state.selected_hub_name,
+            telemetry,
+            satellite,
+        ),
+        daemon=True,
+    ).start()
+except Exception:
+    pass
 
 # ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
@@ -2465,26 +2641,6 @@ with st.sidebar:
         st.session_state.active_tab_id = "home"
         st.session_state.nav_stack = ["home"]
         st.rerun()
-
-# Fetch telemetry, satellite & soil feeds (cached globally with TTL, zero network latency on reruns)
-telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
-satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
-soil_data = get_soil(st.session_state.coords["lat"], st.session_state.coords["lon"], st.session_state.selected_hub_name)
-st.session_state.telemetry = telemetry
-st.session_state.satellite = satellite
-st.session_state.soil_data = soil_data
-
-# Record persistent environmental telemetry snapshot in local SQLite database
-try:
-    log_telemetry_snapshot(
-        st.session_state.coords["lat"],
-        st.session_state.coords["lon"],
-        st.session_state.selected_hub_name,
-        telemetry,
-        satellite,
-    )
-except Exception:
-    pass
 
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
