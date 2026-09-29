@@ -31,15 +31,27 @@ from backend.ai_service import (
     generate_crop_recommendation,
     generate_diagnosis,
 )
-from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
+from backend.api import start_api_server_background
+from backend.config import BRICS_HUBS, DEMO_PROFILES, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
+from backend.database import (
+    init_db,
+    log_advisory_record,
+    log_telemetry_snapshot,
+    upsert_farmer,
+)
+from backend.geocoding import geocode_location
 from backend.satellite_service import fetch_satellite_agroclimatology
+from backend.soil_service import calculate_soil_health_score, fetch_soil_profile
 from backend.telemetry_service import fetch_soil_telemetry
 from backend.translations import t
-from backend.geocoding import geocode_location
 from frontend.tts import speak_text
 
+# Initialize local SQLite persistence and start interoperable REST API service (zero-cost)
+init_db()
+start_api_server_background(8000)
 
-# High-performance caching for telemetry, satellite data & geocoding
+
+# High-performance caching for telemetry, satellite data, soil & geocoding
 @st.cache_data(ttl=600, show_spinner=False)
 def get_telemetry(lat: float, lon: float) -> dict:
     return fetch_soil_telemetry(lat, lon)
@@ -48,6 +60,11 @@ def get_telemetry(lat: float, lon: float) -> dict:
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_satellite(lat: float, lon: float) -> dict:
     return fetch_satellite_agroclimatology(lat, lon)
+
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def get_soil(lat: float, lon: float, hub_name: str = "") -> dict:
+    return fetch_soil_profile(lat, lon, hub_name)
 
 
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -1200,75 +1217,9 @@ def get_client():
 
 
 # ---------------------------------------------------------------------------
-# DEMO USER PROFILES FOR 1-CLICK COOPERATIVE ACCESS
 # ---------------------------------------------------------------------------
-DEMO_PROFILES = [
-    {
-        "name": "Ramesh Kumar",
-        "avatar": "RK",
-        "role": "Smallholder Farmer",
-        "id": "IN-OD-2026-4482",
-        "phone": "+91 98765 43210",
-        "region": "Odisha, India",
-        "hub": "🇮🇳 India — Odisha (Coastal Rice Belt)",
-        "crops": "Paddy Rice, Kharif Maize, Vegetables",
-        "lang": "English",
-        "flag": "🇮🇳",
-        "badge": "Coastal Rice Belt",
-    },
-    {
-        "name": "Maria Silva",
-        "avatar": "MS",
-        "role": "Agroforestry Producer",
-        "id": "BR-MT-2026-7819",
-        "phone": "+55 65 99123-4567",
-        "region": "Mato Grosso, Brazil",
-        "hub": "🇧🇷 Brazil — Mato Grosso (Soy/Maize Belt)",
-        "crops": "Soja Precoce, Milho Safrinha, Algodão",
-        "lang": "Portuguese",
-        "flag": "🇧🇷",
-        "badge": "Cerrado Biome",
-    },
-    {
-        "name": "Thabo Molefe",
-        "avatar": "TM",
-        "role": "Cooperative Farmer",
-        "id": "ZA-LP-2026-3104",
-        "phone": "+27 82 555 0192",
-        "region": "Limpopo, South Africa",
-        "hub": "🇿🇦 South Africa — Limpopo (Mixed Farming Belt)",
-        "crops": "White Maize, Grain Sorghum, Groundnuts",
-        "lang": "English",
-        "flag": "🇿🇦",
-        "badge": "Limpopo Mixed Belt",
-    },
-    {
-        "name": "Dmitry Ivanov",
-        "avatar": "DI",
-        "role": "Grain Cooperative Member",
-        "id": "RU-KD-2026-5520",
-        "phone": "+7 918 123-45-67",
-        "region": "Krasnodar Krai, Russia",
-        "hub": "🇷🇺 Russia — Krasnodar Krai (Black Earth Belt)",
-        "crops": "Winter Wheat, Sunflower, Barley",
-        "lang": "Russian",
-        "flag": "🇷🇺",
-        "badge": "Black Earth Belt",
-    },
-    {
-        "name": "Wang Wei (王伟)",
-        "avatar": "WW",
-        "role": "Smallholder Lead",
-        "id": "CN-HL-2026-9041",
-        "phone": "+86 138 0013 8000",
-        "region": "Heilongjiang, China",
-        "hub": "🇨🇳 China — Heilongjiang (Grain Belt)",
-        "crops": "Soybean, Corn, Japonica Rice",
-        "lang": "Mandarin",
-        "flag": "🇨🇳",
-        "badge": "Heilongjiang Grain Belt",
-    },
-]
+# DEMO USER PROFILES FOR 1-CLICK COOPERATIVE ACCESS (IMPORTED FROM backend.config)
+# ---------------------------------------------------------------------------
 
 
 def render_login_page():
@@ -1450,6 +1401,18 @@ def render_login_page():
                 st.session_state.user_role = "Smallholder Farmer"
                 st.session_state.user_region = "Odisha, India"
 
+            try:
+                upsert_farmer(
+                    st.session_state.farmer_id,
+                    st.session_state.user_phone,
+                    st.session_state.user_name,
+                    st.session_state.user_region,
+                    st.session_state.user_role,
+                    st.session_state.selected_hub_name,
+                )
+            except Exception:
+                pass
+
             st.rerun()
 
     with col_right:
@@ -1499,6 +1462,19 @@ def render_login_page():
                 st.session_state.advisory_lang_code = LANGUAGES[prof["lang"]]
                 st.session_state.active_tab_id = "home"
                 st.session_state.nav_stack = ["home"]
+
+                try:
+                    upsert_farmer(
+                        prof["id"],
+                        prof["phone"],
+                        prof["name"],
+                        prof["region"],
+                        prof["role"],
+                        prof["hub"],
+                    )
+                except Exception:
+                    pass
+
                 st.rerun()
 
     render_html(
@@ -1538,11 +1514,25 @@ if not st.session_state.get("is_authenticated", False):
     st.stop()
 
 
-# Fetch telemetry & satellite feeds (cached globally with TTL, zero network latency on reruns)
+# Fetch telemetry, satellite & soil feeds (cached globally with TTL, zero network latency on reruns)
 telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
 satellite = get_satellite(st.session_state.coords["lat"], st.session_state.coords["lon"])
+soil_data = get_soil(st.session_state.coords["lat"], st.session_state.coords["lon"], st.session_state.selected_hub_name)
 st.session_state.telemetry = telemetry
 st.session_state.satellite = satellite
+st.session_state.soil_data = soil_data
+
+# Record persistent environmental telemetry snapshot in local SQLite database
+try:
+    log_telemetry_snapshot(
+        st.session_state.coords["lat"],
+        st.session_state.coords["lon"],
+        st.session_state.selected_hub_name,
+        telemetry,
+        satellite,
+    )
+except Exception:
+    pass
 
 # ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
@@ -1787,8 +1777,11 @@ if st.session_state.active_tab_id == "home":
     live_precip = float(satellite.get("precipitation", 4.2) if satellite else 4.2)
     live_root_wetness = float(satellite.get("root_zone_soil_wetness", 0.42) if satellite else 0.42)
 
-    # Percentage normalizations based on agricultural agronomic standards
-    soil_pct = int(min(100, max(12, (live_moisture / 0.38) * 100)))
+    # Composite soil health score based on physical moisture and ISRIC/Soil Health Card chemical fertility (SOC + pH)
+    current_soil_data = st.session_state.get("soil_data", {})
+    soil_soc = float(current_soil_data.get("soc_pct", 1.2))
+    soil_ph = float(current_soil_data.get("ph", 6.5))
+    soil_pct = calculate_soil_health_score(live_moisture, soil_soc, soil_ph)
     water_pct = int(min(100, max(15, (live_root_wetness / 0.65) * 100)))
     veg_pct = int(min(98, max(25, ((live_solar / 22.0) * 45) + (water_pct * 0.50))))
 
@@ -2020,10 +2013,11 @@ if st.session_state.active_tab_id == "home":
                     
                     <div class="metric-bar-container">
                         <div class="metric-bar-label">
-                            <span>🪱 {_('soil_health')} (Live Meteo)</span>
+                            <span>🪱 {_('soil_health')} (ISRIC + Moisture)</span>
                             <span>{soil_pct}%</span>
                         </div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {soil_pct}%; background: #F59E0B;"></div></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" style="width: {soil_pct}%; background: #16A34A;"></div></div>
+                        <div style="font-size:0.7rem; color:#6B7280; margin-top:2px;">🧪 pH {soil_ph:.1f} · SOC {soil_soc:.1f}% · {current_soil_data.get('texture_label', 'Loam')}</div>
                     </div>
                     
                     <div class="metric-bar-container">
@@ -2161,32 +2155,99 @@ if st.session_state.active_tab_id == "home":
             if st.button(_("view_all"), key="btn_view_all_alerts", type="tertiary", use_container_width=True):
                 navigate_to("ai")
 
+        # Formulate dynamic alerts conditioned on live moisture, chemical fertility, and precipitation
+        if live_moisture < 0.22:
+            alt1_title = f"🚨 {_('alert_1_title')}"
+            alt1_sub = f"Moisture deficit ({live_moisture:.2f} m³/m³) · Drip irrigation recommended"
+            alt1_bg = "linear-gradient(180deg, #FEF2F2 0%, #FEE8E8 100%)"
+            alt1_border = "#FECACA"
+            alt1_bbottom = "#FCA5A5"
+            alt1_color = "#DC2626"
+        elif live_moisture > 0.35:
+            alt1_title = "🌊 High Soil Saturation"
+            alt1_sub = f"Moisture elevated ({live_moisture:.2f} m³/m³) · Prevent root hypoxia"
+            alt1_bg = "linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%)"
+            alt1_border = "#BFDBFE"
+            alt1_bbottom = "#93C5FD"
+            alt1_color = "#1D4ED8"
+        else:
+            alt1_title = "✅ Optimal Field Moisture"
+            alt1_sub = f"Moisture balanced at {live_moisture:.2f} m³/m³ · Optimal crop uptake"
+            alt1_bg = "linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%)"
+            alt1_border = "#BBF7D0"
+            alt1_bbottom = "#86EFAC"
+            alt1_color = "#15803D"
+
+        if soil_soc < 1.0:
+            alt2_title = "⚠️ Organic Carbon Deficit"
+            alt2_sub = f"SOC at {soil_soc:.1f}% · Apply biochar or compost"
+            alt2_bg = "linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 100%)"
+            alt2_border = "#FDE68A"
+            alt2_bbottom = "#FCD34D"
+            alt2_color = "#D97706"
+        elif soil_ph < 6.0:
+            alt2_title = f"⚠️ Acidic Topsoil (pH {soil_ph:.1f})"
+            alt2_sub = "Lime amendment recommended for optimal nitrogen uptake"
+            alt2_bg = "linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 100%)"
+            alt2_border = "#FDE68A"
+            alt2_bbottom = "#FCD34D"
+            alt2_color = "#D97706"
+        else:
+            alt2_title = f"🪴 Soil Fertility Stable (pH {soil_ph:.1f})"
+            alt2_sub = f"SOC {soil_soc:.1f}% · Microbial diversity flourishing"
+            alt2_bg = "linear-gradient(180deg, #F0FDF4 0%, #DCFCE7 100%)"
+            alt2_border = "#BBF7D0"
+            alt2_bbottom = "#86EFAC"
+            alt2_color = "#15803D"
+
+        if live_precip > 10.0:
+            alt3_title = "🌧️ Heavy Precipitation Alert"
+            alt3_sub = f"NASA satellite records {live_precip:.1f} mm/d · Clear drainage trenches"
+            alt3_bg = "linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%)"
+            alt3_border = "#BAE6FD"
+            alt3_bbottom = "#7DD3FC"
+            alt3_color = "#0284C7"
+        elif live_precip < 1.0:
+            alt3_title = "☀️ Dry Weather Outlook"
+            alt3_sub = f"Precipitation {live_precip:.1f} mm/d · Mulching recommended"
+            alt3_bg = "linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%)"
+            alt3_border = "#BAE6FD"
+            alt3_bbottom = "#7DD3FC"
+            alt3_color = "#0284C7"
+        else:
+            alt3_title = "🌦️ Moderate Rainfall Window"
+            alt3_sub = f"Precipitation {live_precip:.1f} mm/d · Ideal for seed germination"
+            alt3_bg = "linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%)"
+            alt3_border = "#BAE6FD"
+            alt3_bbottom = "#7DD3FC"
+            alt3_color = "#0284C7"
+
         render_html(
             f"""
             <div class="dashboard-card" style="height: 100%;">
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #FEF2F2 0%, #FEE8E8 100%); border: 1px solid #FECACA; border-bottom: 2.5px solid #FCA5A5; border-radius:12px; box-shadow: 0 2px 5px rgba(220, 38, 38, 0.06); transition: all 0.2s ease;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt1_bg}; border: 1px solid {alt1_border}; border-bottom: 2.5px solid {alt1_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#DC2626;">{_('alert_1_title')}</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_1_sub')} • {fields_data[2]['score']}% health</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt1_color};">{alt1_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563;">{alt1_sub}</div>
                         </div>
-                        <span style="color:#DC2626; font-weight:bold;">›</span>
+                        <span style="color:{alt1_color}; font-weight:bold;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #FFFBEB 0%, #FEF3C7 100%); border: 1px solid #FDE68A; border-bottom: 2.5px solid #FCD34D; border-radius:12px; box-shadow: 0 2px 5px rgba(217, 119, 6, 0.06); transition: all 0.2s ease;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt2_bg}; border: 1px solid {alt2_border}; border-bottom: 2.5px solid {alt2_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#D97706;">{_('alert_2_title')}</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_2_sub')} • {fields_data[1]['score']}% health</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt2_color};">{alt2_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563;">{alt2_sub}</div>
                         </div>
-                        <span style="color:#D97706; font-weight:bold;">›</span>
+                        <span style="color:{alt2_color}; font-weight:bold;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:linear-gradient(180deg, #F0F9FF 0%, #E0F2FE 100%); border: 1px solid #BAE6FD; border-bottom: 2.5px solid #7DD3FC; border-radius:12px; box-shadow: 0 2px 5px rgba(2, 132, 199, 0.06); transition: all 0.2s ease;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt3_bg}; border: 1px solid {alt3_border}; border-bottom: 2.5px solid {alt3_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
                         <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:#0284C7;">{_('alert_3_title')}</div>
-                            <div style="font-size:0.72rem; color:#6B7280;">{_('alert_3_sub')} • {live_precip:.1f} mm/d</div>
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt3_color};">{alt3_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563;">{alt3_sub}</div>
                         </div>
-                        <span style="color:#0284C7; font-weight:bold;">›</span>
+                        <span style="color:{alt3_color}; font-weight:bold;">›</span>
                     </div>
                 </div>
             </div>
@@ -2423,17 +2484,61 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
                 st.rerun()
 
     st.markdown("---")
-    st.markdown("### 📊 Real-Time Environmental Indicators")
+    st.markdown("### 📊 Real-Time Environmental & Soil Indicators")
 
+    st.markdown("##### 🛰️ Topsoil Physical Telemetry & Satellite Climatology")
     s1, s2, s3, s4 = st.columns(4)
-    s1.metric(_("soil_health"), f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Optimal Field Capacity")
-    s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Active")
-    s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", "High Photosynthesis")
-    s4.metric(_("water_status"), f"{satellite.get('root_zone_soil_wetness', 0.42):.2f} (0-1)", "Adequate Deep Moisture")
+    s1.metric(_("soil_health"), f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Open-Meteo Topsoil (0-7cm)")
+    s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Zone")
+    s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", f"Obs: {satellite.get('data_date', 'Live')}")
+    s4.metric(_("water_status"), f"{satellite.get('root_zone_soil_wetness', 0.42):.2f} (0-1)", "NASA POWER Root-Zone")
+
+    # Soil Chemical & Nutrient Profile (ISRIC SoilGrids + Regional Baseline)
+    current_soil = st.session_state.get("soil_data", {})
+    st.markdown("##### 🧪 Topsoil Chemical & Nutrient Fertility Profile")
+    sc1, sc2, sc3, sc4, sc5 = st.columns(5)
+    sc1.metric("Soil pH", f"{current_soil.get('ph', 6.5):.1f}", current_soil.get("ph_label", "Neutral"))
+    sc2.metric("Organic Carbon (SOC)", f"{current_soil.get('soc_pct', 1.2):.1f}%", current_soil.get("soc_rating", "Moderate"))
+    sc3.metric("Available Nitrogen", f"{current_soil.get('nitrogen_kg_ha', 240)} kg/ha", "Macronutrient Pool")
+    sc4.metric("Cation Exchange (CEC)", f"{current_soil.get('cec_cmol_kg', 18.0):.1f} cmol/kg", "Nutrient Retention")
+    sc5.metric("Soil Texture Class", current_soil.get("texture_label", "Loam"), f"Source: {current_soil.get('source', 'ISRIC SoilGrids')}")
+
+    with st.expander("📝 Digital Soil Health Card (Custom Lab Overrides / Manual Entry)", expanded=False):
+        st.caption("Override satellite and global soil models with laboratory Soil Health Card (SHC) test measurements for pinpoint local advisory accuracy.")
+        shc_c1, shc_c2, shc_c3, shc_c4 = st.columns(4)
+        with shc_c1:
+            shc_ph = st.number_input("Laboratory pH", min_value=3.5, max_value=10.0, value=float(current_soil.get("ph", 6.5)), step=0.1, key="shc_ph_input")
+        with shc_c2:
+            shc_soc = st.number_input("Soil Organic Carbon (%)", min_value=0.1, max_value=8.0, value=float(current_soil.get("soc_pct", 1.2)), step=0.1, key="shc_soc_input")
+        with shc_c3:
+            shc_nitrogen = st.number_input("Available Nitrogen (kg/ha)", min_value=20, max_value=800, value=int(current_soil.get("nitrogen_kg_ha", 240)), step=10, key="shc_n_input")
+        with shc_c4:
+            shc_cec = st.number_input("CEC (cmol/kg)", min_value=2.0, max_value=60.0, value=float(current_soil.get("cec_cmol_kg", 18.0)), step=0.5, key="shc_cec_input")
+
+        if st.button("💾 Apply Soil Health Card Values", type="secondary", key="apply_shc_btn"):
+            st.session_state.soil_data.update({
+                "ph": shc_ph,
+                "ph_label": "Acidic" if shc_ph < 6.0 else ("Alkaline" if shc_ph > 7.5 else "Neutral"),
+                "soc_pct": shc_soc,
+                "soc_rating": "Low" if shc_soc < 0.75 else ("High" if shc_soc > 1.5 else "Medium"),
+                "nitrogen_kg_ha": shc_nitrogen,
+                "cec_cmol_kg": shc_cec,
+                "source": "Farmer Soil Health Card (Manual Lab)",
+            })
+            st.success("✅ Soil Health Card profile applied! AI advisories and crop recommendations will now prioritize these laboratory readings.")
+            st.rerun()
 
     if telemetry.get("trend"):
         with st.expander("📈 24-Hour Ground Weather & Soil Micro-Trend", expanded=False):
             st.dataframe(telemetry["trend"], use_container_width=True)
+
+    render_html(
+        """
+        <div style="font-size:0.75rem; color:#6B7280; margin-top:8px; line-height:1.5;">
+            📡 <b>Data Provenance:</b> ISRIC SoilGrids REST API (250m global soil property mapping) · NASA POWER API (CERES solar radiation & MERRA-2 meteorological assimilation, 0.5° grid) · Open-Meteo Numerical Weather Prediction (zero-sensor physical modeling).
+        </div>
+        """
+    )
 
     st.markdown("---")
     bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
@@ -2462,10 +2567,25 @@ elif st.session_state.active_tab_id == "ai":
         if gen_adv:
             client = get_client()
             with st.spinner("Grok is formulating your localized spoken advisory..."):
-                adv = generate_advisory(client, telemetry, st.session_state.current_language, satellite=satellite)
+                adv = generate_advisory(
+                    client,
+                    telemetry,
+                    st.session_state.current_language,
+                    satellite=satellite,
+                    soil_profile=st.session_state.get("soil_data"),
+                )
             st.session_state.advisory_text = adv
             st.session_state.advisory_lang_code = LANGUAGES[st.session_state.current_language]
             st.session_state.trigger_speech = True
+
+            try:
+                log_advisory_record(
+                    st.session_state.get("farmer_id", "demo-farmer"),
+                    st.session_state.current_language,
+                    adv,
+                )
+            except Exception:
+                pass
 
         if st.session_state.advisory_text:
             render_html(
@@ -2546,8 +2666,24 @@ elif st.session_state.active_tab_id == "regen":
     if st.button(_("gen_regen_plan"), type="primary"):
         client = get_client()
         with st.spinner("Grok agronomy engine is analyzing soil biology and satellite climatology..."):
-            rec = generate_crop_recommendation(client, telemetry, satellite, st.session_state.current_language)
+            rec = generate_crop_recommendation(
+                client,
+                telemetry,
+                satellite,
+                st.session_state.current_language,
+                soil_profile=st.session_state.get("soil_data"),
+            )
         st.session_state.crop_recommendation = rec
+
+        try:
+            log_advisory_record(
+                st.session_state.get("farmer_id", "demo-farmer"),
+                st.session_state.current_language,
+                rec.get("rationale", ""),
+                crop_rec=rec,
+            )
+        except Exception:
+            pass
 
     rec = st.session_state.crop_recommendation
     if rec:
@@ -2604,9 +2740,10 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
     st.caption("Standardized Digital Public Good (DPG) export schema aligned with India AgriStack, Brazil EMBRAPA, and South Africa AgriPortal.")
 
     interop_schema = {
-        "endpoint": "/api/v1/faslyn/export",
+        "endpoint": "/api/v1/export",
         "method": "GET",
         "schema_version": "2.0.0",
+        "api_service_url": "http://localhost:8000/api/v1/export",
         "ai_engine": "xAI Grok-2",
         "node": {
             "node_id": "faslyn-brics-node-001",
@@ -2625,6 +2762,15 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
             "windspeed_kmh": telemetry.get("windspeed"),
             "source": telemetry.get("source"),
             "sensor_type": "zero-sensor (Open-Meteo)",
+        },
+        "soil_chemical_fertility": {
+            "ph": st.session_state.get("soil_data", {}).get("ph", 6.5),
+            "ph_class": st.session_state.get("soil_data", {}).get("ph_label", "Neutral"),
+            "soil_organic_carbon_pct": st.session_state.get("soil_data", {}).get("soc_pct", 1.2),
+            "nitrogen_kg_ha": st.session_state.get("soil_data", {}).get("nitrogen_kg_ha", 240),
+            "cec_cmol_kg": st.session_state.get("soil_data", {}).get("cec_cmol_kg", 18.0),
+            "soil_texture": st.session_state.get("soil_data", {}).get("texture_label", "Loam"),
+            "source": st.session_state.get("soil_data", {}).get("source", "ISRIC SoilGrids 250m"),
         },
         "satellite_agroclimatology": {
             "solar_radiation_mj_m2_day": satellite.get("solar_radiation"),
@@ -2648,20 +2794,120 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
                 "🇷🇺 Russia Unified Agro-Informational System",
                 "🇨🇳 China National Agricultural Information Network",
             ],
-            "data_license": "Open Data Commons Open Database License (ODbL)",
+            "data_license": "Open Data Commons Open Database License (ODbL v1.0)",
             "cost_model": "$0 — 100% free-tier digital public infrastructure",
         },
     }
 
-    st.json(interop_schema)
-
-    st.download_button(
-        f"⬇️ {_('qa_down').splitlines()[0].replace('📄 ', '')} (JSON)",
-        data=json.dumps(interop_schema, indent=2),
-        file_name="brics_agrin_node_export.json",
-        mime="application/json",
-        type="primary",
+    render_html(
+        """
+        <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: 14px; padding: 18px 22px; color: #F8FAFC; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.5rem;">🌐</span>
+                    <div>
+                        <div style="font-size:1.05rem; font-weight:800; color:#FFFFFF;">Faslyn Interoperable Agricultural REST API (ODbL v1.0)</div>
+                        <div style="font-size:0.75rem; color:#94A3B8;">Standardized cross-border machine-to-machine exchange · 100% Free Public Good</div>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; background:#064E3B; border:1px solid #059669; padding:4px 14px; border-radius:9999px;">
+                    <span style="width:8px; height:8px; border-radius:50%; background:#10B981; display:inline-block;"></span>
+                    <span style="font-size:0.75rem; font-weight:700; color:#34D399;">Live REST Service on Port 8000</span>
+                </div>
+            </div>
+            <div style="font-size:0.82rem; color:#CBD5E1; line-height:1.5;">
+                External agricultural networks, government AgriStack portals (India, Brazil EMBRAPA, South Africa AgriPortal), and research nodes can consume this node's live telemetric data directly via HTTP REST without authentication barriers or subscription fees.
+            </div>
+        </div>
+        """
     )
+
+    api_tab_overview, api_tab_live_test, api_tab_code = st.tabs([
+        "📋 Standardized DPG Schema Export",
+        "🧪 Live Endpoint Tester",
+        "💻 Machine-to-Machine Integration Code",
+    ])
+
+    with api_tab_overview:
+        st.json(interop_schema)
+        st.download_button(
+            f"⬇️ {_('qa_down').splitlines()[0].replace('📄 ', '')} (JSON)",
+            data=json.dumps(interop_schema, indent=2),
+            file_name="brics_agrin_node_export.json",
+            mime="application/json",
+            type="primary",
+        )
+
+    with api_tab_live_test:
+        st.markdown("#### ⚡ Live Machine-to-Machine Query Console")
+        st.caption("Send real HTTP GET requests to the local daemonized REST API server running on port 8000.")
+
+        endpoint_choice = st.selectbox(
+            "Select REST Endpoint",
+            [
+                "/api/v1/export (Full DPG Interoperability Bundle)",
+                "/api/v1/telemetry (Live Open-Meteo Soil & Weather)",
+                "/api/v1/soil (Live ISRIC SoilGrids Chemical Profile)",
+                "/api/v1/satellite (Live NASA POWER Climatology)",
+                "/api/v1/hubs (BRICS Regional Agricultural Registry)",
+                "/api/v1/health (API Health Check)",
+            ],
+            key="api_endpoint_select",
+        )
+        endpoint_path = endpoint_choice.split()[0]
+        test_url = f"http://localhost:8000{endpoint_path}"
+
+        c_test_btn, c_test_url = st.columns([1, 3], vertical_alignment="center")
+        with c_test_url:
+            st.code(test_url, language="bash")
+        with c_test_btn:
+            do_test = st.button("🚀 Execute HTTP GET", type="primary", use_container_width=True, key="btn_run_api_test")
+
+        if do_test:
+            import time
+            import urllib.request
+            t0 = time.time()
+            try:
+                req = urllib.request.Request(test_url, headers={"User-Agent": "FaslynDashboard/2.0"})
+                with urllib.request.urlopen(req, timeout=4.0) as resp:
+                    latency_ms = round((time.time() - t0) * 1000, 1)
+                    status_code = resp.status
+                    headers = dict(resp.getheaders())
+                    payload = json.loads(resp.read().decode("utf-8"))
+
+                st.success(f"✅ HTTP {status_code} OK · Latency: {latency_ms} ms · Content-Type: {headers.get('content-type', 'application/json')}")
+                st.json(payload)
+            except Exception as e:
+                st.error(f"❌ Connection error: {e}. Please ensure background server on port 8000 is running.")
+
+    with api_tab_code:
+        st.markdown("#### 💻 Programmatic Integration Code")
+        st.caption("Copy and execute from any language or terminal to interface with Faslyn.")
+
+        st.markdown("**cURL Terminal Command:**")
+        st.code(
+            f'# Query complete ODbL Digital Public Good payload\n'
+            f'curl -X GET "http://localhost:8000/api/v1/export" \\\n'
+            f'  -H "Accept: application/json"\n\n'
+            f'# Query live soil telemetry for specific coordinates\n'
+            f'curl -X GET "http://localhost:8000/api/v1/telemetry?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"\n\n'
+            f'# Query ISRIC SoilGrids chemical profile\n'
+            f'curl -X GET "http://localhost:8000/api/v1/soil?lat={st.session_state.coords["lat"]:.4f}&lon={st.session_state.coords["lon"]:.4f}"',
+            language="bash",
+        )
+
+        st.markdown("**Python `requests` Integration:**")
+        st.code(
+            'import requests\n\n'
+            '# Fetch live interoperability bundle\n'
+            'response = requests.get("http://localhost:8000/api/v1/export", timeout=5.0)\n'
+            'data = response.json()\n\n'
+            'print("Node:", data["node"]["node_id"])\n'
+            'print("Soil Moisture:", data["ground_telemetry"]["soil_moisture_0_7cm_m3m3"], "m3/m3")\n'
+            'print("Soil pH:", data["soil_chemical_fertility"]["ph"])\n'
+            'print("License:", data["interoperability"]["data_license"])\n',
+            language="python",
+        )
 
     st.markdown("---")
     bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")

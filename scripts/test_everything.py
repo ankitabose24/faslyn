@@ -20,15 +20,19 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from PIL import Image
 import requests
 
-from backend.config import BRICS_HUBS, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
+from backend.config import BRICS_HUBS, DEMO_PROFILES, FIRST_HUB, LANGUAGES, REGIONAL_FIELDS
 from backend.telemetry_service import fetch_soil_telemetry, FALLBACK_TELEMETRY
 from backend.satellite_service import fetch_satellite_agroclimatology, FALLBACK_SATELLITE
+from backend.soil_service import fetch_soil_profile, calculate_soil_health_score
+from backend.database import init_db, upsert_farmer, log_telemetry_snapshot, log_advisory_record, get_recent_telemetry
+from backend.api import start_api_server_background
 from backend.geocoding import geocode_location
 from backend.ai_service import (
     build_grok_client,
     generate_advisory,
     generate_crop_recommendation,
     generate_diagnosis,
+    analyze_foliar_pixels,
     FALLBACK_ADVISORIES,
     FALLBACK_CROP_REC,
     FALLBACK_DIAGNOSES,
@@ -262,8 +266,7 @@ def run_all_tests():
     # -----------------------------------------------------------------------
     # TEST 9: Authentication & 1-Click BRICS Demo Profiles Verification
     # -----------------------------------------------------------------------
-    print(f"\n{Colors.YELLOW}[9/9] Testing Authentication & 1-Click Demo Profiles...{Colors.RESET}")
-    from frontend.app import DEMO_PROFILES
+    print(f"\n{Colors.YELLOW}[9/13] Testing Authentication & 1-Click Demo Profiles...{Colors.RESET}")
     profiles_valid = len(DEMO_PROFILES) >= 5
     for p in DEMO_PROFILES:
         valid_keys = all(k in p for k in ["name", "avatar", "role", "id", "hub", "crops", "lang", "flag"])
@@ -274,6 +277,93 @@ def run_all_tests():
     log_test("1-Click BRICS Demo Profiles Configured", profiles_valid, f"{len(DEMO_PROFILES)} verified farmer profiles across BRICS nations")
     if profiles_valid: total_passed += 1
     else: total_failed += 1
+
+    # -----------------------------------------------------------------------
+    # TEST 10: Soil Chemistry & ISRIC SoilGrids Integration
+    # -----------------------------------------------------------------------
+    print(f"\n{Colors.YELLOW}[10/13] Testing Soil Chemistry & ISRIC SoilGrids Integration...{Colors.RESET}")
+    soil_hubs = [
+        ("India (Odisha)", 20.2961, 85.8245, "🇮🇳 India — Odisha (Coastal Rice Belt)"),
+        ("Brazil (Mato Grosso)", -12.6819, -56.9211, "🇧🇷 Brazil — Mato Grosso (Soy/Maize Belt)"),
+    ]
+    for hub_name, lat, lon, hub_key in soil_hubs:
+        soil_profile = fetch_soil_profile(lat, lon, hub_key)
+        has_keys = all(k in soil_profile for k in ["ph", "soc_pct", "nitrogen_kg_ha", "cec_cmol_kg", "texture_label", "source"])
+        ph_valid = isinstance(soil_profile["ph"], (int, float)) and 3.0 <= soil_profile["ph"] <= 10.0
+        soc_valid = isinstance(soil_profile["soc_pct"], (int, float)) and soil_profile["soc_pct"] >= 0.0
+        passed = has_keys and ph_valid and soc_valid
+        detail = f"pH: {soil_profile['ph']} ({soil_profile.get('ph_label')}) | SOC: {soil_profile['soc_pct']}% | N: {soil_profile['nitrogen_kg_ha']} kg/ha | Source: {soil_profile['source']}"
+        log_test(f"Soil Profile: {hub_name}", passed, detail)
+        if passed: total_passed += 1
+        else: total_failed += 1
+
+    # Test composite soil health score calculation
+    score_normal = calculate_soil_health_score(0.24, 1.2, 6.5)
+    score_stressed = calculate_soil_health_score(0.08, 0.4, 4.8)
+    score_passed = 0 <= score_stressed < score_normal <= 100
+    log_test("Composite Soil Health Score Algorithm (SOC + pH + Moisture)", score_passed, f"Normal: {score_normal}/100 vs Degraded: {score_stressed}/100")
+    if score_passed: total_passed += 1
+    else: total_failed += 1
+
+    # -----------------------------------------------------------------------
+    # TEST 11: Embedded Zero-Cost SQLite Database Layer (data/faslyn.db)
+    # -----------------------------------------------------------------------
+    print(f"\n{Colors.YELLOW}[11/13] Testing Embedded SQLite Database Layer...{Colors.RESET}")
+    try:
+        init_db()
+        test_farmer_id = f"TEST-AGRI-{int(time.time())}"
+        upsert_farmer(test_farmer_id, "+91 99999 00000", "Dev Tester", "Punjab, India", "Agronomist", "India Hub")
+        log_telemetry_snapshot(20.3, 85.8, "India Hub", sample_telemetry, sample_satellite)
+        log_advisory_record(test_farmer_id, "English", "Test automated advisory note", crop_rec={"recommended_crop": "Millets"})
+        recent = get_recent_telemetry(limit=5)
+        db_passed = len(recent) > 0 and "soil_moisture" in recent[0]
+        log_test("SQLite Session & Longitudinal Telemetry Persistence", db_passed, f"Successfully persisted & read {len(recent)} recent snapshots")
+        if db_passed: total_passed += 1
+        else: total_failed += 1
+    except Exception as e:
+        log_test("SQLite Database Operations", False, str(e))
+        total_failed += 1
+
+    # -----------------------------------------------------------------------
+    # TEST 12: Interoperable Machine-to-Machine HTTP REST API (Port 8000)
+    # -----------------------------------------------------------------------
+    print(f"\n{Colors.YELLOW}[12/13] Testing Machine-to-Machine REST API Service (Port 8000)...{Colors.RESET}")
+    start_api_server_background(8000)
+    api_endpoints = [
+        ("/api/v1/health", "health check"),
+        ("/api/v1/export", "full DPG export"),
+        ("/api/v1/telemetry?lat=20.29&lon=85.82", "ground telemetry"),
+        ("/api/v1/soil?lat=20.29&lon=85.82", "ISRIC soil profile"),
+        ("/api/v1/hubs", "regional hub registry"),
+    ]
+    for endpoint, label in api_endpoints:
+        try:
+            resp = requests.get(f"http://localhost:8000{endpoint}", timeout=8.0)
+            status_ok = resp.status_code == 200
+            data = resp.json()
+            passed = status_ok and bool(data)
+            log_test(f"REST API: {endpoint} ({label})", passed, f"HTTP {resp.status_code} | Size: {len(resp.content)} bytes")
+            if passed: total_passed += 1
+            else: total_failed += 1
+        except Exception as e:
+            log_test(f"REST API: {endpoint}", False, str(e))
+            total_failed += 1
+
+    # -----------------------------------------------------------------------
+    # TEST 13: Offline Foliar Pixel Pathology Heuristic
+    # -----------------------------------------------------------------------
+    print(f"\n{Colors.YELLOW}[13/13] Testing Offline Foliar Pixel Analysis...{Colors.RESET}")
+    sample_blight_path = "frontend/samples/tomato_early_blight.png"
+    if os.path.exists(sample_blight_path):
+        blight_img = Image.open(sample_blight_path)
+        stats = analyze_foliar_pixels(blight_img)
+        has_stats = all(k in stats for k in ["necrosis_pct", "chlorosis_pct", "chlorophyll_pct", "status"])
+        log_test("Offline Foliar Pixel Heuristic (RGB Channel Masking)", has_stats, f"Necrosis: {stats.get('necrosis_pct')}% | Chlorosis: {stats.get('chlorosis_pct')}% | Status: {stats.get('status')}")
+        if has_stats: total_passed += 1
+        else: total_failed += 1
+    else:
+        log_test("Offline Foliar Pixel Heuristic", False, "Sample image missing")
+        total_failed += 1
 
     # -----------------------------------------------------------------------
     # FINAL SUMMARY
