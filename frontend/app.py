@@ -162,39 +162,10 @@ render_html(
         color: #1B4D3E !important;
     }
 
-    /* Guarantee Sidebar is visible and expanded on desktop screens */
-    @media (min-width: 769px) {
-        section[data-testid="stSidebar"] {
-            display: block !important;
-            visibility: visible !important;
-            width: 320px !important;
-            min-width: 320px !important;
-            transform: none !important;
-            margin-left: 0 !important;
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            height: 100vh !important;
-            z-index: 100 !important;
-            opacity: 1 !important;
-            background-color: #F8FAF7 !important;
-            border-right: 1px solid #EBF2EB !important;
-        }
-        div[data-testid="stAppViewContainer"] > section.main {
-            margin-left: 320px !important;
-            width: calc(100% - 320px) !important;
-            max-width: calc(100% - 320px) !important;
-        }
-    }
-
-    /* Mobile: Sidebar smoothly slides over screen when opened */
-    @media (max-width: 768px) {
-        section[data-testid="stSidebar"] {
-            z-index: 999999 !important;
-            width: 85vw !important;
-            max-width: 330px !important;
-            box-shadow: 6px 0 28px rgba(0, 0, 0, 0.18) !important;
-        }
+    /* Sidebar & Collapse Controls: clean native integration */
+    section[data-testid="stSidebar"] {
+        background-color: #F8FAF7 !important;
+        border-right: 1px solid #EBF2EB !important;
     }
     
     /* Sidebar text colors */
