@@ -1179,11 +1179,6 @@ render_html(
         }
     }
 
-    /* Desktop: Hide Mobile Bottom Navigation Bar */
-    .st-key-mobile_bottom_nav_bar {
-        display: none !important;
-    }
-
     /* -----------------------------------------------------------------------
        MOBILE & TABLET RESPONSIVE SYSTEM (@media (max-width: 991px))
        Off-canvas drawer with smooth slide, backdrop dimming, and touch layout
@@ -1249,7 +1244,7 @@ render_html(
             padding-top: 4.2rem !important;
             padding-left: 0.95rem !important;
             padding-right: 0.95rem !important;
-            padding-bottom: 5.8rem !important;
+            padding-bottom: 2.8rem !important;
             max-width: 100% !important;
         }
 
@@ -1646,74 +1641,6 @@ render_html(
         /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
         .stTextInput input, .stSelectbox div {
             font-size: 16px !important;
-        }
-
-        /* -------------------------------------------------------------------
-           MOBILE BOTTOM NAVIGATION DOCKED BAR
-           ------------------------------------------------------------------- */
-        .st-key-mobile_bottom_nav_bar {
-            display: block !important;
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            z-index: 999999 !important;
-            background: rgba(255, 255, 255, 0.94) !important;
-            backdrop-filter: blur(18px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
-            border-top: 1.5px solid rgba(229, 231, 235, 0.95) !important;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
-            padding: 5px 6px calc(6px + env(safe-area-inset-bottom, 0px)) 6px !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
-        }
-        .st-key-mobile_bottom_nav_bar div[data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 4px !important;
-            width: 100% !important;
-            margin: 0 !important;
-            align-items: center !important;
-            justify-content: space-around !important;
-        }
-        .st-key-mobile_bottom_nav_bar div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            flex: 1 1 20% !important;
-            min-width: 0 !important;
-            max-width: 20% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        .st-key-mobile_bottom_nav_bar button {
-            min-height: 48px !important;
-            height: 48px !important;
-            padding: 4px 2px !important;
-            font-size: 0.68rem !important;
-            line-height: 1.15 !important;
-            font-weight: 700 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-radius: 12px !important;
-            white-space: pre-line !important;
-            text-align: center !important;
-            box-shadow: none !important;
-            transition: all 0.15s ease !important;
-        }
-        .st-key-mobile_bottom_nav_bar button[kind="secondary"] {
-            background: transparent !important;
-            color: #4B5563 !important;
-            border: 1px solid transparent !important;
-        }
-        .st-key-mobile_bottom_nav_bar button[kind="primary"] {
-            background: #ECFDF5 !important;
-            color: #047857 !important;
-            border: 1.5px solid #A7F3D0 !important;
-            font-weight: 800 !important;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18) !important;
         }
 
         /* -------------------------------------------------------------------
@@ -3125,37 +3052,6 @@ with st.sidebar:
         st.session_state.active_tab_id = "home"
         st.session_state.nav_stack = ["home"]
         st.rerun()
-
-# ===========================================================================
-# DOCKED MOBILE BOTTOM NAVIGATION BAR
-# ===========================================================================
-def render_mobile_bottom_nav():
-    """Renders an intuitive, docked bottom thumb-navigation bar on mobile viewports."""
-    current_tab = st.session_state.get("active_tab_id", "home")
-    mobile_nav_items = [
-        ("home", "🏠", _("nav_home")),
-        ("sat", "🛰️", _("nav_sat")),
-        ("ai", "🤖", _("nav_ai")),
-        ("regen", "🌱", _("nav_regen")),
-        ("brics", "🌐", _("nav_brics")),
-    ]
-    with st.container(key="mobile_bottom_nav_bar"):
-        m_cols = st.columns(5)
-        for idx, (tab_id, icon, full_label) in enumerate(mobile_nav_items):
-            with m_cols[idx]:
-                is_active = (current_tab == tab_id) or (tab_id == "sat" and current_tab == "farms") or (tab_id == "brics" and current_tab == "impact")
-                words = full_label.split()
-                short_text = words[0] if words else full_label
-                if len(short_text) > 8:
-                    short_text = short_text[:7] + "…"
-                btn_kind = "primary" if is_active else "secondary"
-                if st.button(f"{icon}\n{short_text}", key=f"mob_dock_nav_{tab_id}", type=btn_kind, use_container_width=True):
-                    if tab_id == "home":
-                        st.session_state.nav_stack = ["home"]
-                        st.session_state.active_tab_id = "home"
-                    else:
-                        navigate_to(tab_id)
-                    st.rerun()
 
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
@@ -4691,9 +4587,4 @@ elif st.session_state.active_tab_id == "settings":
     if st.button(_("back_to_home"), key="back_settings_bot", type="secondary"):
         navigate_back()
 
-# ---------------------------------------------------------------------------
-# RENDER DOCKED MOBILE BOTTOM NAVIGATION BAR (ACTIVE ON MOBILE / TABLET)
-# ---------------------------------------------------------------------------
-if st.session_state.get("is_authenticated", False):
-    render_mobile_bottom_nav()
 
