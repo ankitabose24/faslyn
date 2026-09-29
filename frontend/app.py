@@ -2597,7 +2597,7 @@ def render_login_page():
     col_spacer_l, col_center, col_spacer_r = c_login.columns([0.20, 0.60, 0.20])
 
     with col_center:
-        col_title, col_demo_icon = st.columns([3.6, 1.2], vertical_alignment="center")
+        col_title, col_demo_icon = col_center.columns([3.6, 1.2], vertical_alignment="center")
         with col_title:
             render_html(
                 """
@@ -2607,7 +2607,7 @@ def render_login_page():
                 """
             )
         with col_demo_icon:
-            with st.popover("⚡ Demo", help="1-Click Instant Demo Login", use_container_width=True):
+            with st.popover("⚡ Demo", help="1-Click Instant Demo Login", use_container_width=True, key="login_demo_popover"):
                 render_html(
                     """
                     <div style="padding: 2px 0 6px 0;">
@@ -2687,7 +2687,7 @@ def render_login_page():
             help="Enter your name as you would like it displayed across the dashboard.",
         )
 
-        col_id, col_pin = st.columns(2)
+        col_id, col_pin = col_center.columns(2)
         with col_id:
             login_id = st.text_input(
                 "Mobile / Cooperative ID",
@@ -2706,7 +2706,7 @@ def render_login_page():
                 help="Enter any 4-6 digit security PIN",
             )
 
-        col_reg, col_role = st.columns(2)
+        col_reg, col_role = col_center.columns(2)
         with col_reg:
             login_region = st.text_input(
                 "Farm Region / Village",
@@ -2854,6 +2854,8 @@ def render_login_page():
                     if (!btn.dataset.bridgeBound) {
                         btn.dataset.bridgeBound = "true";
                         btn.addEventListener("click", function() {
+                            var pBody = document.querySelectorAll('div[data-baseweb="popover"], div[data-testid="stPopoverBody"]');
+                            pBody.forEach(function(pb) { pb.style.display = "none"; });
                             triggerExit();
                         });
                     }
@@ -2866,8 +2868,11 @@ def render_login_page():
                 initLoginTransition();
             }
             try {
-                var obs = new MutationObserver(initLoginTransition);
-                obs.observe(document.body, { childList: true, subtree: true });
+                if (window._faslynLoginObserver) {
+                    window._faslynLoginObserver.disconnect();
+                }
+                window._faslynLoginObserver = new MutationObserver(initLoginTransition);
+                window._faslynLoginObserver.observe(document.body, { childList: true, subtree: true });
             } catch(e) {}
         })();
         </script>
@@ -2879,9 +2884,68 @@ def render_login_page():
 # ---------------------------------------------------------------------------
 # AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD CONTENT & SIDEBAR)
 # ---------------------------------------------------------------------------
+auth_placeholder = st.empty()
+
 if not st.session_state.get("is_authenticated", False):
-    render_login_page()
+    with auth_placeholder.container():
+        render_login_page()
     st.stop()
+else:
+    auth_placeholder.empty()
+
+    # Guarantee complete eradication of any lingering login DOM elements or popovers
+    render_html(
+        """
+        <style>
+        .st-key-login_form_container,
+        .st-key-login_demo_popover,
+        .login-header-wrapper,
+        .login-brand-title,
+        #faslyn-login-bridge,
+        div[data-testid="stPopoverBody"]:has(.demo-card-item),
+        div[data-baseweb="popover"]:has(.demo-card-item) {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            height: 0 !important;
+            max-height: 0 !important;
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+            overflow: hidden !important;
+        }
+        </style>
+        <script>
+        (function() {
+            try {
+                if (window._faslynLoginObserver) {
+                    window._faslynLoginObserver.disconnect();
+                }
+                var mainEl = document.querySelector('div[data-testid="stMain"]');
+                if (mainEl) {
+                    mainEl.classList.remove("faslyn-login-exiting");
+                }
+                var bridge = document.getElementById("faslyn-login-bridge");
+                if (bridge) bridge.remove();
+
+                var popovers = document.querySelectorAll('div[data-baseweb="popover"], div[data-testid="stPopoverBody"]');
+                popovers.forEach(function(p) {
+                    if (p.textContent && (p.textContent.includes("1-Click Demo") || p.textContent.includes("Enter as") || p.textContent.includes("Cooperative Farmer"))) {
+                        p.remove();
+                    }
+                });
+
+                var loginContainers = document.querySelectorAll('.st-key-login_form_container, .login-header-wrapper');
+                loginContainers.forEach(function(el) {
+                    el.remove();
+                });
+            } catch(e) {}
+        })();
+        </script>
+        """,
+        unsafe_allow_javascript=True,
+    )
 
 # ---------------------------------------------------------------------------
 # 3D ZOOM-IN TRANSITION FROM LOGIN TO DASHBOARD (NO INTERMEDIATE LOADER)
