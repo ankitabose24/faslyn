@@ -1647,8 +1647,7 @@ render_html(
 # ---------------------------------------------------------------------------
 hero_bg_data_uri = get_hero_bg_base64()
 if hero_bg_data_uri:
-    render_html(
-        f"""
+    hero_css = """
         <style>
         /* Dashboard Hero Section - Farmer & Agtech Background (Strictly isolated to hero section) */
         .st-key-dashboard_hero_section,
@@ -1656,7 +1655,7 @@ if hero_bg_data_uri:
         div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
             background-image: 
                 linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(246, 250, 247, 0.52) 100%),
-                url('{hero_bg_data_uri}') !important;
+                url('__HERO_BG_URI__') !important;
             background-size: cover !important;
             background-position: center 30% !important;
             background-repeat: no-repeat !important;
@@ -1716,28 +1715,28 @@ if hero_bg_data_uri:
         }
 
         /* Tablet & Mobile Hero Responsiveness */
-        @media (max-width: 991px) {{
+        @media (max-width: 991px) {
             .st-key-dashboard_hero_section,
             div[class*="st-key-dashboard_hero_section"],
-            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {{
+            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
                 padding: 14px 14px 12px 14px !important;
                 border-radius: 18px !important;
                 margin-bottom: 14px !important;
                 background-position: center 25% !important;
-            }}
-        }}
-        @media (max-width: 480px) {{
+            }
+        }
+        @media (max-width: 480px) {
             .st-key-dashboard_hero_section,
             div[class*="st-key-dashboard_hero_section"],
-            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {{
+            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
                 padding: 12px 10px 10px 10px !important;
                 border-radius: 16px !important;
                 margin-bottom: 12px !important;
-            }}
-        }}
+            }
+        }
         </style>
-        """
-    )
+    """.replace("__HERO_BG_URI__", hero_bg_data_uri)
+    render_html(hero_css)
 
 
 
