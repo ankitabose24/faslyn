@@ -1572,6 +1572,56 @@ render_html(
         color: #7D4E27 !important;
         font-weight: 600 !important;
     }
+
+    /* -----------------------------------------------------------------------
+       3D ZOOM-IN ANIMATION SYSTEM (LOGIN TO DASHBOARD CINEMATIC TRANSITION)
+       ----------------------------------------------------------------------- */
+    @keyframes dashboard3DZoomIn {
+        0% {
+            opacity: 0;
+            transform: perspective(1200px) translateZ(-110px) scale(0.91) translateY(26px);
+            filter: blur(3px);
+        }
+        60% {
+            opacity: 1;
+            filter: blur(0px);
+        }
+        100% {
+            opacity: 1;
+            transform: perspective(1200px) translateZ(0px) scale(1) translateY(0);
+            filter: blur(0px);
+        }
+    }
+    @keyframes kpi3DZoomIn {
+        0% {
+            opacity: 0;
+            transform: perspective(900px) translateZ(-65px) scale(0.88) translateY(18px);
+        }
+        100% {
+            opacity: 1;
+            transform: perspective(900px) translateZ(0px) scale(1) translateY(0);
+        }
+    }
+    @keyframes card3DZoomIn {
+        0% {
+            opacity: 0;
+            transform: perspective(1000px) translateZ(-75px) scale(0.90) translateY(22px);
+        }
+        100% {
+            opacity: 1;
+            transform: perspective(1000px) translateZ(0px) scale(1) translateY(0);
+        }
+    }
+    @keyframes sidebarSlideIn {
+        0% {
+            opacity: 0;
+            transform: translateX(-35px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateX(0) scale(1);
+        }
+    }
     </style>
     """
 )
@@ -1625,6 +1675,8 @@ if "has_shown_initial_splash" not in st.session_state:
     st.session_state.has_shown_initial_splash = False
 if "show_login_loader" not in st.session_state:
     st.session_state.show_login_loader = False
+if "just_logged_in" not in st.session_state:
+    st.session_state.just_logged_in = False
 
 if not st.session_state.has_shown_initial_splash:
     render_splash_loader("Initializing agro-intelligence feeds...")
@@ -1973,7 +2025,8 @@ def render_login_page():
                     initials = "FP"
 
             st.session_state.is_authenticated = True
-            st.session_state.show_login_loader = True
+            st.session_state.just_logged_in = True
+            st.session_state.show_login_loader = False
             st.session_state.user_name = entered_name
             st.session_state.user_phone = entered_phone
             st.session_state.user_region = entered_region
@@ -2040,7 +2093,8 @@ def render_login_page():
             )
             if st.button(f"Enter as {prof['name']} ({prof['flag']}) →", key=f"quick_demo_btn_{idx}", use_container_width=True):
                 st.session_state.is_authenticated = True
-                st.session_state.show_login_loader = True
+                st.session_state.just_logged_in = True
+                st.session_state.show_login_loader = False
                 st.session_state.user_name = prof["name"]
                 st.session_state.user_avatar = prof["avatar"]
                 st.session_state.user_role = prof["role"]
@@ -2105,10 +2159,38 @@ if not st.session_state.get("is_authenticated", False):
     render_login_page()
     st.stop()
 
-# Post-login splash transition loader
-if st.session_state.get("show_login_loader", False):
-    render_splash_loader("Authenticating profile & loading live satellite feeds...")
-    st.session_state.show_login_loader = False
+# ---------------------------------------------------------------------------
+# 3D ZOOM-IN TRANSITION FROM LOGIN TO DASHBOARD (NO INTERMEDIATE LOADER)
+# ---------------------------------------------------------------------------
+if st.session_state.get("just_logged_in", False):
+    render_html(
+        """
+        <style>
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            animation: dashboard3DZoomIn 0.58s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+            transform-origin: center top !important;
+            will-change: transform, opacity;
+        }
+        .kpi-card {
+            animation: kpi3DZoomIn 0.52s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+            transform-origin: center center !important;
+        }
+        .dashboard-card,
+        iframe,
+        div[data-testid="stIFrame"],
+        .impact-banner {
+            animation: card3DZoomIn 0.60s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+            transform-origin: center center !important;
+        }
+        section[data-testid="stSidebar"] {
+            animation: sidebarSlideIn 0.50s cubic-bezier(0.16, 1, 0.3, 1) both !important;
+            transform-origin: left center !important;
+        }
+        </style>
+        """
+    )
+    st.session_state.just_logged_in = False
 
 # ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
@@ -2205,6 +2287,7 @@ with st.sidebar:
         st.session_state.is_authenticated = False
         st.session_state.has_shown_initial_splash = False
         st.session_state.show_login_loader = False
+        st.session_state.just_logged_in = False
         st.session_state.user_name = ""
         st.session_state.user_phone = ""
         st.session_state.user_region = ""
@@ -2383,6 +2466,7 @@ with hdr_right:
                 st.session_state.is_authenticated = False
                 st.session_state.has_shown_initial_splash = False
                 st.session_state.show_login_loader = False
+                st.session_state.just_logged_in = False
                 st.session_state.user_name = ""
                 st.session_state.user_phone = ""
                 st.session_state.user_region = ""
