@@ -165,6 +165,21 @@ def render_html(html_str: str, unsafe_allow_javascript: bool = False):
 # ---------------------------------------------------------------------------
 render_html(
     """
+    <script>
+    (function() {
+        try {
+            var meta = document.querySelector('meta[name="viewport"]');
+            if (!meta) {
+                meta = document.createElement('meta');
+                meta.name = 'viewport';
+                document.head.appendChild(meta);
+            }
+            meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            document.documentElement.style.overflowX = 'hidden';
+            document.body.style.overflowX = 'hidden';
+        } catch(e) {}
+    })();
+    </script>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
@@ -172,6 +187,40 @@ render_html(
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
         background-color: #F6F9F5 !important;
         color: #111827 !important;
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    /* Global Metric Cards (Consistent elevation on all screens) */
+    [data-testid="stMetric"] {
+        background: #FFFFFF !important;
+        border: 1.5px solid #E5EBE7 !important;
+        border-bottom: 2.5px solid #D5E0D8 !important;
+        border-radius: 14px !important;
+        padding: 10px 14px !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        box-sizing: border-box !important;
+    }
+    [data-testid="stMetric"] label {
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        color: #4B5563 !important;
+    }
+    [data-testid="stMetric"] [data-testid="stMetricValue"] {
+        font-size: 1.30rem !important;
+        font-weight: 800 !important;
+        color: #111827 !important;
+    }
+    [data-testid="stMetric"] [data-testid="stMetricDelta"] {
+        font-size: 0.72rem !important;
+    }
+
+    /* Wrap code and JSON blocks to prevent sideways mobile blowouts */
+    pre, code, [data-testid="stCodeBlock"] {
+        white-space: pre-wrap !important;
+        word-break: break-all !important;
+        max-width: 100% !important;
     }
     
     /* High-contrast dark text everywhere */
@@ -1130,6 +1179,11 @@ render_html(
         }
     }
 
+    /* Desktop: Hide Mobile Bottom Navigation Bar */
+    .st-key-mobile_bottom_nav_bar {
+        display: none !important;
+    }
+
     /* -----------------------------------------------------------------------
        MOBILE & TABLET RESPONSIVE SYSTEM (@media (max-width: 991px))
        Off-canvas drawer with smooth slide, backdrop dimming, and touch layout
@@ -1195,7 +1249,7 @@ render_html(
             padding-top: 4.2rem !important;
             padding-left: 0.95rem !important;
             padding-right: 0.95rem !important;
-            padding-bottom: 2.8rem !important;
+            padding-bottom: 5.8rem !important;
             max-width: 100% !important;
         }
 
@@ -1592,6 +1646,174 @@ render_html(
         /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
         .stTextInput input, .stSelectbox div {
             font-size: 16px !important;
+        }
+
+        /* -------------------------------------------------------------------
+           MOBILE BOTTOM NAVIGATION DOCKED BAR
+           ------------------------------------------------------------------- */
+        .st-key-mobile_bottom_nav_bar {
+            display: block !important;
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            z-index: 999999 !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            backdrop-filter: blur(18px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(18px) saturate(180%) !important;
+            border-top: 1.5px solid rgba(229, 231, 235, 0.95) !important;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
+            padding: 5px 6px calc(6px + env(safe-area-inset-bottom, 0px)) 6px !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .st-key-mobile_bottom_nav_bar div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 4px !important;
+            width: 100% !important;
+            margin: 0 !important;
+            align-items: center !important;
+            justify-content: space-around !important;
+        }
+        .st-key-mobile_bottom_nav_bar div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 20% !important;
+            min-width: 0 !important;
+            max-width: 20% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .st-key-mobile_bottom_nav_bar button {
+            min-height: 48px !important;
+            height: 48px !important;
+            padding: 4px 2px !important;
+            font-size: 0.68rem !important;
+            line-height: 1.15 !important;
+            font-weight: 700 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 12px !important;
+            white-space: pre-line !important;
+            text-align: center !important;
+            box-shadow: none !important;
+            transition: all 0.15s ease !important;
+        }
+        .st-key-mobile_bottom_nav_bar button[kind="secondary"] {
+            background: transparent !important;
+            color: #4B5563 !important;
+            border: 1px solid transparent !important;
+        }
+        .st-key-mobile_bottom_nav_bar button[kind="primary"] {
+            background: #ECFDF5 !important;
+            color: #047857 !important;
+            border: 1.5px solid #A7F3D0 !important;
+            font-weight: 800 !important;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.18) !important;
+        }
+
+        /* -------------------------------------------------------------------
+           LOGIN FORM CONTAINER: 100% WIDTH ON MOBILE
+           ------------------------------------------------------------------- */
+        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
+        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            display: none !important;
+        }
+        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2) {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+
+        /* -------------------------------------------------------------------
+           SATELLITE VIEW: HORIZONTAL QUICK JUMP CHIPS CAROUSEL
+           ------------------------------------------------------------------- */
+        .st-key-sat_quick_chips_container div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            gap: 8px !important;
+            padding-bottom: 6px !important;
+            scrollbar-width: none !important;
+            width: 100% !important;
+        }
+        .st-key-sat_quick_chips_container div[data-testid="stHorizontalBlock"]::-webkit-scrollbar {
+            display: none !important;
+        }
+        .st-key-sat_quick_chips_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 150px !important;
+            margin-bottom: 0 !important;
+        }
+        .st-key-sat_quick_chips_container button {
+            white-space: nowrap !important;
+            border-radius: 9999px !important;
+            padding: 4px 12px !important;
+            font-size: 0.80rem !important;
+            height: 36px !important;
+            min-height: 36px !important;
+        }
+
+        /* -------------------------------------------------------------------
+           TELEMETRY & SOIL METRICS: 2x2 RESPONSIVE MOBILE GRIDS
+           ------------------------------------------------------------------- */
+        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"],
+        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"],
+        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 calc(50% - 4px) !important;
+            width: calc(50% - 4px) !important;
+            min-width: calc(50% - 4px) !important;
+            max-width: calc(50% - 4px) !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* -------------------------------------------------------------------
+           AI SAMPLES, REGEN CARDS & SETTINGS: FULL-WIDTH CLEAN STACKING
+           ------------------------------------------------------------------- */
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            margin-bottom: 0 !important;
+        }
+
+        .st-key-regen_cards_row1 div[data-testid="stHorizontalBlock"],
+        .st-key-regen_cards_row2 div[data-testid="stHorizontalBlock"],
+        .st-key-settings_inputs_container div[data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        .st-key-regen_cards_row1 div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-regen_cards_row2 div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-settings_inputs_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            margin-bottom: 0 !important;
         }
     }
 
@@ -2371,7 +2593,8 @@ def render_login_page():
         """
     )
 
-    col_spacer_l, col_center, col_spacer_r = st.columns([0.20, 0.60, 0.20])
+    c_login = st.container(key="login_form_container")
+    col_spacer_l, col_center, col_spacer_r = c_login.columns([0.20, 0.60, 0.20])
 
     with col_center:
         col_title, col_demo_icon = st.columns([3.6, 1.2], vertical_alignment="center")
@@ -2838,6 +3061,37 @@ with st.sidebar:
         st.session_state.active_tab_id = "home"
         st.session_state.nav_stack = ["home"]
         st.rerun()
+
+# ===========================================================================
+# DOCKED MOBILE BOTTOM NAVIGATION BAR
+# ===========================================================================
+def render_mobile_bottom_nav():
+    """Renders an intuitive, docked bottom thumb-navigation bar on mobile viewports."""
+    current_tab = st.session_state.get("active_tab_id", "home")
+    mobile_nav_items = [
+        ("home", "🏠", _("nav_home")),
+        ("sat", "🛰️", _("nav_sat")),
+        ("ai", "🤖", _("nav_ai")),
+        ("regen", "🌱", _("nav_regen")),
+        ("brics", "🌐", _("nav_brics")),
+    ]
+    with st.container(key="mobile_bottom_nav_bar"):
+        m_cols = st.columns(5)
+        for idx, (tab_id, icon, full_label) in enumerate(mobile_nav_items):
+            with m_cols[idx]:
+                is_active = (current_tab == tab_id) or (tab_id == "sat" and current_tab == "farms") or (tab_id == "brics" and current_tab == "impact")
+                words = full_label.split()
+                short_text = words[0] if words else full_label
+                if len(short_text) > 8:
+                    short_text = short_text[:7] + "…"
+                btn_kind = "primary" if is_active else "secondary"
+                if st.button(f"{icon}\n{short_text}", key=f"mob_dock_nav_{tab_id}", type=btn_kind, use_container_width=True):
+                    if tab_id == "home":
+                        st.session_state.nav_stack = ["home"]
+                        st.session_state.active_tab_id = "home"
+                    else:
+                        navigate_to(tab_id)
+                    st.rerun()
 
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
@@ -3779,7 +4033,8 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
             st.error(f"❌ Could not find location for '{sat_search_q}'. Please try a broader city, district, or region name.")
 
     # Quick Jump Chips
-    sug_cols = st.columns(5)
+    c_sug = st.container(key="sat_quick_chips_container")
+    sug_cols = c_sug.columns(5)
     popular_sugs = [
         ("🌾 Sambalpur (Odisha)", "Sambalpur, Odisha, India"),
         ("🌽 Mato Grosso (Brazil)", "Mato Grosso, Brazil"),
@@ -3881,7 +4136,8 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     st.markdown("### 📊 Real-Time Environmental & Soil Indicators")
 
     st.markdown("##### 🛰️ Topsoil Physical Telemetry & Satellite Climatology")
-    s1, s2, s3, s4 = st.columns(4)
+    c_tel = st.container(key="sat_telemetry_metrics_row")
+    s1, s2, s3, s4 = c_tel.columns(4)
     s1.metric(_("soil_health"), f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Open-Meteo Topsoil (0-7cm)")
     s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Zone")
     s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", f"Obs: {satellite.get('data_date', 'Live')}")
@@ -3890,7 +4146,8 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     # Soil Chemical & Nutrient Profile (ISRIC SoilGrids + Regional Baseline)
     current_soil = st.session_state.get("soil_data", {})
     st.markdown("##### 🧪 Topsoil Chemical & Nutrient Fertility Profile")
-    sc1, sc2, sc3, sc4, sc5 = st.columns(5)
+    c_chem = st.container(key="sat_soil_metrics_row")
+    sc1, sc2, sc3, sc4, sc5 = c_chem.columns(5)
     sc1.metric("Soil pH", f"{current_soil.get('ph', 6.5):.1f}", current_soil.get("ph_label", "Neutral"))
     sc2.metric("Organic Carbon (SOC)", f"{current_soil.get('soc_pct', 1.2):.1f}%", current_soil.get("soc_rating", "Moderate"))
     sc3.metric("Available Nitrogen", f"{current_soil.get('nitrogen_kg_ha', 240)} kg/ha", "Macronutrient Pool")
@@ -3899,7 +4156,8 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
     with st.expander("📝 Digital Soil Health Card (Custom Lab Overrides / Manual Entry)", expanded=False):
         st.caption("Override satellite and global soil models with laboratory Soil Health Card (SHC) test measurements for pinpoint local advisory accuracy.")
-        shc_c1, shc_c2, shc_c3, shc_c4 = st.columns(4)
+        c_shc = st.container(key="shc_inputs_container")
+        shc_c1, shc_c2, shc_c3, shc_c4 = c_shc.columns(4)
         with shc_c1:
             shc_ph = st.number_input("Laboratory pH", min_value=3.5, max_value=10.0, value=float(current_soil.get("ph", 6.5)), step=0.1, key="shc_ph_input")
         with shc_c2:
@@ -4004,7 +4262,8 @@ elif st.session_state.active_tab_id == "ai":
         st.subheader("🩺 Leaf Doctor (Grok Multimodal Vision)")
         st.write("Upload a crop photo or choose a 1-click test sample for instant organic diagnosis.")
 
-        v_s1, v_s2, v_s3 = st.columns(3)
+        c_leaf = st.container(key="ai_samples_row")
+        v_s1, v_s2, v_s3 = c_leaf.columns(3)
         with v_s1:
             if st.button("🍅 Sample: Tomato Early Blight", use_container_width=True):
                 st.session_state.active_leaf_image = Image.open("frontend/samples/tomato_early_blight.png")
@@ -4081,7 +4340,8 @@ elif st.session_state.active_tab_id == "regen":
 
     rec = st.session_state.crop_recommendation
     if rec:
-        r1, r2 = st.columns(2)
+        c_r1 = st.container(key="regen_cards_row1")
+        r1, r2 = c_r1.columns(2)
         with r1:
             render_html(
                 f"""
@@ -4101,7 +4361,8 @@ elif st.session_state.active_tab_id == "regen":
                 """
             )
 
-        r3, r4 = st.columns(2)
+        c_r2 = st.container(key="regen_cards_row2")
+        r3, r4 = c_r2.columns(2)
         with r3:
             st.markdown(f"**🧪 {_('soil_health')} Amendment**")
             st.info(rec.get("soil_amendment", "Farmyard Manure + Biochar"))
@@ -4319,7 +4580,8 @@ elif st.session_state.active_tab_id == "settings":
     st.markdown(f"## {_('nav_settings')}")
     st.write("Manage your farmer profile, agricultural region, and cooperative preferences.")
 
-    s_col1, s_col2 = st.columns(2)
+    c_set = st.container(key="settings_inputs_container")
+    s_col1, s_col2 = c_set.columns(2)
     with s_col1:
         edit_name = st.text_input("Farmer Full Name", value=st.session_state.get("user_name", ""), placeholder="e.g. Soman Bose")
         edit_region = st.text_input("Farm Region / Village", value=st.session_state.get("user_region", ""), placeholder="e.g. Odisha, India")
@@ -4364,3 +4626,10 @@ elif st.session_state.active_tab_id == "settings":
     st.markdown("---")
     if st.button(_("back_to_home"), key="back_settings_bot", type="secondary"):
         navigate_back()
+
+# ---------------------------------------------------------------------------
+# RENDER DOCKED MOBILE BOTTOM NAVIGATION BAR (ACTIVE ON MOBILE / TABLET)
+# ---------------------------------------------------------------------------
+if st.session_state.get("is_authenticated", False):
+    render_mobile_bottom_nav()
+
