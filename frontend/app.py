@@ -1252,11 +1252,16 @@ render_html(
             transform: scale(1);
             opacity: 1;
             animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
+        99% {
+            transform: scale(1.28);
+            opacity: 0;
+            visibility: hidden;
         }
         100% {
             transform: scale(1.28);
             opacity: 0;
             visibility: hidden;
+            display: none !important;
         }
     }
 
@@ -1273,10 +1278,16 @@ render_html(
             pointer-events: auto;
             animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
         }
+        99% {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
         100% {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            display: none !important;
         }
     }
 
@@ -1292,9 +1303,60 @@ render_html(
     """
 )
 
+
+def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
+    """Render high-polish 3D green & blue splash loader that smoothly zooms in and fades out."""
+    render_html(
+        f"""
+        <div id="faslyn-loader-overlay" class="faslyn-loader-container">
+            <div class="faslyn-loader-card">
+                <div class="faslyn-spinner-wrapper">
+                    <div class="faslyn-spinner-ring"></div>
+                    <div class="faslyn-spinner-icon">🌱</div>
+                </div>
+                <div class="faslyn-loader-brand">🌿 faslyn</div>
+                <div class="faslyn-loader-subtitle">Smart Agriculture &bull; Stronger Communities</div>
+                <div class="faslyn-loader-track">
+                    <div class="faslyn-loader-bar"></div>
+                </div>
+                <div class="faslyn-loader-status">{status_msg}</div>
+            </div>
+        </div>
+        <script>
+        (function() {{
+            try {{
+                var loader = document.getElementById("faslyn-loader-overlay");
+                if (loader) {{
+                    setTimeout(function() {{
+                        loader.style.opacity = "0";
+                        loader.style.pointerEvents = "none";
+                        setTimeout(function() {{
+                            loader.style.display = "none";
+                            if (loader.parentNode) {{
+                                loader.parentNode.removeChild(loader);
+                            }}
+                        }}, 450);
+                    }}, 1750);
+                }}
+            }} catch(e) {{}}
+        }})();
+        </script>
+        """
+    )
+
+
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
+if "has_shown_initial_splash" not in st.session_state:
+    st.session_state.has_shown_initial_splash = False
+if "show_login_loader" not in st.session_state:
+    st.session_state.show_login_loader = False
+
+if not st.session_state.has_shown_initial_splash:
+    render_splash_loader("Initializing agro-intelligence feeds...")
+    st.session_state.has_shown_initial_splash = True
+
 if "is_authenticated" not in st.session_state:
     st.session_state.is_authenticated = False
 if "user_name" not in st.session_state:
@@ -1442,8 +1504,32 @@ def render_login_page():
         header[data-testid="stHeader"] {
             background: transparent !important;
         }
-        .main .block-container {
+        /* Completely hide sidebar and collapse toggle on login screen */
+        section[data-testid="stSidebar"],
+        div[data-testid="stSidebarCollapsedControl"],
+        button[data-testid="stExpandSidebarButton"] {
+            display: none !important;
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+        }
+        [data-testid="stAppViewContainer"] {
+            display: block !important;
+            width: 100vw !important;
+        }
+        div[data-testid="stMain"],
+        section.main,
+        .stMain {
+            width: 100% !important;
+            margin-left: 0 !important;
+        }
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
             max-width: 1040px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
             padding-top: 2rem !important;
             padding-bottom: 3.5rem !important;
         }
@@ -1614,6 +1700,7 @@ def render_login_page():
                     initials = "FP"
 
             st.session_state.is_authenticated = True
+            st.session_state.show_login_loader = True
             st.session_state.user_name = entered_name
             st.session_state.user_phone = entered_phone
             st.session_state.user_region = entered_region
@@ -1680,6 +1767,7 @@ def render_login_page():
             )
             if st.button(f"Enter as {prof['name']} ({prof['flag']}) →", key=f"quick_demo_btn_{idx}", use_container_width=True):
                 st.session_state.is_authenticated = True
+                st.session_state.show_login_loader = True
                 st.session_state.user_name = prof["name"]
                 st.session_state.user_avatar = prof["avatar"]
                 st.session_state.user_role = prof["role"]
@@ -1738,6 +1826,18 @@ def render_login_page():
 
 
 # ---------------------------------------------------------------------------
+# AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD CONTENT & SIDEBAR)
+# ---------------------------------------------------------------------------
+if not st.session_state.get("is_authenticated", False):
+    render_login_page()
+    st.stop()
+
+# Post-login splash transition loader
+if st.session_state.get("show_login_loader", False):
+    render_splash_loader("Authenticating profile & loading live satellite feeds...")
+    st.session_state.show_login_loader = False
+
+# ---------------------------------------------------------------------------
 # NAVIGATION MAP FOR MULTILINGUAL TABS
 # ---------------------------------------------------------------------------
 nav_items = [
@@ -1754,7 +1854,7 @@ id_to_label["impact"] = _("nav_brics")
 label_to_id = {v: k for k, v in nav_items}
 
 # ===========================================================================
-# SIDEBAR — BRANDING & NAVIGATION (ALWAYS ACCESSIBLE ACROSS ALL SCREENS)
+# SIDEBAR — BRANDING & NAVIGATION (APPEARS AFTER LOGIN IS SUCCESSFUL)
 # ===========================================================================
 with st.sidebar:
     render_html(
@@ -1828,25 +1928,19 @@ with st.sidebar:
         </div>
         """
     )
-    if st.session_state.get("is_authenticated", False):
-        if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
-            st.session_state.is_authenticated = False
-            st.session_state.user_name = ""
-            st.session_state.user_phone = ""
-            st.session_state.user_region = ""
-            st.session_state.user_role = ""
-            st.session_state.user_avatar = ""
-            st.session_state.farmer_id = ""
-            st.session_state.active_tab_id = "home"
-            st.session_state.nav_stack = ["home"]
-            st.rerun()
-
-# ---------------------------------------------------------------------------
-# AUTHENTICATION GATEWAY (LOGIN REQUIRED BEFORE DASHBOARD CONTENT)
-# ---------------------------------------------------------------------------
-if not st.session_state.get("is_authenticated", False):
-    render_login_page()
-    st.stop()
+    if st.button("🚪 Log Out", key="sidebar_logout_btn", use_container_width=True, type="secondary"):
+        st.session_state.is_authenticated = False
+        st.session_state.has_shown_initial_splash = False
+        st.session_state.show_login_loader = False
+        st.session_state.user_name = ""
+        st.session_state.user_phone = ""
+        st.session_state.user_region = ""
+        st.session_state.user_role = ""
+        st.session_state.user_avatar = ""
+        st.session_state.farmer_id = ""
+        st.session_state.active_tab_id = "home"
+        st.session_state.nav_stack = ["home"]
+        st.rerun()
 
 # Fetch telemetry, satellite & soil feeds (cached globally with TTL, zero network latency on reruns)
 telemetry = get_telemetry(st.session_state.coords["lat"], st.session_state.coords["lon"])
@@ -2014,6 +2108,8 @@ with hdr_right:
             )
             if st.button("🚪 Log Out / Change Details", key="popover_logout_btn", use_container_width=True, type="secondary"):
                 st.session_state.is_authenticated = False
+                st.session_state.has_shown_initial_splash = False
+                st.session_state.show_login_loader = False
                 st.session_state.user_name = ""
                 st.session_state.user_phone = ""
                 st.session_state.user_region = ""
