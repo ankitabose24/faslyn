@@ -185,16 +185,10 @@ render_html(
         color: #1B4D3E !important;
     }
 
-    /* Sidebar Width, Background & Sizing (Compact 240px Layout) */
+    /* Sidebar Base Background & Content Padding */
     section[data-testid="stSidebar"] {
-        width: 240px !important;
-        min-width: 240px !important;
-        max-width: 240px !important;
         background-color: #F8FAF7 !important;
-        border-right: 1px solid #EBF2EB !important;
-    }
-    div[data-testid="stSidebarContent"] {
-        width: 240px !important;
+        border-right: 1.5px solid #E2EAE4 !important;
     }
     div[data-testid="stSidebarUserContent"] {
         padding: 1.1rem 0.85rem !important;
@@ -719,19 +713,30 @@ render_html(
         box-shadow: 0 16px 36px -4px rgba(27, 77, 62, 0.15), 0 6px 14px -2px rgba(0, 0, 0, 0.05) !important;
     }
     
-    /* Sidebar Styling & Compact Layout */
+    /* =======================================================================
+       COMPREHENSIVE RESPONSIVE DESIGN SYSTEM: DESKTOP & MOBILE
+       1. Zero sidebar-dashboard overlap on any screen resolution.
+       2. Silky smooth cubic-bezier transitions for sidebar expand/collapse.
+       3. Enhanced off-canvas mobile drawer with native backdrop dimming.
+       4. Touch-optimized mobile layout, compact header row & full-width cards.
+       ======================================================================= */
+
+    /* Hide the Streamlit sidebar resize handle so manual dragging doesn't break layout */
+    div[data-testid="stSidebarResizeHandle"] {
+        display: none !important;
+        pointer-events: none !important;
+    }
+
+    /* Common Sidebar Base Styling */
     section[data-testid="stSidebar"] {
-        width: 240px !important;
-        min-width: 240px !important;
-        max-width: 240px !important;
         background-color: #F8FAF7 !important;
-        border-right: 1px solid #EBF2EB !important;
+        border-right: 1.5px solid #E2EAE4 !important;
+        overflow-x: hidden !important;
+        will-change: width, min-width, max-width, transform, margin-left;
     }
     div[data-testid="stSidebarContent"] {
-        width: 240px !important;
-    }
-    div[data-testid="stSidebarUserContent"] {
-        padding: 1.1rem 0.85rem !important;
+        background-color: #F8FAF7 !important;
+        overflow-x: hidden !important;
     }
     .sidebar-brand {
         font-size: 1.35rem;
@@ -759,35 +764,211 @@ render_html(
     }
 
     /* -----------------------------------------------------------------------
-       RESPONSIVE MOBILE & TOUCH DESIGN SYSTEM (PHONES & TABLETS <= 768px)
+       DESKTOP VIEWPORT LAYOUT (@media (min-width: 992px))
+       Sidebar sits naturally in flex flow: physically impossible to overlap!
        ----------------------------------------------------------------------- */
-    @media (max-width: 768px) {
-        /* Mobile sidebar sizing */
-        section[data-testid="stSidebar"] {
-            width: 240px !important;
-            min-width: 200px !important;
-            max-width: 78vw !important;
-        }
-        div[data-testid="stSidebarContent"] {
-            width: 240px !important;
-            max-width: 78vw !important;
+    @media (min-width: 992px) {
+        /* Flex row wrapper */
+        [data-testid="stAppViewContainer"] {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: stretch !important;
+            width: 100vw !important;
+            min-height: 100vh !important;
+            overflow-x: hidden !important;
         }
 
-        /* Optimize screen real estate: eliminate excess desktop margins */
-        .main .block-container {
-            padding: 0.85rem 0.65rem 2.5rem 0.65rem !important;
+        /* Desktop Sidebar - When OPEN / EXPANDED */
+        section[data-testid="stSidebar"][aria-expanded="true"] {
+            position: relative !important;
+            flex: 0 0 260px !important;
+            width: 260px !important;
+            min-width: 260px !important;
+            max-width: 260px !important;
+            margin-left: 0 !important;
+            transform: none !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 100 !important;
+            box-shadow: 3px 0 18px rgba(27, 77, 62, 0.05) !important;
+            border-right: 1.5px solid #E2EAE4 !important;
+            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        section[data-testid="stSidebar"][aria-expanded="true"] div[data-testid="stSidebarContent"] {
+            width: 260px !important;
+            min-width: 260px !important;
+            max-width: 260px !important;
+        }
+
+        /* Desktop Sidebar - When COLLAPSED */
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            position: relative !important;
+            flex: 0 0 0px !important;
+            width: 0px !important;
+            min-width: 0px !important;
+            max-width: 0px !important;
+            margin-left: -260px !important;
+            transform: translateX(-100%) !important;
+            overflow: hidden !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            border-right: none !important;
+            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        section[data-testid="stSidebar"][aria-expanded="false"] div[data-testid="stSidebarContent"] {
+            width: 0px !important;
+            min-width: 0px !important;
+            max-width: 0px !important;
+        }
+
+        /* Main Container on Desktop - Dynamically occupies all remaining space */
+        div[data-testid="stMain"],
+        section.main,
+        .stMain {
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        /* Block container margins & paddings on desktop */
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            max-width: 1400px !important;
+            padding: 1.8rem 2.5rem 3.5rem 2.5rem !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Floating sidebar open toggle button on desktop */
+        div[data-testid="stSidebarCollapsedControl"] {
+            position: fixed !important;
+            top: 14px !important;
+            left: 14px !important;
+            z-index: 999999 !important;
+        }
+    }
+
+    /* -----------------------------------------------------------------------
+       MOBILE & TABLET RESPONSIVE SYSTEM (@media (max-width: 991px))
+       Off-canvas drawer with smooth slide, backdrop dimming, and touch layout
+       ----------------------------------------------------------------------- */
+    @media (max-width: 991px) {
+        /* Mobile Sidebar Drawer */
+        section[data-testid="stSidebar"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            bottom: 0 !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+            z-index: 999999 !important;
+            border-right: 1.5px solid #D1D5DB !important;
+        }
+
+        /* When Open on Mobile: Slide in with luxurious backdrop overlay */
+        section[data-testid="stSidebar"][aria-expanded="true"] {
+            width: 280px !important;
+            min-width: 260px !important;
+            max-width: 85vw !important;
+            transform: translateX(0) !important;
+            box-shadow: 14px 0 45px rgba(0, 0, 0, 0.3), 0 0 0 100vw rgba(0, 0, 0, 0.45) !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+        }
+        section[data-testid="stSidebar"][aria-expanded="true"] div[data-testid="stSidebarContent"] {
+            width: 280px !important;
+            max-width: 85vw !important;
+        }
+
+        /* When Closed on Mobile: Fully translated off-screen */
+        section[data-testid="stSidebar"][aria-expanded="false"] {
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+            transform: translateX(-100%) !important;
+            box-shadow: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+        }
+        section[data-testid="stSidebar"][aria-expanded="false"] div[data-testid="stSidebarContent"] {
+            width: 0 !important;
+            min-width: 0 !important;
+            max-width: 0 !important;
+        }
+
+        /* Main View on Mobile: 100% width with ample top clearance for toggle button */
+        div[data-testid="stMain"],
+        section.main,
+        .stMain {
+            width: 100% !important;
+            min-width: 100% !important;
+            margin-left: 0 !important;
+        }
+        .main .block-container,
+        div[data-testid="stMain"] .block-container {
+            padding-top: 4.2rem !important;
+            padding-left: 0.95rem !important;
+            padding-right: 0.95rem !important;
+            padding-bottom: 2.8rem !important;
             max-width: 100% !important;
         }
 
-        /* Top Header on mobile: vertical stack with flexible spacing */
+        /* Sidebar toggle button (Hamburger) on mobile */
+        div[data-testid="stSidebarCollapsedControl"] {
+            position: fixed !important;
+            top: 12px !important;
+            left: 12px !important;
+            z-index: 9999999 !important;
+        }
+        div[data-testid="stSidebarCollapsedControl"] button,
+        button[data-testid="stSidebarCollapseButton"] {
+            background-color: rgba(255, 255, 255, 0.96) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12) !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            padding: 8px 12px !important;
+        }
+
+        /* Keep header action bar (Bell, Language, User profile) on ONE compact horizontal row */
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            align-items: center !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+            width: auto !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Content grid columns collapse into full-width touch friendly cards */
+        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])) > div[data-testid="column"] {
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 100% !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* Top Header greeting on mobile */
         .top-header {
             flex-direction: column !important;
             align-items: flex-start !important;
-            gap: 12px !important;
+            gap: 10px !important;
             padding-bottom: 10px !important;
         }
         .greeting-title {
-            font-size: 1.4rem !important;
+            font-size: 1.38rem !important;
             line-height: 1.25 !important;
         }
         .greeting-subtitle {
@@ -800,20 +981,18 @@ render_html(
             padding: 8px 14px !important;
         }
 
-        /* Make multi-column grids collapse cleanly into touch-friendly full-width blocks */
-        div[data-testid="column"] {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-            min-width: 100% !important;
-            margin-bottom: 8px !important;
-        }
-
         /* KPI cards on mobile: tactile, touch-spaced full-width cards */
         .kpi-card {
             padding: 14px 16px !important;
             gap: 12px !important;
             margin-bottom: 10px !important;
             border-radius: 16px !important;
+        }
+        .kpi-icon-box {
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 20px !important;
+            border-radius: 12px !important;
         }
         .kpi-val {
             font-size: 1.45rem !important;
@@ -876,6 +1055,7 @@ render_html(
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            border-radius: 12px !important;
         }
 
         /* Popover dropdowns on mobile */
@@ -883,21 +1063,12 @@ render_html(
             max-width: 92vw !important;
             width: 92vw !important;
             left: 4vw !important;
+            border-radius: 16px !important;
         }
 
         /* Inputs & Selects: 16px prevents iOS Safari auto-zoom */
         .stTextInput input, .stSelectbox div {
             font-size: 16px !important;
-        }
-
-        /* Mobile-optimized sidebar toggle button */
-        button[data-testid="stSidebarCollapseButton"],
-        button[data-testid="baseButton-headerNoPadding"] {
-            background-color: rgba(255, 255, 255, 0.92) !important;
-            border-radius: 10px !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
-            min-width: 40px !important;
-            min-height: 40px !important;
         }
     }
 
