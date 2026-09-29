@@ -132,11 +132,23 @@ render_html(
         z-index: 99999 !important;
     }
     
-    /* Hide Deploy button, 3-dots Menu, and Streamlit Footer ONLY */
+    /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar (Share, GitHub, Edit, Star), Badges and Footer */
     .stAppDeployButton,
     [data-testid="stAppDeployButton"],
     #MainMenu,
-    footer {
+    footer,
+    [data-testid="stToolbarActions"],
+    .stToolbarActions,
+    [data-testid="stToolbarActionButton"],
+    .stToolbarActionButton,
+    [data-testid="stToolbar"],
+    .stAppToolbar,
+    div[data-testid="stDecoration"],
+    [data-testid="manage-app-button"],
+    button[kind="manageApp"],
+    [class*="manageApp"],
+    [class*="viewerBadge"],
+    div[data-testid="stStatusWidget"] {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
