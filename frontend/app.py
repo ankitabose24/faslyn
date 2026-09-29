@@ -1650,10 +1650,10 @@ if hero_bg_data_uri:
     render_html(
         f"""
         <style>
-        /* Dashboard Hero Section - Farmer & Agtech Background */
+        /* Dashboard Hero Section - Farmer & Agtech Background (Strictly isolated to hero section) */
         .st-key-dashboard_hero_section,
         div[class*="st-key-dashboard_hero_section"],
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+        div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
             background-image: 
                 linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(246, 250, 247, 0.52) 100%),
                 url('{hero_bg_data_uri}') !important;
@@ -1667,56 +1667,59 @@ if hero_bg_data_uri:
             border-bottom: 3.5px solid rgba(160, 205, 180, 0.9) !important;
             box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
             position: relative !important;
-        }}
+        }
+
+        /* Ensure whole page and non-hero containers NEVER have the background image */
+        .main,
+        .stApp,
+        div[data-testid="stMainBlockContainer"],
+        div[data-testid="stMainBlockContainer"] > div[data-testid="stVerticalBlock"]:not([class*="st-key-dashboard_hero_section"]),
+        div[data-testid="stVerticalBlock"]:not([class*="st-key-dashboard_hero_section"]):not([data-testid="stVerticalBlockBorderWrapper"]) {
+            background-image: none !important;
+        }
 
         /* Hero Section Header Title & Subtitle */
-        .st-key-dashboard_hero_section .greeting-title,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .greeting-title {{
+        .st-key-dashboard_hero_section .greeting-title {
             color: #0d281e !important;
             text-shadow: 0 1px 3px rgba(255, 255, 255, 0.95), 0 2px 10px rgba(255, 255, 255, 0.75) !important;
-        }}
-        .st-key-dashboard_hero_section .greeting-subtitle,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .greeting-subtitle {{
+        }
+        .st-key-dashboard_hero_section .greeting-subtitle {
             color: #1e3a2f !important;
             font-weight: 600 !important;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
-        }}
+        }
 
         /* Frosted Glass Header Action Widgets (Bell, Language, Profile) */
         .st-key-dashboard_hero_section div[data-testid="stPopover"] > button,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) div[data-testid="stPopover"] > button,
-        .st-key-dashboard_hero_section div[data-baseweb="select"] > div,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) div[data-baseweb="select"] > div {{
+        .st-key-dashboard_hero_section div[data-baseweb="select"] > div {
             background: rgba(255, 255, 255, 0.88) !important;
             backdrop-filter: blur(8px) !important;
             -webkit-backdrop-filter: blur(8px) !important;
             border: 1px solid rgba(220, 235, 225, 0.85) !important;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
-        }}
+        }
 
         /* Frosted Glass 4 KPI Cards inside Hero Section */
-        .st-key-dashboard_hero_section .kpi-card,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .kpi-card {{
+        .st-key-dashboard_hero_section .kpi-card {
             background: rgba(255, 255, 255, 0.88) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
             border: 1px solid rgba(255, 255, 255, 0.85) !important;
             border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
             box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
-        }}
-        .st-key-dashboard_hero_section .kpi-card:hover,
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) .kpi-card:hover {{
+        }
+        .st-key-dashboard_hero_section .kpi-card:hover {
             background: rgba(255, 255, 255, 0.96) !important;
             transform: translateY(-3px) scale(1.006) !important;
             border-bottom-color: rgba(181, 131, 90, 0.7) !important;
             box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.18), inset 0 1px 1px #FFFFFF !important;
-        }}
+        }
 
         /* Tablet & Mobile Hero Responsiveness */
         @media (max-width: 991px) {{
             .st-key-dashboard_hero_section,
             div[class*="st-key-dashboard_hero_section"],
-            div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {{
                 padding: 14px 14px 12px 14px !important;
                 border-radius: 18px !important;
                 margin-bottom: 14px !important;
@@ -1726,7 +1729,7 @@ if hero_bg_data_uri:
         @media (max-width: 480px) {{
             .st-key-dashboard_hero_section,
             div[class*="st-key-dashboard_hero_section"],
-            div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {{
+            div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {{
                 padding: 12px 10px 10px 10px !important;
                 border-radius: 16px !important;
                 margin-bottom: 12px !important;
@@ -2338,7 +2341,7 @@ if st.session_state.get("just_logged_in", False):
         }
         .st-key-dashboard_hero_section,
         div[class*="st-key-dashboard_hero_section"],
-        div[data-testid="stVerticalBlock"]:has(> div .dashboard-hero-marker) {
+        div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
             animation: card3DZoomIn 0.58s cubic-bezier(0.16, 1, 0.3, 1) both !important;
             transform-origin: center top !important;
         }
@@ -2701,9 +2704,7 @@ if st.session_state.active_tab_id == "home":
     # DASHBOARD HERO SECTION: TOP GREETING & HEADER + 4 KPI METRIC CARDS
     # Framed with smart agriculture farmer photo background
     # -----------------------------------------------------------------------
-    with st.container(key="dashboard_hero_section"):
-        render_html('<div class="dashboard-hero-marker" style="display:none;"></div>')
-        
+    with st.container(key="dashboard_hero_section", border=True):
         # Top Header Greeting & Quick Actions Row
         hdr_left, hdr_right = st.columns([3, 2])
         with hdr_left:
