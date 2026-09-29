@@ -1335,34 +1335,60 @@ def render_login_page():
         render_html(
             """
             <div class="login-card-head">🔐 Cooperative Member Sign-In</div>
-            <div class="login-card-sub">Enter your registered farmer phone number or ID</div>
+            <div class="login-card-sub">Enter your details to customize your farm dashboard</div>
             """
         )
 
-        login_id = st.text_input(
-            "Farmer ID or Mobile Number",
-            value="+91 98765 43210",
-            key="login_mobile_id",
-            help="Enter your cooperative-registered mobile number or National Farmer Registry ID.",
+        login_name = st.text_input(
+            "Farmer Full Name",
+            value=st.session_state.get("user_name", "Ramesh Pradhan"),
+            key="login_farmer_name",
+            help="Enter your name as you would like it displayed across the dashboard.",
         )
-        login_pin = st.text_input(
-            "Security PIN / Password",
-            value="123456",
-            type="password",
-            key="login_pin_code",
-            help="Default demo PIN is 123456 (or any 4+ digits)",
-        )
+
+        col_id, col_pin = st.columns(2)
+        with col_id:
+            login_id = st.text_input(
+                "Mobile / Cooperative ID",
+                value=st.session_state.get("user_phone", "+91 98765 43210"),
+                key="login_mobile_id",
+                help="Your registered mobile number or cooperative member ID.",
+            )
+        with col_pin:
+            login_pin = st.text_input(
+                "Security PIN",
+                value="123456",
+                type="password",
+                key="login_pin_code",
+                help="Default demo PIN is 123456 (or any 4+ digits)",
+            )
+
+        col_reg, col_role = st.columns(2)
+        with col_reg:
+            login_region = st.text_input(
+                "Farm Region / Village",
+                value=st.session_state.get("user_region", "Odisha, India"),
+                key="login_region_input",
+                help="Your farm location, district, or agricultural zone.",
+            )
+        with col_role:
+            login_role = st.text_input(
+                "Farming Role & Crops",
+                value=st.session_state.get("user_role", "Smallholder Lead (Rice & Pulses)"),
+                key="login_role_input",
+                help="e.g. Smallholder Farmer, Organic Producer, Lead Agronomist.",
+            )
 
         hub_names = list(BRICS_HUBS.keys())
         chosen_hub = st.selectbox(
-            "Cooperative Agricultural Hub",
+            "Agricultural Hub & Soil Baseline",
             hub_names,
             index=0,
             key="login_hub_select",
         )
 
         chosen_lang = st.selectbox(
-            "Preferred Language",
+            "Preferred Advisory Language",
             list(LANGUAGES.keys()),
             index=list(LANGUAGES.keys()).index(st.session_state.current_language) if st.session_state.current_language in LANGUAGES else 0,
             key="login_lang_select",
@@ -1371,43 +1397,36 @@ def render_login_page():
         st.caption("🔒 Verified via Sovereign ODbL 1.0 DPG Protocol · End-to-End Encrypted")
 
         if st.button("🌱 Sign In to Dashboard →", type="primary", use_container_width=True, key="login_submit_btn"):
+            entered_name = login_name.strip() if login_name.strip() else "Farmer"
+            entered_phone = login_id.strip() if login_id.strip() else "+91 98765 43210"
+            entered_region = login_region.strip() if login_region.strip() else "Local Agricultural Belt"
+            entered_role = login_role.strip() if login_role.strip() else "Smallholder Producer"
+
+            # Compute avatar initials from entered name
+            name_parts = entered_name.split()
+            if len(name_parts) >= 2:
+                initials = f"{name_parts[0][0]}{name_parts[1][0]}".upper()
+            elif len(name_parts) == 1 and len(name_parts[0]) >= 2:
+                initials = name_parts[0][:2].upper()
+            elif len(name_parts) == 1 and len(name_parts[0]) == 1:
+                initials = name_parts[0].upper()
+            else:
+                initials = "FP"
+
             st.session_state.is_authenticated = True
+            st.session_state.user_name = entered_name
+            st.session_state.user_phone = entered_phone
+            st.session_state.user_region = entered_region
+            st.session_state.user_role = entered_role
+            st.session_state.user_avatar = initials
+            st.session_state.farmer_id = f"FAS-{abs(hash(entered_name + entered_phone)) % 9000 + 1000}"
             st.session_state.selected_hub_name = chosen_hub
             st.session_state.coords = {"lat": BRICS_HUBS[chosen_hub]["lat"], "lon": BRICS_HUBS[chosen_hub]["lon"]}
             st.session_state.zoom = BRICS_HUBS[chosen_hub]["zoom"]
             st.session_state.current_language = chosen_lang
             st.session_state.advisory_lang_code = LANGUAGES[chosen_lang]
-            st.session_state.user_phone = login_id.strip() or "+91 98765 43210"
-            st.session_state.farmer_id = f"FAS-{abs(hash(login_id)) % 9000 + 1000}"
             st.session_state.active_tab_id = "home"
             st.session_state.nav_stack = ["home"]
-
-            # Derive user profile from selected hub or input
-            if "Brazil" in chosen_hub or "+55" in login_id:
-                st.session_state.user_name = "Maria Silva"
-                st.session_state.user_avatar = "MS"
-                st.session_state.user_role = "Agroforestry Producer"
-                st.session_state.user_region = "Mato Grosso, Brazil"
-            elif "South Africa" in chosen_hub or "+27" in login_id:
-                st.session_state.user_name = "Thabo Molefe"
-                st.session_state.user_avatar = "TM"
-                st.session_state.user_role = "Cooperative Farmer"
-                st.session_state.user_region = "Limpopo, South Africa"
-            elif "Russia" in chosen_hub or "+7" in login_id:
-                st.session_state.user_name = "Dmitry Ivanov"
-                st.session_state.user_avatar = "DI"
-                st.session_state.user_role = "Grain Cooperative Member"
-                st.session_state.user_region = "Krasnodar Krai, Russia"
-            elif "China" in chosen_hub or "+86" in login_id:
-                st.session_state.user_name = "Wang Wei (王伟)"
-                st.session_state.user_avatar = "WW"
-                st.session_state.user_role = "Smallholder Lead"
-                st.session_state.user_region = "Heilongjiang, China"
-            else:
-                st.session_state.user_name = "Ramesh Kumar"
-                st.session_state.user_avatar = "RK"
-                st.session_state.user_role = "Smallholder Farmer"
-                st.session_state.user_region = "Odisha, India"
 
             try:
                 upsert_farmer(
@@ -1563,9 +1582,18 @@ label_to_id = {v: k for k, v in nav_items}
 # ===========================================================================
 with st.sidebar:
     render_html(
-        """
+        f"""
         <div class="sidebar-brand">
             🌿 faslyn
+        </div>
+        <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 9px 12px; margin: 6px 0 12px 0; display: flex; align-items: center; gap: 10px;">
+            <div style="width: 34px; height: 34px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
+                {st.session_state.get('user_avatar', 'FP')}
+            </div>
+            <div style="overflow: hidden; line-height: 1.25;">
+                <div style="font-weight: 700; font-size: 0.84rem; color: #111827; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;" title="{st.session_state.get('user_name', 'Farmer')}">{st.session_state.get('user_name', 'Farmer')}</div>
+                <div style="font-size: 0.70rem; color: #059669; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{st.session_state.get('user_region', 'Farm Region')}</div>
+            </div>
         </div>
         """
     )
@@ -1633,12 +1661,21 @@ hdr_left, hdr_right = st.columns([3, 2])
 
 with hdr_left:
     if st.session_state.active_tab_id == "home":
+        current_farmer = st.session_state.get("user_name", "Farmer")
+        greeting_text = _('greeting')
+        for generic in ["Farmer!", "Farmer", "किसान भाई!", "किसान भाई", "କୃଷକ ଭାଇ!", "କୃଷକ ଭାଇ", "Produtor Rural!", "Produtor Rural", "Фермер!", "Фермер", "农户朋友！", "农户朋友"]:
+            if generic in greeting_text:
+                greeting_text = greeting_text.replace(generic, f"{current_farmer}!")
+                break
+        else:
+            greeting_text = f"{greeting_text} {current_farmer}!"
+
         render_html(
             f"""
             <div class="top-header">
                 <div>
                     <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                        <h1 class="greeting-title">{_('greeting')}</h1>
+                        <h1 class="greeting-title">{greeting_text}</h1>
                         <span style="background: #ECFDF5; color: #047857; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 5px;">
                             <span style="display:inline-block; width:7px; height:7px; background:#10B981; border-radius:50%;"></span>
                             LIVE NASA & SENSOR FEEDS
@@ -1733,13 +1770,15 @@ with hdr_right:
             st.rerun()
 
     with c_user:
-        u_name = st.session_state.get("user_name", "Ramesh Kumar")
-        u_avatar = st.session_state.get("user_avatar", "RK")
+        u_name = st.session_state.get("user_name", "Farmer")
+        u_avatar = st.session_state.get("user_avatar", "FP")
         u_role = st.session_state.get("user_role", _("farmer_role"))
         u_region = st.session_state.get("user_region", "Odisha, India")
         u_id = st.session_state.get("farmer_id", "IN-OD-2026-4482")
+        u_phone = st.session_state.get("user_phone", "+91 98765 43210")
 
-        with st.popover(f"👤 {u_name.split()[0]}", use_container_width=True):
+        short_name = u_name.split()[0] if u_name else "Farmer"
+        with st.popover(f"👤 {short_name}", use_container_width=True):
             render_html(
                 f"""
                 <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
@@ -1754,11 +1793,12 @@ with hdr_right:
                 </div>
                 <div style="background:#F9FBFA; border:1px solid #E2EBE5; border-radius:8px; padding:8px 10px; margin-bottom:12px; font-size:0.74rem; color:#4B5563;">
                     <div><b>Cooperative ID:</b> {u_id}</div>
+                    <div><b>Mobile / Phone:</b> {u_phone}</div>
                     <div><b>Network:</b> BRICS AgriN Sovereign DPG</div>
                 </div>
                 """
             )
-            if st.button("🚪 Log Out", key="popover_logout_btn", use_container_width=True, type="secondary"):
+            if st.button("🚪 Log Out / Change Details", key="popover_logout_btn", use_container_width=True, type="secondary"):
                 st.session_state.is_authenticated = False
                 st.session_state.active_tab_id = "home"
                 st.session_state.nav_stack = ["home"]
@@ -2951,7 +2991,19 @@ elif st.session_state.active_tab_id == "settings":
             st.session_state.user_avatar = f"{parts[0][0]}{parts[1][0]}".upper()
         elif len(parts) == 1 and parts[0]:
             st.session_state.user_avatar = parts[0][:2].upper()
+        try:
+            upsert_farmer(
+                st.session_state.get("farmer_id", "FAS-1001"),
+                st.session_state.get("user_phone", "+91 98765 43210"),
+                edit_name,
+                edit_region,
+                st.session_state.get("user_role", "Smallholder Farmer"),
+                st.session_state.get("selected_hub_name", "India"),
+            )
+        except Exception:
+            pass
         st.success("Settings saved successfully!")
+        st.rerun()
 
     st.markdown("---")
     if st.button(_("back_to_home"), key="back_settings_bot", type="secondary"):
