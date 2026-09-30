@@ -3619,13 +3619,31 @@ def render_mobile_navigation():
     current_label = next((l for t, l in mobile_nav_items if t == current_tab), mob_labels[0])
 
     with st.container(key="mobile_nav_pills_container"):
-        selected = st.pills(
-            "Navigation",
-            mob_labels,
-            default=current_label,
-            key=f"mob_pills_nav_{st.session_state.active_tab_id}",
-            label_visibility="collapsed",
-        )
+        if hasattr(st, "pills"):
+            selected = st.pills(
+                "Navigation",
+                mob_labels,
+                default=current_label,
+                key=f"mob_pills_nav_{st.session_state.active_tab_id}",
+                label_visibility="collapsed",
+            )
+        elif hasattr(st, "segmented_control"):
+            selected = st.segmented_control(
+                "Navigation",
+                mob_labels,
+                default=current_label,
+                key=f"mob_pills_nav_{st.session_state.active_tab_id}",
+                label_visibility="collapsed",
+            )
+        else:
+            selected = st.radio(
+                "Navigation",
+                mob_labels,
+                index=mob_labels.index(current_label) if current_label in mob_labels else 0,
+                key=f"mob_pills_nav_{st.session_state.active_tab_id}",
+                horizontal=True,
+                label_visibility="collapsed",
+            )
         if selected and selected != current_label:
             target_id = mob_map.get(selected, "home")
             if target_id == "home":
