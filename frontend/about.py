@@ -928,124 +928,6 @@ def show_how_it_works():
     )
 
 
-def show_inside_section():
-    """Render Section 6: What You'll Find Inside (All 6 cards)."""
-    st.markdown(
-        """
-        <div class="about-section-container">
-            <div class="about-section-header">
-                <h2 class="about-section-title">Your Agricultural Intelligence, Organized in One Place</h2>
-                <div class="about-section-subtext">Tools and feeds curated for complete operational clarity.</div>
-            </div>
-            <div class="about-grid-3">
-                <div class="about-card">
-                    <div class="about-card-icon">📊</div>
-                    <div class="about-card-title">Data Insights</div>
-                    <div class="about-card-desc">View important agricultural information in a structured format.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">🌱</div>
-                    <div class="about-card-title">Agricultural Indicators</div>
-                    <div class="about-card-desc">Understand key factors related to agricultural conditions.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">📈</div>
-                    <div class="about-card-title">Visual Analytics</div>
-                    <div class="about-card-desc">Explore trends and patterns through visual representations.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">⚠️</div>
-                    <div class="about-card-title">Problem Identification</div>
-                    <div class="about-card-desc">Bring attention to conditions that may require further investigation.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">💡</div>
-                    <div class="about-card-title">Intelligent Insights</div>
-                    <div class="about-card-desc">Get meaningful interpretations from the available data.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">📋</div>
-                    <div class="about-card-title">Centralized Dashboard</div>
-                    <div class="about-card-desc">Access important information without navigating through multiple disconnected sources.</div>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def show_why_faslyn():
-    """Render Section 7: Why FASLYN? (Side-by-side comparison)."""
-    st.markdown(
-        """
-        <div class="about-section-container">
-            <div class="about-section-header">
-                <h2 class="about-section-title">Designed to Make Complex Information Easier to Understand</h2>
-            </div>
-            <div class="comparison-container">
-                <div class="comp-col-trad">
-                    <div class="comp-col-title" style="color: #991B1B;">
-                        <span>⚠️</span> Traditional Approach
-                    </div>
-                    <div class="comp-list-item"><span>✕</span> Scattered information</div>
-                    <div class="comp-list-item"><span>✕</span> Raw data</div>
-                    <div class="comp-list-item"><span>✕</span> Manual comparison</div>
-                    <div class="comp-list-item"><span>✕</span> Difficult monitoring</div>
-                    <div class="comp-list-item"><span>✕</span> Information overload</div>
-                </div>
-                <div class="comp-col-faslyn">
-                    <div class="comp-col-title" style="color: #065F46;">
-                        <span>🌿</span> With FASLYN
-                    </div>
-                    <div class="comp-list-item"><span>✓</span> Centralized insights</div>
-                    <div class="comp-list-item"><span>✓</span> Understandable information</div>
-                    <div class="comp-list-item"><span>✓</span> Visual analysis</div>
-                    <div class="comp-list-item"><span>✓</span> Dashboard-based monitoring</div>
-                    <div class="comp-list-item"><span>✓</span> Focused insights</div>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def show_who_can_use():
-    """Render Section 8: Who Can Use FASLYN? (All 4 cards)."""
-    st.markdown(
-        """
-        <div class="about-section-container">
-            <div class="about-section-header">
-                <h2 class="about-section-title">Built for People Working With Agricultural Information</h2>
-            </div>
-            <div class="about-grid-4">
-                <div class="about-card">
-                    <div class="about-card-icon">🌾</div>
-                    <div class="about-card-title">Farmers</div>
-                    <div class="about-card-desc">For understanding relevant agricultural information and conditions.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">👨‍🌾</div>
-                    <div class="about-card-title">Agricultural Professionals</div>
-                    <div class="about-card-desc">For analyzing information and monitoring important indicators.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">🎓</div>
-                    <div class="about-card-title">Students & Researchers</div>
-                    <div class="about-card-desc">For exploring agricultural data and trends.</div>
-                </div>
-                <div class="about-card">
-                    <div class="about-card-icon">🏢</div>
-                    <div class="about-card-title">Organizations & Stakeholders</div>
-                    <div class="about-card-desc">For bringing agricultural information together in one platform.</div>
-                </div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
 
 def show_vision_section():
     """Render Section 9: Our Vision."""
@@ -1149,15 +1031,12 @@ def show_about_page():
         unsafe_allow_html=True,
     )
 
-    # Render All 11 Sections sequentially
+    # Render About Sections sequentially
     show_about_hero()
     show_what_is_faslyn()
     show_problem_section()
     show_features_section()
     show_how_it_works()
-    show_inside_section()
-    show_why_faslyn()
-    show_who_can_use()
     show_vision_section()
     show_journey_section()
     show_final_cta()
