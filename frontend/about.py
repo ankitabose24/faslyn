@@ -115,6 +115,69 @@ def get_about_css() -> str:
         pointer-events: none !important;
     }
 
+    
+    /* =======================================================================
+       UNIVERSAL MOBILE RESPONSIVENESS INJECTION (<= 640px)
+       ======================================================================= */
+    @media (max-width: 640px) {
+    /* Force Streamlit blocks from side-by-side flex to pure vertical rows */
+    [data-testid="stHorizontalBlock"] {
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    /* Force every individual column inside rows to take full screen width */
+    [data-testid="stHorizontalBlock"] > div {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+    /* Dynamic image and element scaling */
+    img, .stImage {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    /* Prevent metric value texts from overflowing */
+    [data-testid="stMetricValue"] {
+        font-size: 1.75rem !important;
+        word-break: break-word !important;
+    }
+}
+
+    @media (max-width: 640px) {
+        .about-hero-grid,
+        .what-is-grid,
+        .about-grid-3,
+        .about-grid-4,
+        .about-grid-5,
+        .trust-grid {
+            grid-template-columns: 1fr !important;
+            gap: 14px !important;
+            width: 100% !important;
+        }
+        .about-hero-grid {
+            padding: 20px 16px !important;
+        }
+        .about-top-nav {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 8px !important;
+            border-radius: 20px !important;
+            padding: 10px 14px !important;
+        }
+        .solution-pipeline-desktop {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+        .solution-pipeline-arrow {
+            transform: rotate(90deg) !important;
+            margin: 4px auto !important;
+        }
+        .about-card, .farmer-pillar-card, .trust-item {
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+    }
+    
     /* Page Container */
     .about-page-wrapper {
         width: 100%;
@@ -892,7 +955,7 @@ def show_login_modal():
             key="modal_input_pass",
         )
 
-        col_rem, col_blank = st.columns([1, 1])
+        col_rem, col_blank = st.columns([1, 1], wrap=True)
         with col_rem:
             remember_me = st.checkbox("Remember me", value=True, key="modal_remember_me")
 
@@ -942,7 +1005,7 @@ def show_login_modal():
                 st.rerun()
 
     # Secondary options
-    col_fp, col_ca = st.columns(2)
+    col_fp, col_ca = st.columns(2, wrap=True)
     with col_fp:
         if st.button("Forgot Password?", key="modal_fp_btn", use_container_width=True):
             st.info("ℹ️ Password recovery is linked to your regional agricultural cooperative SMS gateway.")
@@ -984,7 +1047,7 @@ def show_about_hero():
         unsafe_allow_html=True,
     )
 
-    c_btn1, c_btn2, c_btn3 = st.columns([1, 1.4, 1])
+    c_btn1, c_btn2, c_btn3 = st.columns([1, 1.4, 1], wrap=True)
     with c_btn2:
         if st.button("🌱 Login to Faslyn", key="about_hero_login_btn", use_container_width=True, type="primary"):
             show_login_modal()
@@ -1382,7 +1445,7 @@ def show_final_cta():
     )
 
     st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
-    c_cta1, c_cta2, c_cta3 = st.columns([1, 1.4, 1])
+    c_cta1, c_cta2, c_cta3 = st.columns([1, 1.4, 1], wrap=True)
     with c_cta2:
         if st.button("🌱 Login to Faslyn", key="about_bottom_login_btn", use_container_width=True, type="primary"):
             show_login_modal()

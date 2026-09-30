@@ -202,6 +202,32 @@ render_html(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+        /* =======================================================================
+       UNIVERSAL MOBILE RESPONSIVENESS INJECTION (<= 640px)
+       ======================================================================= */
+    @media (max-width: 640px) {
+        /* Force Streamlit blocks from side-by-side flex to pure vertical rows */
+        [data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+        /* Force every individual column inside rows to take full screen width */
+        [data-testid="stHorizontalBlock"] > div {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+        /* Dynamic image and element scaling */
+        img, .stImage {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        /* Prevent metric value texts from overflowing */
+        [data-testid="stMetricValue"] {
+            font-size: 1.75rem !important;
+            word-break: break-word !important;
+        }
+    }
+
     /* =======================================================================
        1. GLOBAL BASE STYLES (All Viewports & Screen Sizes)
        ======================================================================= */
@@ -2058,92 +2084,135 @@ render_html(
 )
 
 # ---------------------------------------------------------------------------
-# FINAL MOBILE RESPONSIVENESS OVERRIDE
+# FINAL MOBILE RESPONSIVENESS OVERRIDE (<= 640px Strict Single Vertical Stack)
 # ---------------------------------------------------------------------------
 render_html(
     """
     <style>
     @media (max-width: 640px) {
+        /* Force Streamlit blocks from side-by-side flex to pure vertical rows */
+        [data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            gap: 1rem !important;
+        }
+        /* Force every individual column inside rows to take full screen width */
+        [data-testid="stHorizontalBlock"] > div {
+            width: 100% !important;
+            min-width: 100% !important;
+        }
+        /* Dynamic image and element scaling */
+        img, .stImage {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        /* Prevent metric value texts from overflowing */
+        [data-testid="stMetricValue"] {
+            font-size: 1.75rem !important;
+            word-break: break-word !important;
+        }
+
         html, body, .stApp, [data-testid="stAppViewContainer"],
         [data-testid="stMain"], [data-testid="stMainBlockContainer"],
         .main, .block-container {
-            width:100% !important; max-width:100% !important; min-width:0 !important;
-            box-sizing:border-box !important; overflow-x:hidden !important;
+            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+            box-sizing: border-box !important; overflow-x: hidden !important;
         }
         .main .block-container, [data-testid="stMainBlockContainer"] {
-            padding-left:12px !important; padding-right:12px !important;
-            max-width:100% !important;
+            padding-left: 10px !important; padding-right: 10px !important;
+            padding-top: 0.6rem !important;
+            max-width: 100% !important;
         }
         div[data-testid="stHorizontalBlock"] {
-            width:100% !important; max-width:100% !important; min-width:0 !important;
-            box-sizing:border-box !important; overflow:visible !important;
+            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+            box-sizing: border-box !important; overflow: visible !important;
+            flex-direction: column !important; gap: 12px !important;
         }
         div[data-testid="column"] {
-            min-width:0 !important; max-width:100% !important; box-sizing:border-box !important;
+            width: 100% !important; max-width: 100% !important; min-width: 100% !important;
+            box-sizing: border-box !important; flex: 1 1 100% !important;
         }
+
+        /* Strict Single Vertical Stack for all Dashboard Layout Blocks on Mobile */
+        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"],
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"],
         .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"],
-        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
-            flex-direction:column !important; flex-wrap:nowrap !important; gap:12px !important;
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"],
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"],
+        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"],
+        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"],
+        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"],
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"],
+        .st-key-regen_cards_row1 > div[data-testid="stHorizontalBlock"],
+        .st-key-regen_cards_row2 > div[data-testid="stHorizontalBlock"],
+        .st-key-settings_inputs_container > div[data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            gap: 12px !important;
+            width: 100% !important;
         }
+        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width:100% !important; max-width:100% !important; min-width:0 !important;
-            flex:1 1 100% !important;
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-regen_cards_row1 > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-regen_cards_row2 > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-settings_inputs_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 100% !important;
+            flex: 1 1 100% !important;
         }
-        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] {
-            display:flex !important; flex-direction:row !important; flex-wrap:wrap !important; gap:8px !important;
+
+        /* Fluid stretching for KPI Cards to fill exact screen width */
+        .kpi-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            box-sizing: border-box !important;
+            margin-bottom: 4px !important;
         }
-        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width:calc(50% - 4px) !important; max-width:calc(50% - 4px) !important;
-            min-width:0 !important; flex:1 1 calc(50% - 4px) !important;
-        }
-        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
-            display:flex !important; flex-direction:row !important; flex-wrap:wrap !important; gap:8px !important;
-        }
-        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width:calc(50% - 4px) !important; max-width:calc(50% - 4px) !important;
-            min-width:0 !important; flex:1 1 calc(50% - 4px) !important;
-        }
+
+        /* Mobile Form Full-Width Inputs and Buttons */
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
-            width:100% !important; max-width:100% !important; min-width:0 !important;
-            flex-wrap:wrap !important; gap:7px !important;
+            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
+            flex-direction: column !important; gap: 8px !important;
         }
         div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            min-width:0 !important; max-width:100% !important;
+            flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important;
         }
-        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
-        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
-            flex:1 1 100% !important; width:100% !important; min-width:0 !important; max-width:100% !important;
-        }
-        div[data-testid="stForm"] button { width:100% !important; min-height:44px !important; }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) { flex-wrap:nowrap !important; }
+        div[data-testid="stForm"] button { width: 100% !important; min-height: 44px !important; }
+
         .dashboard-card, .home-ai-card, .home-row3-card, .impact-banner,
-        .impact-chip, .kpi-card, .home-overview-grid {
-            max-width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+        .impact-chip, .home-overview-grid {
+            max-width: 100% !important; min-width: 0 !important; width: 100% !important; box-sizing: border-box !important;
         }
-        img, video, iframe, .folium-map { max-width:100% !important; box-sizing:border-box !important; }
-        iframe { width:100% !important; min-height:250px !important; height:260px !important; }
+        .home-overview-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+        }
+        iframe { width: 100% !important; min-height: 250px !important; height: 260px !important; }
         input, textarea, select, div[data-baseweb="select"], div[data-baseweb="input"] {
-            max-width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+            max-width: 100% !important; min-width: 0 !important; width: 100% !important; box-sizing: border-box !important;
         }
         .stButton > button, .stDownloadButton > button {
-            max-width:100% !important; min-height:44px !important; white-space:normal !important;
-            overflow-wrap:anywhere !important; box-sizing:border-box !important;
+            max-width: 100% !important; width: 100% !important; min-height: 44px !important; white-space: normal !important;
+            overflow-wrap: anywhere !important; box-sizing: border-box !important;
         }
-        pre, code { max-width:100% !important; white-space:pre-wrap !important; overflow-wrap:anywhere !important; word-break:break-word !important; }
         div[data-testid="stPopoverBody"] {
-            width:min(380px,calc(100vw - 24px)) !important; max-width:calc(100vw - 24px) !important;
-            min-width:0 !important; box-sizing:border-box !important;
+            width: min(380px, calc(100vw - 20px)) !important; max-width: calc(100vw - 20px) !important;
+            min-width: 0 !important; box-sizing: border-box !important;
         }
-        section[data-testid="stSidebar"] { max-width:85vw !important; min-width:0 !important; overflow-x:hidden !important; }
+        section[data-testid="stSidebar"] { max-width: 85vw !important; min-width: 0 !important; overflow-x: hidden !important; }
     }
-    @media (max-width:360px) {
-        .main .block-container, [data-testid="stMainBlockContainer"] { padding-left:8px !important; padding-right:8px !important; }
+    @media (max-width: 360px) {
+        .main .block-container, [data-testid="stMainBlockContainer"] { padding-left: 6px !important; padding-right: 6px !important; }
         .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width:100% !important; max-width:100% !important; flex:1 1 100% !important;
+            width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important;
         }
     }
     </style>
@@ -2759,10 +2828,10 @@ def render_login_page():
     )
 
     c_login = st.container(key="login_form_container")
-    col_spacer_l, col_center, col_spacer_r = c_login.columns([0.20, 0.60, 0.20])
+    col_spacer_l, col_center, col_spacer_r = c_login.columns([0.20, 0.60, 0.20], wrap=True)
 
     with col_center:
-        col_title, col_demo_icon = col_center.columns([3.6, 1.2], vertical_alignment="center")
+        col_title, col_demo_icon = col_center.columns([3.6, 1.2], vertical_alignment="center", wrap=True)
         with col_title:
             render_html(
                 """
@@ -2852,7 +2921,7 @@ def render_login_page():
             help="Enter your name as you would like it displayed across the dashboard.",
         )
 
-        col_id, col_pin = col_center.columns(2)
+        col_id, col_pin = col_center.columns(2, wrap=True)
         with col_id:
             login_id = st.text_input(
                 "Mobile / Cooperative ID",
@@ -2871,7 +2940,7 @@ def render_login_page():
                 help="Enter any 4-6 digit security PIN",
             )
 
-        col_reg, col_role = col_center.columns(2)
+        col_reg, col_role = col_center.columns(2, wrap=True)
         with col_reg:
             login_region = st.text_input(
                 "Farm Region / Village",
@@ -3405,9 +3474,9 @@ def render_header_actions():
                 st.rerun()
 
 if st.session_state.active_tab_id != "home":
-    hdr_left, hdr_right = st.columns([3, 2])
+    hdr_left, hdr_right = st.columns([3, 2], wrap=True)
     with hdr_left:
-        b_c1, b_c2 = st.columns([1.5, 3.5], vertical_alignment="center")
+        b_c1, b_c2 = st.columns([1.5, 3.5], vertical_alignment="center", wrap=True)
         with b_c1:
             if st.button(_("back_to_home"), key="global_header_back", type="secondary", use_container_width=True):
                 navigate_back()
@@ -4302,7 +4371,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     )
 
     with st.form("sat_loc_search_form", clear_on_submit=False):
-        sc1, sc2 = st.columns([3.8, 1.3], vertical_alignment="center")
+        sc1, sc2 = st.columns([3.8, 1.3], vertical_alignment="center", wrap=True)
         with sc1:
             sat_search_q = st.text_input(
                 "Search Location",
@@ -4330,7 +4399,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
     # Quick Jump Chips
     c_sug = st.container(key="sat_quick_chips_container")
-    sug_cols = c_sug.columns(5)
+    sug_cols = c_sug.columns(5, wrap=True)
     popular_sugs = [
         ("🌾 Sambalpur (Odisha)", "Sambalpur, Odisha, India"),
         ("🌽 Mato Grosso (Brazil)", "Mato Grosso, Brazil"),
@@ -4354,7 +4423,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
     st.write("")
 
-    col_hub_a, col_hub_b = st.columns([1, 2])
+    col_hub_a, col_hub_b = st.columns([1, 2], wrap=True)
     with col_hub_a:
         st.markdown("#### 📍 Select BRICS Agricultural Belt")
         selected_hub = st.radio(
@@ -4433,7 +4502,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
 
     st.markdown("##### 🛰️ Topsoil Physical Telemetry & Satellite Climatology")
     c_tel = st.container(key="sat_telemetry_metrics_row")
-    s1, s2, s3, s4 = c_tel.columns(4)
+    s1, s2, s3, s4 = c_tel.columns(4, wrap=True)
     s1.metric(_("soil_health"), f"{telemetry.get('soil_moisture', 0.24):.2f} m³/m³", "Open-Meteo Topsoil (0-7cm)")
     s2.metric("Soil Temperature", f"{telemetry.get('soil_temp', 27.5):.1f} °C", "Microbial Activity Zone")
     s3.metric("Solar Radiation (NASA)", f"{satellite.get('solar_radiation', 18.5):.1f} MJ/m²/d", f"Obs: {satellite.get('data_date', 'Live')}")
@@ -4443,7 +4512,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     current_soil = st.session_state.get("soil_data", {})
     st.markdown("##### 🧪 Topsoil Chemical & Nutrient Fertility Profile")
     c_chem = st.container(key="sat_soil_metrics_row")
-    sc1, sc2, sc3, sc4, sc5 = c_chem.columns(5)
+    sc1, sc2, sc3, sc4, sc5 = c_chem.columns(5, wrap=True)
     sc1.metric("Soil pH", f"{current_soil.get('ph', 6.5):.1f}", current_soil.get("ph_label", "Neutral"))
     sc2.metric("Organic Carbon (SOC)", f"{current_soil.get('soc_pct', 1.2):.1f}%", current_soil.get("soc_rating", "Moderate"))
     sc3.metric("Available Nitrogen", f"{current_soil.get('nitrogen_kg_ha', 240)} kg/ha", "Macronutrient Pool")
@@ -4453,7 +4522,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     with st.expander("📝 Digital Soil Health Card (Custom Lab Overrides / Manual Entry)", expanded=False):
         st.caption("Override satellite and global soil models with laboratory Soil Health Card (SHC) test measurements for pinpoint local advisory accuracy.")
         c_shc = st.container(key="shc_inputs_container")
-        shc_c1, shc_c2, shc_c3, shc_c4 = c_shc.columns(4)
+        shc_c1, shc_c2, shc_c3, shc_c4 = c_shc.columns(4, wrap=True)
         with shc_c1:
             shc_ph = st.number_input("Laboratory pH", min_value=3.5, max_value=10.0, value=float(current_soil.get("ph", 6.5)), step=0.1, key="shc_ph_input")
         with shc_c2:
@@ -4489,7 +4558,7 @@ elif st.session_state.active_tab_id in ["farms", "sat"]:
     )
 
     st.markdown("---")
-    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center", wrap=True)
     with bot_b1:
         if st.button(_("back_to_home"), key="back_sat_bot", type="secondary", use_container_width=True):
             navigate_back()
@@ -4544,7 +4613,7 @@ elif st.session_state.active_tab_id == "ai":
                 </div>
                 """
             )
-            col_rep, _spacer = st.columns([1, 4])
+            col_rep, _spacer = st.columns([1, 4], wrap=True)
             with col_rep:
                 if st.button("🔊 Replay Audio"):
                     st.session_state.trigger_speech = True
@@ -4559,7 +4628,7 @@ elif st.session_state.active_tab_id == "ai":
         st.write("Upload a crop photo or choose a 1-click test sample for instant organic diagnosis.")
 
         c_leaf = st.container(key="ai_samples_row")
-        v_s1, v_s2, v_s3 = c_leaf.columns(3)
+        v_s1, v_s2, v_s3 = c_leaf.columns(3, wrap=True)
         with v_s1:
             if st.button("🍅 Sample: Tomato Early Blight", use_container_width=True):
                 st.session_state.active_leaf_image = Image.open("frontend/samples/tomato_early_blight.png")
@@ -4582,7 +4651,7 @@ elif st.session_state.active_tab_id == "ai":
             st.session_state.sample_label = "Custom Upload"
 
         if st.session_state.active_leaf_image is not None:
-            v_col1, v_col2 = st.columns([1, 2])
+            v_col1, v_col2 = st.columns([1, 2], wrap=True)
             with v_col1:
                 st.image(st.session_state.active_leaf_image, caption=st.session_state.sample_label, use_container_width=True)
                 if st.button("🔍 Run Disease Diagnostic Scan", type="primary", use_container_width=True):
@@ -4597,7 +4666,7 @@ elif st.session_state.active_tab_id == "ai":
                     st.info(st.session_state.diagnosis_text)
 
     st.markdown("---")
-    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center", wrap=True)
     with bot_b1:
         if st.button(_("back_to_home"), key="back_ai_bot", type="secondary", use_container_width=True):
             navigate_back()
@@ -4637,7 +4706,7 @@ elif st.session_state.active_tab_id == "regen":
     rec = st.session_state.crop_recommendation
     if rec:
         c_r1 = st.container(key="regen_cards_row1")
-        r1, r2 = c_r1.columns(2)
+        r1, r2 = c_r1.columns(2, wrap=True)
         with r1:
             render_html(
                 f"""
@@ -4658,7 +4727,7 @@ elif st.session_state.active_tab_id == "regen":
             )
 
         c_r2 = st.container(key="regen_cards_row2")
-        r3, r4 = c_r2.columns(2)
+        r3, r4 = c_r2.columns(2, wrap=True)
         with r3:
             st.markdown(f"**🧪 {_('soil_health')} Amendment**")
             st.info(rec.get("soil_amendment", "Farmyard Manure + Biochar"))
@@ -4675,7 +4744,7 @@ elif st.session_state.active_tab_id == "regen":
         )
 
     st.markdown("---")
-    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center", wrap=True)
     with bot_b1:
         if st.button(_("back_to_home"), key="back_regen_bot", type="secondary", use_container_width=True):
             navigate_back()
@@ -4808,7 +4877,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         endpoint_path = endpoint_choice.split()[0]
         test_url = f"http://localhost:{API_PORT}{endpoint_path}"
 
-        c_test_btn, c_test_url = st.columns([1, 3], vertical_alignment="center")
+        c_test_btn, c_test_url = st.columns([1, 3], vertical_alignment="center", wrap=True)
         with c_test_url:
             st.code(test_url, language="bash")
         with c_test_btn:
@@ -4861,7 +4930,7 @@ elif st.session_state.active_tab_id in ["brics", "impact"]:
         )
 
     st.markdown("---")
-    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center")
+    bot_b1, bot_b2 = st.columns([1.5, 3], vertical_alignment="center", wrap=True)
     with bot_b1:
         if st.button(_("back_to_home"), key="back_brics_bot", type="secondary", use_container_width=True):
             navigate_back()
@@ -4877,7 +4946,7 @@ elif st.session_state.active_tab_id == "settings":
     st.write("Manage your farmer profile, agricultural region, and cooperative preferences.")
 
     c_set = st.container(key="settings_inputs_container")
-    s_col1, s_col2 = c_set.columns(2)
+    s_col1, s_col2 = c_set.columns(2, wrap=True)
     with s_col1:
         edit_name = st.text_input("Farmer Full Name", value=st.session_state.get("user_name", ""), placeholder="e.g. Soman Bose")
         edit_region = st.text_input("Farm Region / Village", value=st.session_state.get("user_region", ""), placeholder="e.g. Odisha, India")
