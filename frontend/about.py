@@ -455,23 +455,76 @@ def get_about_css() -> str:
         box-shadow: 0 9px 20px rgba(181, 131, 90, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
     }
 
-    /* Modal / Dialog Styling */
+    /* Modal / Dialog Backdrop & Outer Overlay */
     div[data-testid="stDialog"] {
-        border-radius: 24px !important;
-        overflow: hidden !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 14px !important;
         box-sizing: border-box !important;
+        overflow-y: auto !important;
     }
+    /* Modal Dialog Window */
     div[data-testid="stDialog"] div[role="dialog"] {
         background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
         border: 1.5px solid rgba(200, 225, 210, 0.95) !important;
         border-bottom: 4px solid rgba(160, 205, 180, 0.95) !important;
-        border-radius: 24px !important;
-        box-shadow: 0 20px 50px -10px rgba(27, 77, 62, 0.25) !important;
-        max-width: 480px !important;
-        width: 92vw !important;
-        padding: 24px 22px !important;
+        border-radius: 20px !important;
+        box-shadow: 0 20px 50px -10px rgba(27, 77, 62, 0.3) !important;
+        max-width: 440px !important;
+        width: 95vw !important;
+        max-height: 88vh !important;
+        max-height: 88dvh !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 16px 20px 20px 20px !important;
         box-sizing: border-box !important;
+        margin: auto !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
     }
+    div[data-testid="stDialog"] div[role="dialog"] > div {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        max-height: calc(88vh - 40px) !important;
+        max-height: calc(88dvh - 40px) !important;
+    }
+    div[data-testid="stDialogHeader"] {
+        margin-bottom: 4px !important;
+        padding-bottom: 2px !important;
+    }
+    div[data-testid="stDialogHeader"] h2 {
+        font-size: 1.25rem !important;
+        font-weight: 800 !important;
+        color: #1B4D3E !important;
+    }
+    div[data-testid="stDialog"] .stButton > button {
+        min-height: 42px !important;
+        padding: 0.45rem 1.2rem !important;
+        font-size: 0.92rem !important;
+    }
+    /* Custom sleek scrollbar for dialog */
+    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar,
+    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar {
+        width: 5px;
+    }
+    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar-thumb,
+    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar-thumb {
+        background: #A7F3D0;
+        border-radius: 9999px;
+    }
+    div[data-testid="stDialog"] div[data-testid="stForm"] {
+        border: none !important;
+        padding: 0 !important;
+    }
+    div[data-testid="stDialog"] .stTextInput {
+        margin-bottom: -6px !important;
+    }
+    div[data-testid="stDialog"] .stCheckbox {
+        margin-top: -4px !important;
+        margin-bottom: 4px !important;
+    }
+
 
     /* =======================================================================
        RESPONSIVE MEDIA QUERIES (TABLETS & MOBILE PHONES)
@@ -540,7 +593,10 @@ def get_about_css() -> str:
         }
         div[data-testid="stDialog"] div[role="dialog"] {
             width: 95vw !important;
-            padding: 18px 14px !important;
+            max-height: 88vh !important;
+            max-height: 88dvh !important;
+            overflow-y: auto !important;
+            padding: 16px 14px !important;
         }
     }
 
@@ -563,120 +619,122 @@ def show_login_modal():
     """Render clean, responsive authentication modal dialog connected to SQLite backend."""
     st.markdown(
         """
-        <div style="text-align: center; margin-bottom: 14px;">
-            <div style="font-size: 1.35rem; font-weight: 800; color: #1B4D3E;">🌿 Welcome to FASLYN</div>
-            <div style="font-size: 0.85rem; color: #4B5563; margin-top: 2px;">Access your agricultural intelligence dashboard.</div>
+        <div style="text-align: center; margin-top: -10px; margin-bottom: 10px;">
+            <div style="font-size: 0.82rem; color: #4B5563;">Access your agricultural intelligence dashboard.</div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    # 1-Click Demo Login
-    with st.expander("⚡ 1-Click Demo Profile (Instant Login)", expanded=True):
-        st.caption("Instant sign-in with pre-configured satellite, soil & telemetry feeds.")
-        ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
-        demo_prof = ramesh_profile[0] if ramesh_profile else DEMO_PROFILES[0]
+    # 1-Click Demo Profile for quick testing
+    ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
+    demo_prof = ramesh_profile[0] if ramesh_profile else DEMO_PROFILES[0]
 
-        if st.button(
-            f"🌾 Enter as {demo_prof['name']} ({demo_prof['flag']} {demo_prof['badge']})",
-            key="modal_demo_btn",
-            use_container_width=True,
-            type="primary",
-        ):
-            st.session_state.is_authenticated = True
-            st.session_state["authenticated"] = True
-            st.session_state.just_logged_in = True
-            st.session_state.user_name = demo_prof["name"]
-            st.session_state.user_avatar = demo_prof["avatar"]
-            st.session_state.user_role = demo_prof["role"]
-            st.session_state.user_phone = demo_prof["phone"]
-            st.session_state.user_region = demo_prof["region"]
-            st.session_state.farmer_id = demo_prof["id"]
-            st.session_state.selected_hub_name = demo_prof["hub"]
-            st.session_state.coords = {
-                "lat": BRICS_HUBS[demo_prof["hub"]]["lat"],
-                "lon": BRICS_HUBS[demo_prof["hub"]]["lon"],
-            }
-            st.session_state.zoom = BRICS_HUBS[demo_prof["hub"]]["zoom"]
-            st.session_state.current_language = demo_prof["lang"]
-            st.session_state.advisory_lang_code = LANGUAGES[demo_prof["lang"]]
-            st.session_state.active_tab_id = "home"
-            st.session_state.nav_stack = ["home"]
+    if st.button(
+        f"⚡ 1-Click Demo: Enter as {demo_prof['name']} ({demo_prof['flag']} {demo_prof['badge']})",
+        key="modal_demo_btn",
+        use_container_width=True,
+    ):
+        st.session_state.is_authenticated = True
+        st.session_state["authenticated"] = True
+        st.session_state.just_logged_in = True
+        st.session_state.user_name = demo_prof["name"]
+        st.session_state.user_avatar = demo_prof["avatar"]
+        st.session_state.user_role = demo_prof["role"]
+        st.session_state.user_phone = demo_prof["phone"]
+        st.session_state.user_region = demo_prof["region"]
+        st.session_state.farmer_id = demo_prof["id"]
+        st.session_state.selected_hub_name = demo_prof["hub"]
+        st.session_state.coords = {
+            "lat": BRICS_HUBS[demo_prof["hub"]]["lat"],
+            "lon": BRICS_HUBS[demo_prof["hub"]]["lon"],
+        }
+        st.session_state.zoom = BRICS_HUBS[demo_prof["hub"]]["zoom"]
+        st.session_state.current_language = demo_prof["lang"]
+        st.session_state.advisory_lang_code = LANGUAGES[demo_prof["lang"]]
+        st.session_state.active_tab_id = "home"
+        st.session_state.nav_stack = ["home"]
 
-            try:
-                upsert_farmer(
-                    demo_prof["id"],
-                    demo_prof["phone"],
-                    demo_prof["name"],
-                    demo_prof["region"],
-                    demo_prof["role"],
-                    demo_prof["hub"],
-                )
-            except Exception:
-                pass
+        try:
+            upsert_farmer(
+                demo_prof["id"],
+                demo_prof["phone"],
+                demo_prof["name"],
+                demo_prof["region"],
+                demo_prof["role"],
+                demo_prof["hub"],
+            )
+        except Exception:
+            pass
 
-            st.rerun()
+        st.rerun()
 
-    st.markdown('<div style="text-align:center; color:#9CA3AF; font-size:0.75rem; margin:8px 0;">— OR SIGN IN WITH CREDENTIALS —</div>', unsafe_allow_html=True)
-
-    email_or_user = st.text_input(
-        "Email / Username",
-        placeholder="Enter your email or username",
-        key="modal_input_user",
-    )
-    password = st.text_input(
-        "Password",
-        placeholder="Enter your password",
-        type="password",
-        key="modal_input_pass",
+    st.markdown(
+        '<div style="text-align: center; color: #9CA3AF; font-size: 0.72rem; margin: 8px 0 6px 0; font-weight: 600; letter-spacing: 0.04em;">— OR SIGN IN WITH CREDENTIALS —</div>',
+        unsafe_allow_html=True,
     )
 
-    col_rem, col_blank = st.columns([1, 1])
-    with col_rem:
-        remember_me = st.checkbox("Remember me", value=True, key="modal_remember_me")
+    with st.form("modal_login_form", clear_on_submit=False):
+        email_or_user = st.text_input(
+            "Email / Username",
+            placeholder="Enter your email or username",
+            key="modal_input_user",
+        )
+        password = st.text_input(
+            "Password",
+            placeholder="Enter your password",
+            type="password",
+            key="modal_input_pass",
+        )
 
-    if st.button("🌱 Login", type="primary", use_container_width=True, key="modal_login_submit"):
-        entered_name = email_or_user.strip()
-        if not entered_name:
-            st.error("⚠️ Please enter your email or username to continue.")
-        else:
-            default_hub = list(BRICS_HUBS.keys())[0]
-            name_parts = entered_name.split()
-            initials = f"{name_parts[0][0]}{name_parts[1][0]}".upper() if len(name_parts) >= 2 else (entered_name[:2].upper() if len(entered_name) >= 2 else "FP")
-            
-            st.session_state.is_authenticated = True
-            st.session_state["authenticated"] = True
-            st.session_state.just_logged_in = True
-            st.session_state.user_name = entered_name
-            st.session_state.user_phone = "+91 98765 43210"
-            st.session_state.user_region = "Odisha (Coastal Rice Belt)"
-            st.session_state.user_role = "Smallholder Producer"
-            st.session_state.user_avatar = initials
-            st.session_state.farmer_id = f"FAS-{abs(hash(entered_name)) % 9000 + 1000}"
-            st.session_state.selected_hub_name = default_hub
-            st.session_state.coords = {
-                "lat": BRICS_HUBS[default_hub]["lat"],
-                "lon": BRICS_HUBS[default_hub]["lon"],
-            }
-            st.session_state.zoom = BRICS_HUBS[default_hub]["zoom"]
-            st.session_state.current_language = "English"
-            st.session_state.advisory_lang_code = LANGUAGES["English"]
-            st.session_state.active_tab_id = "home"
-            st.session_state.nav_stack = ["home"]
+        col_rem, col_blank = st.columns([1, 1])
+        with col_rem:
+            remember_me = st.checkbox("Remember me", value=True, key="modal_remember_me")
 
-            try:
-                upsert_farmer(
-                    st.session_state.farmer_id,
-                    st.session_state.user_phone,
-                    st.session_state.user_name,
-                    st.session_state.user_region,
-                    st.session_state.user_role,
-                    st.session_state.selected_hub_name,
-                )
-            except Exception:
-                pass
+        submitted = st.form_submit_button("🌱 Login", type="primary", use_container_width=True)
 
-            st.rerun()
+        if submitted:
+            entered_name = email_or_user.strip()
+            if not entered_name:
+                st.error("⚠️ Please enter your email or username to continue.")
+            else:
+                default_hub = list(BRICS_HUBS.keys())[0]
+                name_parts = entered_name.split()
+                initials = f"{name_parts[0][0]}{name_parts[1][0]}".upper() if len(name_parts) >= 2 else (entered_name[:2].upper() if len(entered_name) >= 2 else "FP")
+                
+                st.session_state.is_authenticated = True
+                st.session_state["authenticated"] = True
+                st.session_state.just_logged_in = True
+                st.session_state.user_name = entered_name
+                st.session_state.user_phone = "+91 98765 43210"
+                st.session_state.user_region = "Odisha (Coastal Rice Belt)"
+                st.session_state.user_role = "Smallholder Producer"
+                st.session_state.user_avatar = initials
+                st.session_state.farmer_id = f"FAS-{abs(hash(entered_name)) % 9000 + 1000}"
+                st.session_state.selected_hub_name = default_hub
+                st.session_state.coords = {
+                    "lat": BRICS_HUBS[default_hub]["lat"],
+                    "lon": BRICS_HUBS[default_hub]["lon"],
+                }
+                st.session_state.zoom = BRICS_HUBS[default_hub]["zoom"]
+                st.session_state.current_language = "English"
+                st.session_state.advisory_lang_code = LANGUAGES["English"]
+                st.session_state.active_tab_id = "home"
+                st.session_state.nav_stack = ["home"]
+
+                try:
+                    upsert_farmer(
+                        st.session_state.farmer_id,
+                        st.session_state.user_phone,
+                        st.session_state.user_name,
+                        st.session_state.user_region,
+                        st.session_state.user_role,
+                        st.session_state.selected_hub_name,
+                    )
+                except Exception:
+                    pass
+
+                st.rerun()
 
     # Secondary options
     col_fp, col_ca = st.columns(2)
@@ -685,7 +743,8 @@ def show_login_modal():
             st.info("ℹ️ Password recovery is linked to your regional agricultural cooperative SMS gateway.")
     with col_ca:
         if st.button("Create Account", key="modal_ca_btn", use_container_width=True):
-            st.info("ℹ️ Enter your details above and click Login to instantly provision your FASLYN telemetry profile.")
+            st.info("ℹ️ Enter your details above and click Login to provision your FASLYN profile.")
+
 
 
 # ---------------------------------------------------------------------------
