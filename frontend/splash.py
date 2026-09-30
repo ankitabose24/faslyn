@@ -61,7 +61,7 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds...", f
         justify-content: center !important;
         overflow: hidden !important;
         pointer-events: auto !important;
-        animation: faslynSplashContainerFlow 2.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        animation: faslynSplashContainerFlow 3.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
     }}
     #faslyn-splash-loader .faslyn-loader-card {{
@@ -79,7 +79,7 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds...", f
         max-width: 360px !important;
         width: 90% !important;
         box-sizing: border-box !important;
-        animation: faslynSplashCardFlow 2.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        animation: faslynSplashCardFlow 3.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }}
     #faslyn-splash-loader .faslyn-spinner-wrapper {{
         position: relative !important;
@@ -139,7 +139,7 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds...", f
         height: 100% !important;
         background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%) !important;
         border-radius: 9999px !important;
-        animation: faslynSplashProgressFill 1.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards !important;
+        animation: faslynSplashProgressFill 2.85s cubic-bezier(0.2, 0.7, 0.3, 1) forwards !important;
     }}
     #faslyn-splash-loader .faslyn-loader-status {{
         font-size: 0.74rem !important;
@@ -162,14 +162,14 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds...", f
     }}
     @keyframes faslynSplashCardFlow {{
         0% {{ transform: scale(0.92); opacity: 0; }}
-        15% {{ transform: scale(1); opacity: 1; }}
-        80% {{ transform: scale(1); opacity: 1; }}
+        12% {{ transform: scale(1); opacity: 1; }}
+        84% {{ transform: scale(1); opacity: 1; }}
         96% {{ transform: scale(1.08); opacity: 0; }}
         100% {{ transform: scale(1.08); opacity: 0; display: none !important; }}
     }}
     @keyframes faslynSplashContainerFlow {{
         0% {{ opacity: 1; visibility: visible; }}
-        80% {{ opacity: 1; visibility: visible; }}
+        84% {{ opacity: 1; visibility: visible; }}
         96% {{ opacity: 0; visibility: hidden; pointer-events: none; }}
         100% {{ opacity: 0; visibility: hidden; pointer-events: none; display: none !important; }}
     }}
@@ -205,7 +205,7 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds...", f
                             el.parentNode.removeChild(el);
                         }}
                     }}, 350);
-                }}, 2100);
+                }}, 3100);
             }}
         }} catch(e) {{}}
     }})();

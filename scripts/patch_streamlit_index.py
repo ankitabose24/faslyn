@@ -24,7 +24,7 @@ LOADER_CSS = """
           overflow: hidden;
           pointer-events: auto;
           will-change: opacity;
-          animation: faslynContainerFlow 2.0s forwards;
+          animation: faslynContainerFlow 3.0s forwards;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
 
@@ -199,7 +199,7 @@ LOADER_HTML = """
       setTimeout(function() {
         var el = document.getElementById('faslyn-loader-overlay');
         if (el) { el.style.display = 'none'; }
-      }, 2100);
+      }, 3100);
     </script>
 """
 
