@@ -1332,6 +1332,29 @@ render_html(
        4. MOBILE LAYOUT (481px to 768px & base for <= 768px)
        ======================================================================= */
     @media (max-width: 768px) {
+        /* Enforce Zero Horizontal Overflow Across All Mobile Viewports */
+        html, body, .stApp, 
+        div[data-testid="stAppViewContainer"], 
+        div[data-testid="stMain"], 
+        section.main, 
+        .block-container, 
+        div[data-testid="stMainBlockContainer"],
+        div[data-testid="stVerticalBlock"], 
+        div[data-testid="stVerticalBlockBorderWrapper"], 
+        div[data-testid="stHorizontalBlock"] {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        
+        html, body, .stApp, 
+        div[data-testid="stAppViewContainer"], 
+        div[data-testid="stMain"], 
+        section.main, 
+        .block-container {
+            overflow-x: clip !important;
+            overflow-x: hidden !important;
+        }
+
         /* Mobile Main Container Padding with Top Clearance for Toggle Button */
         .main .block-container,
         div[data-testid="stMain"] .block-container {
@@ -1341,12 +1364,16 @@ render_html(
             padding-bottom: 2.8rem !important;
             max-width: 100% !important;
             width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         div[data-testid="stMain"], section.main, .stMain {
             width: 100% !important;
             min-width: 100% !important;
             margin-left: 0 !important;
+            box-sizing: border-box !important;
+            overflow-x: clip !important;
+            overflow-x: hidden !important;
         }
 
         /* Mobile Sidebar - Off-canvas smooth drawer */
@@ -1398,41 +1425,58 @@ render_html(
             padding: 8px 12px !important;
         }
 
-        /* Top Header on Mobile: Greeting on top, action bar below or flex-wrap */
+        /* Hero Top Header Row: Stack greeting on top, action bar below on mobile */
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"],
         div[data-testid="stHorizontalBlock"]:has(.top-header) {
             display: flex !important;
             flex-direction: column !important;
-            gap: 8px !important;
+            align-items: stretch !important;
+            gap: 10px !important;
             margin-bottom: 8px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.top-header) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
-            min-width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
         .top-header {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 6px !important;
             padding-bottom: 4px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* Header Action Bar (Bell, Language, User profile) on Mobile */
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
-            flex-wrap: wrap !important;
+            flex-wrap: nowrap !important;
             gap: 6px !important;
             align-items: center !important;
             justify-content: flex-end !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > div[data-testid="column"] {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: auto !important;
             flex: 1 1 auto !important;
             min-width: 0 !important;
+            box-sizing: border-box !important;
+        }
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 0 0 auto !important;
+            min-width: 44px !important;
         }
         div[data-testid="stPopover"] > button {
             padding: 0.32rem 0.65rem !important;
@@ -1455,6 +1499,9 @@ render_html(
             align-items: center !important;
             gap: 8px !important;
             margin-bottom: 6px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
         div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:first-child {
             flex: 0 0 auto !important;
@@ -1464,9 +1511,11 @@ render_html(
         div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:last-child {
             flex: 1 1 auto !important;
             width: auto !important;
+            min-width: 0 !important;
         }
 
         /* Row 1: KPI Cards - Sleek 2x2 Responsive Mobile Grid */
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
             display: flex !important;
             flex-direction: row !important;
@@ -1474,42 +1523,59 @@ render_html(
             gap: 8px !important;
             margin-bottom: 6px !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
             flex: 1 1 calc(50% - 4px) !important;
             width: calc(50% - 4px) !important;
-            min-width: calc(50% - 4px) !important;
+            min-width: 0 !important;
             max-width: calc(50% - 4px) !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
         .kpi-card {
-            padding: 10px 12px !important;
-            gap: 10px !important;
+            padding: 10px 10px !important;
+            gap: 8px !important;
             border-radius: 14px !important;
-            min-height: 82px !important;
+            min-height: 80px !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
             border-bottom-width: 2.5px !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+        .kpi-card > div:last-child {
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+            overflow: hidden !important;
         }
         .kpi-icon-box {
-            width: 38px !important;
-            height: 38px !important;
-            min-width: 38px !important;
-            font-size: 18px !important;
+            width: 36px !important;
+            height: 36px !important;
+            min-width: 36px !important;
+            font-size: 17px !important;
             border-radius: 10px !important;
             flex-shrink: 0 !important;
         }
         .kpi-val {
-            font-size: 1.25rem !important;
+            font-size: 1.18rem !important;
             line-height: 1.15 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         .kpi-label {
-            font-size: 0.68rem !important;
+            font-size: 0.66rem !important;
             line-height: 1.15 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
         .kpi-subtext {
-            font-size: 0.65rem !important;
+            font-size: 0.62rem !important;
             line-height: 1.15 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
@@ -1638,35 +1704,56 @@ render_html(
             border-radius: 12px !important;
         }
 
-        /* Sustainability Impact Banner: 2x2 Grid of Chips */
+        /* Farm Overview 2-Column Grid on Mobile */
+        .home-overview-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Sustainability Impact Banner: Responsive Stack */
         .impact-banner {
             flex-direction: column !important;
             align-items: flex-start !important;
             gap: 12px !important;
-            padding: 14px 16px !important;
+            padding: 14px 14px !important;
             border-radius: 16px !important;
-        }
-        .impact-banner > div:first-child {
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
-        .impact-banner > div:last-child {
+        .impact-banner-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .impact-chips-wrap {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: wrap !important;
-            gap: 8px !important;
+            gap: 6px !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
+        .impact-chips-wrap .impact-chip,
         .impact-chip {
-            flex: 1 1 calc(50% - 4px) !important;
-            width: calc(50% - 4px) !important;
-            min-width: calc(50% - 4px) !important;
-            max-width: calc(50% - 4px) !important;
-            padding: 8px 10px !important;
+            flex: 1 1 calc(50% - 3px) !important;
+            width: calc(50% - 3px) !important;
+            min-width: 0 !important;
+            max-width: calc(50% - 3px) !important;
+            padding: 8px 8px !important;
             border-radius: 12px !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* General Fallback for multi-column content blocks collapsing cleanly */
-        div[data-testid="stHorizontalBlock"]:not(:has([data-testid="stPopover"])):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]:not(.st-key-header_action_bar_container div):not(.st-key-hero_kpi_metrics_row div):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
@@ -1829,8 +1916,7 @@ render_html(
         }
 
         /* Compact Action Bar */
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"],
-        div[data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
             gap: 4px !important;
         }
         div[data-testid="stPopover"] > button {
@@ -1881,20 +1967,125 @@ render_html(
         }
     }
 
-    /* Ultra-Narrow Mobile Safety (<= 350px, e.g. iPhone SE 1st gen) */
-    @media (max-width: 350px) {
+    /* Ultra-Narrow Mobile Safety (<= 360px, e.g. iPhone SE 1st gen, Galaxy Fold) */
+    @media (max-width: 360px) {
         .main .block-container,
         div[data-testid="stMain"] .block-container {
-            padding-left: 0.50rem !important;
-            padding-right: 0.50rem !important;
+            padding-left: 0.45rem !important;
+            padding-right: 0.45rem !important;
         }
+        .st-key-hero_kpi_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) > div[data-testid="column"] {
             flex: 1 1 100% !important;
             width: 100% !important;
             max-width: 100% !important;
+            min-width: 0 !important;
+        }
+        .home-overview-grid {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
+        }
+        .impact-chips-wrap .impact-chip {
+            flex: 1 1 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
         }
         .kpi-card {
-            min-height: 68px !important;
+            min-height: 64px !important;
+        }
+    }
+    </style>
+    """
+)
+
+# ---------------------------------------------------------------------------
+# FINAL MOBILE RESPONSIVENESS OVERRIDE
+# ---------------------------------------------------------------------------
+render_html(
+    """
+    <style>
+    @media (max-width: 640px) {
+        html, body, .stApp, [data-testid="stAppViewContainer"],
+        [data-testid="stMain"], [data-testid="stMainBlockContainer"],
+        .main, .block-container {
+            width:100% !important; max-width:100% !important; min-width:0 !important;
+            box-sizing:border-box !important; overflow-x:hidden !important;
+        }
+        .main .block-container, [data-testid="stMainBlockContainer"] {
+            padding-left:12px !important; padding-right:12px !important;
+            max-width:100% !important;
+        }
+        div[data-testid="stHorizontalBlock"] {
+            width:100% !important; max-width:100% !important; min-width:0 !important;
+            box-sizing:border-box !important; overflow:visible !important;
+        }
+        div[data-testid="column"] {
+            min-width:0 !important; max-width:100% !important; box-sizing:border-box !important;
+        }
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"],
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"],
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
+            flex-direction:column !important; flex-wrap:nowrap !important; gap:12px !important;
+        }
+        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width:100% !important; max-width:100% !important; min-width:0 !important;
+            flex:1 1 100% !important;
+        }
+        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] {
+            display:flex !important; flex-direction:row !important; flex-wrap:wrap !important; gap:8px !important;
+        }
+        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width:calc(50% - 4px) !important; max-width:calc(50% - 4px) !important;
+            min-width:0 !important; flex:1 1 calc(50% - 4px) !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] {
+            display:flex !important; flex-direction:row !important; flex-wrap:wrap !important; gap:8px !important;
+        }
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width:calc(50% - 4px) !important; max-width:calc(50% - 4px) !important;
+            min-width:0 !important; flex:1 1 calc(50% - 4px) !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
+            width:100% !important; max-width:100% !important; min-width:0 !important;
+            flex-wrap:wrap !important; gap:7px !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            min-width:0 !important; max-width:100% !important;
+        }
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
+        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            flex:1 1 100% !important; width:100% !important; min-width:0 !important; max-width:100% !important;
+        }
+        div[data-testid="stForm"] button { width:100% !important; min-height:44px !important; }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) { flex-wrap:nowrap !important; }
+        .dashboard-card, .home-ai-card, .home-row3-card, .impact-banner,
+        .impact-chip, .kpi-card, .home-overview-grid {
+            max-width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+        }
+        img, video, iframe, .folium-map { max-width:100% !important; box-sizing:border-box !important; }
+        iframe { width:100% !important; min-height:250px !important; height:260px !important; }
+        input, textarea, select, div[data-baseweb="select"], div[data-baseweb="input"] {
+            max-width:100% !important; min-width:0 !important; box-sizing:border-box !important;
+        }
+        .stButton > button, .stDownloadButton > button {
+            max-width:100% !important; min-height:44px !important; white-space:normal !important;
+            overflow-wrap:anywhere !important; box-sizing:border-box !important;
+        }
+        pre, code { max-width:100% !important; white-space:pre-wrap !important; overflow-wrap:anywhere !important; word-break:break-word !important; }
+        div[data-testid="stPopoverBody"] {
+            width:min(380px,calc(100vw - 24px)) !important; max-width:calc(100vw - 24px) !important;
+            min-width:0 !important; box-sizing:border-box !important;
+        }
+        section[data-testid="stSidebar"] { max-width:85vw !important; min-width:0 !important; overflow-x:hidden !important; }
+    }
+    @media (max-width:360px) {
+        .main .block-container, [data-testid="stMainBlockContainer"] { padding-left:8px !important; padding-right:8px !important; }
+        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
+        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width:100% !important; max-width:100% !important; flex:1 1 100% !important;
         }
     }
     </style>
@@ -1909,8 +2100,21 @@ if hero_bg_data_uri:
     hero_css = """
         <style>
         /* Dashboard Hero Section - Farmer & Agtech Background (Strictly isolated to hero section) */
-        .st-key-dashboard_hero_section,
-        div[class*="st-key-dashboard_hero_section"],
+        /* Outer container stays clean, zero padding blowout */
+        .st-key-dashboard_hero_section:not([data-testid="stVerticalBlockBorderWrapper"]) {
+            background: transparent !important;
+            background-image: none !important;
+            border: none !important;
+            padding: 0 !important;
+            margin: 0 0 16px 0 !important;
+            box-shadow: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* Inner border wrapper gets the image background, border, and single padding layer */
         div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
             background-image: 
                 linear-gradient(135deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.28) 45%, rgba(246, 250, 247, 0.52) 100%),
@@ -1920,11 +2124,15 @@ if hero_bg_data_uri:
             background-repeat: no-repeat !important;
             border-radius: 24px !important;
             padding: 24px 26px 20px 26px !important;
-            margin-bottom: 22px !important;
+            margin: 0 !important;
             border: 1.5px solid rgba(200, 225, 210, 0.85) !important;
             border-bottom: 3.5px solid rgba(160, 205, 180, 0.9) !important;
             box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
             position: relative !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
         }
 
         /* Ensure whole page and non-hero containers NEVER have the background image */
@@ -1965,6 +2173,9 @@ if hero_bg_data_uri:
             border: 1px solid rgba(255, 255, 255, 0.85) !important;
             border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
             box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
         }
         .st-key-dashboard_hero_section .kpi-card:hover {
             background: rgba(255, 255, 255, 0.96) !important;
@@ -1973,26 +2184,39 @@ if hero_bg_data_uri:
             box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.18), inset 0 1px 1px #FFFFFF !important;
         }
 
-        /* Tablet & Mobile Hero Responsiveness */
-        @media (max-width: 991px) {
-            .st-key-dashboard_hero_section,
-            div[class*="st-key-dashboard_hero_section"],
+             /* Tablet & Mobile Hero Responsiveness */
+
+        div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        @media screen and (max-width: 991px) {
             div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
-                padding: 14px 14px 12px 14px !important;
+                padding: 14px !important;
                 border-radius: 18px !important;
-                margin-bottom: 14px !important;
+                margin-bottom: 0 !important;
                 background-position: center 25% !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
         }
-        @media (max-width: 480px) {
-            .st-key-dashboard_hero_section,
-            div[class*="st-key-dashboard_hero_section"],
+
+        @media screen and (max-width: 480px) {
             div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section {
-                padding: 12px 10px 10px 10px !important;
-                border-radius: 16px !important;
-                margin-bottom: 12px !important;
+                padding: 10px 8px 8px 8px !important;
+                border-radius: 14px !important;
+                margin-bottom: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
-        }
+        }   
         </style>
     """.replace("__HERO_BG_URI__", hero_bg_data_uri)
     render_html(hero_css)
@@ -2928,7 +3152,7 @@ with st.sidebar:
 # ===========================================================================
 def render_header_actions():
     c_hdr_actions = st.container(key="header_action_bar_container")
-    c_bell, c_lang, c_user = c_hdr_actions.columns([1.1, 2.5, 3], vertical_alignment="center")
+    c_bell, c_lang, c_user = c_hdr_actions.columns([1.1, 2.5, 3], vertical_alignment="center", wrap=True)
     with c_bell:
         unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
         bell_label = f"🔔 {unread_count}" if unread_count > 0 else "🔔"
@@ -2954,7 +3178,7 @@ def render_header_actions():
                     </div>
                     """
                 )
-                col_b1, col_b2 = st.columns([1.8, 1.2])
+                col_b1, col_b2 = st.columns([1.8, 1.2], wrap=True)
                 with col_b1:
                     if st.button(notif["target_label"], key=f"notif_act_{notif['id']}", use_container_width=True):
                         notif["read"] = True
@@ -2966,7 +3190,7 @@ def render_header_actions():
                             st.rerun()
 
             st.markdown("---")
-            c_all1, c_all2 = st.columns(2)
+            c_all1, c_all2 = st.columns(2, wrap=True)
             with c_all1:
                 if st.button("✓ Mark all read", key="notif_mark_all", use_container_width=True):
                     for n in st.session_state.notifications:
@@ -3059,6 +3283,60 @@ if st.session_state.active_tab_id != "home":
         render_header_actions()
     render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
 
+# ---------------------------------------------------------------------------
+# FARMER ACTION CENTER
+# ---------------------------------------------------------------------------
+def render_farmer_action_center(moisture, soil_ph, soil_soc, soil_score, rainfall):
+    """Turn live environmental indicators into a simple next action."""
+    if moisture < 0.22:
+        icon, title = "🚨", "Protect soil moisture"
+        action = "Use deficit irrigation where available and add surface mulch to reduce evaporation."
+        reason = f"Soil moisture is {moisture:.2f} m³/m³, indicating a moisture deficit."
+    elif moisture > 0.35:
+        icon, title = "🌊", "Protect the root zone"
+        action = "Avoid unnecessary irrigation and check field drainage before the next watering cycle."
+        reason = f"Soil moisture is elevated at {moisture:.2f} m³/m³."
+    elif soil_soc < 1.0:
+        icon, title = "🌱", "Build soil organic matter"
+        action = "Consider compost, farmyard manure or biochar and maintain crop residue where practical."
+        reason = f"Estimated soil organic carbon is {soil_soc:.1f}%."
+    elif soil_ph < 6.0:
+        icon, title = "🧪", "Review soil acidity"
+        action = "Review the soil amendment plan and confirm pH with a local soil test before applying lime."
+        reason = f"Estimated soil pH is {soil_ph:.1f}."
+    elif rainfall < 1.0:
+        icon, title = "☀️", "Prepare for a dry window"
+        action = "Prioritize mulching, water conservation and early-morning irrigation."
+        reason = f"Current precipitation indicator is {rainfall:.1f} mm/day."
+    else:
+        icon, title = "✅", "Maintain current field condition"
+        action = "Continue monitoring moisture, soil health and weather before the next intervention."
+        reason = f"Current composite soil-health score is {soil_score}/100."
+
+    render_html(f"""
+    <style>
+    .faslyn-action-center {{background:linear-gradient(135deg,#FFFFFF 0%,#F7FBF8 100%);border:1.5px solid #DCE9E0;border-radius:18px;padding:18px;margin:12px 0 20px;box-shadow:0 8px 24px rgba(27,77,62,.07);width:100%;box-sizing:border-box;}}
+    .faslyn-action-title {{font-size:1.05rem;font-weight:800;color:#12372A;margin-bottom:4px;}}
+    .faslyn-action-subtitle {{color:#6B7280;font-size:.75rem;margin-bottom:14px;}}
+    .faslyn-action-grid {{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}}
+    .faslyn-action-card {{background:#FFF;border:1px solid #E3ECE6;border-radius:13px;padding:12px;min-width:0;box-sizing:border-box;}}
+    .faslyn-action-label {{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:#6B7280;font-weight:700;margin-bottom:5px;}}
+    .faslyn-action-value {{font-size:.90rem;line-height:1.4;color:#17221D;font-weight:700;overflow-wrap:anywhere;}}
+    .faslyn-action-reason {{font-size:.75rem;color:#5D6962;line-height:1.45;margin-top:5px;overflow-wrap:anywhere;}}
+    @media(max-width:640px) {{.faslyn-action-center{{padding:13px;border-radius:14px;}}.faslyn-action-grid{{grid-template-columns:1fr;}}}}
+    </style>
+    <div class="faslyn-action-center">
+      <div class="faslyn-action-title">🌾 What should I do today?</div>
+      <div class="faslyn-action-subtitle">Faslyn converts field, soil and weather signals into a simple next step.</div>
+      <div class="faslyn-action-grid">
+        <div class="faslyn-action-card"><div class="faslyn-action-label">Priority</div><div class="faslyn-action-value">{icon} {title}</div></div>
+        <div class="faslyn-action-card"><div class="faslyn-action-label">Recommended action</div><div class="faslyn-action-value">{action}</div></div>
+        <div class="faslyn-action-card"><div class="faslyn-action-label">Why Faslyn says this</div><div class="faslyn-action-reason">{reason}</div></div>
+      </div>
+    </div>
+    """)
+
+
 # ===========================================================================
 # VIEW 1: HOME DASHBOARD (FULLY TRANSLATED)
 # ===========================================================================
@@ -3143,7 +3421,8 @@ if st.session_state.active_tab_id == "home":
     # -----------------------------------------------------------------------
     with st.container(key="dashboard_hero_section", border=True):
         # Top Header Greeting & Quick Actions Row
-        hdr_left, hdr_right = st.columns([3, 2])
+        c_hero_hdr = st.container(key="hero_top_header_row")
+        hdr_left, hdr_right = c_hero_hdr.columns([3, 2], wrap=True)
         with hdr_left:
             current_farmer = st.session_state.get("user_name", "Farmer")
             greeting_text = _('greeting')
@@ -3157,11 +3436,11 @@ if st.session_state.active_tab_id == "home":
             render_html(
                 f"""
                 <div class="top-header">
-                    <div>
-                        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                            <h1 class="greeting-title">{greeting_text}</h1>
-                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); backdrop-filter: blur(4px);">
-                                <span style="display:inline-block; width:7px; height:7px; background:#10B981; border-radius:50%;"></span>
+                    <div style="max-width: 100%; overflow: hidden;">
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; max-width: 100%;">
+                            <h1 class="greeting-title" style="word-break: break-word;">{greeting_text}</h1>
+                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.70rem; font-weight: 700; padding: 3px 8px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); max-width: 100%; white-space: nowrap;">
+                                <span style="display:inline-block; width:6px; height:6px; background:#10B981; border-radius:50%;"></span>
                                 LIVE NASA & SENSOR FEEDS
                             </span>
                         </div>
@@ -3176,14 +3455,15 @@ if st.session_state.active_tab_id == "home":
         # -------------------------------------------------------------------
         # ROW 1: TOP 4 KPI CARDS (LIVE DATA ENGINE)
         # -------------------------------------------------------------------
-        kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+        c_hero_kpis = st.container(key="hero_kpi_metrics_row")
+        kpi1, kpi2, kpi3, kpi4 = c_hero_kpis.columns(4, wrap=True)
 
         with kpi1:
             render_html(
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-green">🏡</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('total_fields')}</div>
                         <div class="kpi-val">{total_fields}</div>
                         <div class="kpi-subtext">📍 {active_hub_clean}</div>
@@ -3197,7 +3477,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-green">🍃</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('healthy_fields')}</div>
                         <div class="kpi-val">{healthy_fields}</div>
                         <div class="kpi-subtext">{healthy_pct}% {_('of_total')}</div>
@@ -3211,7 +3491,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-orange">⚠️</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('fields_at_risk')}</div>
                         <div class="kpi-val">{risk_fields}</div>
                         <div class="kpi-subtext">{risk_pct}% {_('of_total')}</div>
@@ -3225,7 +3505,7 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="kpi-card">
                     <div class="kpi-icon-box icon-teal">🪴</div>
-                    <div>
+                    <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('overall_health')}</div>
                         <div class="kpi-val">{overall_health}<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
                         <div class="kpi-subtext" style="color:{trend_color}; font-weight:700;">↑ {trend_sign}{trend_val}% {_('vs_last_month')}</div>
@@ -3236,14 +3516,21 @@ if st.session_state.active_tab_id == "home":
 
     st.write("")
 
+# FARMER ACTION CENTER
     # -----------------------------------------------------------------------
+    render_farmer_action_center(
+        moisture=live_moisture, soil_ph=soil_ph, soil_soc=soil_soc,
+        soil_score=soil_pct, rainfall=live_precip,
+    )
+
+        # -----------------------------------------------------------------------
     # ROW 2: "MY FIELDS" MAP (LEFT) & "AI INSIGHTS" (RIGHT)
     # -----------------------------------------------------------------------
     c_row2 = st.container(key="dashboard_row2_container")
-    mid_left, mid_right = c_row2.columns([1.85, 1.15])
+    mid_left, mid_right = c_row2.columns([1.85, 1.15], wrap=True)
 
     with mid_left:
-        mf_c1, mf_c2 = st.columns([3, 1], vertical_alignment="center")
+        mf_c1, mf_c2 = st.columns([3, 1], vertical_alignment="center", wrap=True)
         with mf_c1:
             render_html(f'<h3 class="card-header-title">{_("my_fields")}</h3>')
         with mf_c2:
@@ -3251,7 +3538,7 @@ if st.session_state.active_tab_id == "home":
                 navigate_to("sat")
 
         with st.form("home_quick_loc_search", clear_on_submit=False):
-            hs1, hs2 = st.columns([3.0, 1.4], vertical_alignment="center")
+            hs1, hs2 = st.columns([3.0, 1.4], vertical_alignment="center", wrap=True)
             with hs1:
                 home_loc_q = st.text_input(
                     "Search Farmland Location",
@@ -3273,7 +3560,7 @@ if st.session_state.active_tab_id == "home":
                 st.error(f"❌ Location '{home_loc_q}' not found.")
 
         c_map_box = st.container(key="home_map_and_details_box")
-        col_map_inner, col_detail_inner = c_map_box.columns([1.35, 1])
+        col_map_inner, col_detail_inner = c_map_box.columns([1.35, 1], wrap=True)
 
         with col_map_inner:
             center_lat = st.session_state.coords["lat"]
@@ -3520,7 +3807,7 @@ if st.session_state.active_tab_id == "home":
                 navigate_to("sat")
 
     with mid_right:
-        ai_c1, ai_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        ai_c1, ai_c2 = st.columns([2.5, 1.2], vertical_alignment="center", wrap=True)
         with ai_c1:
             render_html(f'<h3 class="card-header-title">{_("ai_insights")}</h3>')
         with ai_c2:
@@ -3566,10 +3853,10 @@ if st.session_state.active_tab_id == "home":
     # ROW 3: FARM OVERVIEW | QUICK ACTIONS | UPCOMING & ALERTS
     # -----------------------------------------------------------------------
     c_row3 = st.container(key="dashboard_row3_container")
-    col_ov, col_act, col_alt = c_row3.columns(3)
+    col_ov, col_act, col_alt = c_row3.columns(3, wrap=True)
 
     with col_ov:
-        fo_c1, fo_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        fo_c1, fo_c2 = st.columns([2.5, 1.2], vertical_alignment="center", wrap=True)
         with fo_c1:
             render_html(f'<h3 class="card-header-title">{_("farm_overview")}</h3>')
         with fo_c2:
@@ -3578,23 +3865,23 @@ if st.session_state.active_tab_id == "home":
 
         cards_html = "".join([
             f"""
-            <div style="background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFA 100%); border: 1.5px solid #E5EBE7; border-bottom: 2.5px solid #D5E0D8; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03), inset 0 1px 0 #ffffff; transition: all 0.22s ease;">
-                <div style="display:flex; align-items:center; justify-content:space-between;">
-                    <span style="display:flex; align-items:center; gap:6px; font-weight:700; font-size:0.82rem; color:#111827;">
-                        <span style="color:{f['dot_color']};">●</span> {f['name']}
+            <div style="background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFA 100%); border: 1.5px solid #E5EBE7; border-bottom: 2.5px solid #D5E0D8; border-radius: 12px; padding: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.03), inset 0 1px 0 #ffffff; transition: all 0.22s ease; min-width: 0; overflow: hidden; box-sizing: border-box;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap: 4px;">
+                    <span style="display:flex; align-items:center; gap:5px; font-weight:700; font-size:0.80rem; color:#111827; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <span style="color:{f['dot_color']}; flex-shrink:0;">●</span> <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['name']}</span>
                     </span>
-                    <span style="font-size:0.75rem; font-weight:700; color:{f['dot_color']};">{f['score']}%</span>
+                    <span style="font-size:0.75rem; font-weight:700; color:{f['dot_color']}; flex-shrink: 0;">{f['score']}%</span>
                 </div>
-                <div class="badge {f['badge_class']}" style="margin:4px 0;">{f['badge_label']}</div>
-                <div style="font-size:0.75rem; color:#6B7280;">{f['icon']} {f['crop']} • {f['area']}</div>
+                <div class="badge {f['badge_class']}" style="margin:4px 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['badge_label']}</div>
+                <div style="font-size:0.72rem; color:#6B7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{f['icon']} {f['crop']} • {f['area']}</div>
             </div>
             """ for f in fields_data
         ])
 
         render_html(
             f"""
-            <div class="dashboard-card home-row3-card" style="height: 100%;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="dashboard-card home-row3-card" style="height: 100%; overflow: hidden;">
+                <div class="home-overview-grid" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
                     {cards_html}
                 </div>
             </div>
@@ -3602,7 +3889,7 @@ if st.session_state.active_tab_id == "home":
         )
 
     with col_act:
-        qa_c1, qa_c2 = st.columns([2.2, 1.3], vertical_alignment="center")
+        qa_c1, qa_c2 = st.columns([2.2, 1.3], vertical_alignment="center", wrap=True)
         with qa_c1:
             render_html(f'<h3 class="card-header-title">{_("quick_actions")}</h3>')
         with qa_c2:
@@ -3614,7 +3901,7 @@ if st.session_state.active_tab_id == "home":
                 st.rerun()
 
         with st.container(key="home_qa_card_box"):
-            qa1, qa2 = st.columns(2)
+            qa1, qa2 = st.columns(2, wrap=True)
             with qa1:
                 if st.button(_("qa_upload"), use_container_width=True, key="qa_upload"):
                     navigate_to("ai")
@@ -3628,7 +3915,7 @@ if st.session_state.active_tab_id == "home":
                     navigate_to("brics")
 
     with col_alt:
-        ua_c1, ua_c2 = st.columns([2.5, 1.2], vertical_alignment="center")
+        ua_c1, ua_c2 = st.columns([2.5, 1.2], vertical_alignment="center", wrap=True)
         with ua_c1:
             render_html(f'<h3 class="card-header-title">{_("upcoming_alerts")}</h3>')
         with ua_c2:
@@ -3706,28 +3993,28 @@ if st.session_state.active_tab_id == "home":
             f"""
             <div class="dashboard-card home-row3-card" style="height: 100%;">
                 <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt1_bg}; border: 1px solid {alt1_border}; border-bottom: 2.5px solid {alt1_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
-                        <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:{alt1_color};">{alt1_title}</div>
-                            <div style="font-size:0.72rem; color:#4B5563;">{alt1_sub}</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; background:{alt1_bg}; border: 1px solid {alt1_border}; border-bottom: 2.5px solid {alt1_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
+                        <div style="min-width: 0; overflow: hidden; word-break: break-word;">
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt1_color}; word-break: break-word;">{alt1_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563; word-break: break-word;">{alt1_sub}</div>
                         </div>
-                        <span style="color:{alt1_color}; font-weight:bold;">›</span>
+                        <span style="color:{alt1_color}; font-weight:bold; flex-shrink: 0;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt2_bg}; border: 1px solid {alt2_border}; border-bottom: 2.5px solid {alt2_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
-                        <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:{alt2_color};">{alt2_title}</div>
-                            <div style="font-size:0.72rem; color:#4B5563;">{alt2_sub}</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; background:{alt2_bg}; border: 1px solid {alt2_border}; border-bottom: 2.5px solid {alt2_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
+                        <div style="min-width: 0; overflow: hidden; word-break: break-word;">
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt2_color}; word-break: break-word;">{alt2_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563; word-break: break-word;">{alt2_sub}</div>
                         </div>
-                        <span style="color:{alt2_color}; font-weight:bold;">›</span>
+                        <span style="color:{alt2_color}; font-weight:bold; flex-shrink: 0;">›</span>
                     </div>
                     
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:{alt3_bg}; border: 1px solid {alt3_border}; border-bottom: 2.5px solid {alt3_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
-                        <div>
-                            <div style="font-size:0.82rem; font-weight:700; color:{alt3_color};">{alt3_title}</div>
-                            <div style="font-size:0.72rem; color:#4B5563;">{alt3_sub}</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 14px; background:{alt3_bg}; border: 1px solid {alt3_border}; border-bottom: 2.5px solid {alt3_bbottom}; border-radius:12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04); transition: all 0.2s ease;">
+                        <div style="min-width: 0; overflow: hidden; word-break: break-word;">
+                            <div style="font-size:0.82rem; font-weight:700; color:{alt3_color}; word-break: break-word;">{alt3_title}</div>
+                            <div style="font-size:0.72rem; color:#4B5563; word-break: break-word;">{alt3_sub}</div>
                         </div>
-                        <span style="color:{alt3_color}; font-weight:bold;">›</span>
+                        <span style="color:{alt3_color}; font-weight:bold; flex-shrink: 0;">›</span>
                     </div>
                 </div>
             </div>
@@ -3747,7 +4034,7 @@ if st.session_state.active_tab_id == "home":
     render_html(
         f"""
         <div class="impact-banner">
-            <div style="max-width: 50%;">
+            <div class="impact-banner-content">
                 <div style="display:inline-flex; align-items:center; gap:6px; background:#D1FAE5; color:#065F46; padding:3px 10px; border-radius:9999px; font-size:0.74rem; font-weight:700; margin-bottom:8px;">
                     <span style="font-size:9px;">●</span> LIVE AGROCLIMATIC IMPACT MODEL
                 </div>
@@ -3759,35 +4046,35 @@ if st.session_state.active_tab_id == "home":
                 </p>
             </div>
             
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+            <div class="impact-chips-wrap">
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🪴</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('soil_health')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🪴</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('soil_health')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +{impact_soil}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">💧</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('water_use')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">💧</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('water_use')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#0284C7;">↓ -{impact_water}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🧪</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('input_dep')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🧪</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('input_dep')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↓ -{impact_input}%</div>
                     </div>
                 </div>
                 
                 <div class="impact-chip">
-                    <span style="font-size:20px;">🌿</span>
-                    <div>
-                        <div style="font-size:0.72rem; color:#6B7280;">{_('regen_score')}</div>
+                    <span style="font-size:20px; flex-shrink:0;">🌿</span>
+                    <div style="min-width: 0; overflow: hidden;">
+                        <div style="font-size:0.72rem; color:#6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{_('regen_score')}</div>
                         <div style="font-size:0.95rem; font-weight:800; color:#16A34A;">↑ +{impact_regen}%</div>
                     </div>
                 </div>
@@ -4458,5 +4745,7 @@ elif st.session_state.active_tab_id == "settings":
     st.markdown("---")
     if st.button(_("back_to_home"), key="back_settings_bot", type="secondary"):
         navigate_back()
+
+
 
 
