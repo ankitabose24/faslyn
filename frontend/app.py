@@ -2675,14 +2675,14 @@ def set_coords(lat, lon, zoom=None, hub_name=None):
 
 
 def get_client():
-    """Resolve a Grok (xAI) client securely from .env (os.environ) or Streamlit secrets."""
+    """Resolve an AI client (Groq or xAI Grok) securely from .env (os.environ) or Streamlit secrets."""
     api_key = None
     try:
-        api_key = st.secrets.get("GROK_API_KEY") or st.secrets.get("XAI_API_KEY")
+        api_key = st.secrets.get("GROQ_API_KEY") or st.secrets.get("GROK_API_KEY") or st.secrets.get("XAI_API_KEY")
     except Exception:
         api_key = None
     if not api_key:
-        api_key = os.environ.get("GROK_API_KEY") or os.environ.get("XAI_API_KEY")
+        api_key = os.environ.get("GROQ_API_KEY") or os.environ.get("GROK_API_KEY") or os.environ.get("XAI_API_KEY")
     return build_grok_client(api_key)
 
 
@@ -3379,11 +3379,12 @@ with st.sidebar:
     # AI Engine Status in sidebar (Keys managed securely via server-side .env / Cloud Secrets)
     client = get_client()
     if client is not None:
+        p_label = client.get("provider", "Groq" if client.get("api_key", "").startswith("gsk_") else "xAI Grok")
         render_html(
-            """
+            f"""
             <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 7px 10px; font-size: 0.74rem; color: #047857; display: flex; align-items: center; gap: 6px;">
                 <span style="width: 7px; height: 7px; background: #10B981; border-radius: 50%; display: inline-block;"></span>
-                <b>AI Engine:</b> Grok-2 Live
+                <b>AI Engine:</b> {p_label} Live
             </div>
             """
         )
@@ -5093,7 +5094,9 @@ elif st.session_state.active_tab_id == "settings":
 
     client = get_client()
     if client is not None:
-        st.info("🔒 **AI Intelligence Connected:** Grok-2 is running securely via server environment credentials (`.env` / Cloud Secrets).")
+        p_name = client.get("provider", "Groq" if client.get("api_key", "").startswith("gsk_") else "xAI Grok")
+        m_name = client.get("text_model", "Live Engine")
+        st.info(f"🔒 **AI Intelligence Connected:** {p_name} ({m_name}) is running securely via server environment credentials (`.env` / Cloud Secrets).")
     else:
         st.info("🌱 **Zero-Cost Engine Active:** Running local calibrated agro-climatology and foliar vision heuristics (100% free, no API key required).")
 

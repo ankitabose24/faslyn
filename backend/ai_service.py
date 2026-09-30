@@ -20,6 +20,10 @@ XAI_API_BASE = "https://api.x.ai/v1"
 GROK_TEXT_MODEL = "grok-2-latest"
 GROK_VISION_MODEL = "grok-2-vision-1212"
 
+GROQ_API_BASE = "https://api.groq.com/openai/v1"
+GROQ_TEXT_MODEL = "llama-3.3-70b-versatile"
+GROQ_VISION_MODEL = "llama-3.2-11b-vision-preview"
+
 # ---------------------------------------------------------------------------
 # DEMO & OFFLINE RESILIENCE FALLBACKS
 # ---------------------------------------------------------------------------
@@ -61,14 +65,25 @@ Urgency: Monitor"""
 
 
 def build_grok_client(api_key: str):
-    """Create a Grok (xAI) client session configuration from an API key."""
+    """
+    Create an AI client session configuration from an API key.
+    Auto-detects and supports both:
+      - Groq LPU (API key starting with 'gsk_') -> https://api.groq.com/openai/v1
+      - xAI Grok (API key starting with 'xai-') -> https://api.x.ai/v1
+    """
     if not api_key or not isinstance(api_key, str) or len(api_key.strip()) < 8:
         return None
+    k = api_key.strip()
+    is_groq = k.startswith("gsk_")
+
     return {
-        "api_key": api_key.strip(),
-        "base_url": XAI_API_BASE,
+        "api_key": k,
+        "provider": "Groq" if is_groq else "xAI Grok",
+        "base_url": GROQ_API_BASE if is_groq else XAI_API_BASE,
+        "text_model": GROQ_TEXT_MODEL if is_groq else GROK_TEXT_MODEL,
+        "vision_model": GROQ_VISION_MODEL if is_groq else GROK_VISION_MODEL,
         "headers": {
-            "Authorization": f"Bearer {api_key.strip()}",
+            "Authorization": f"Bearer {k}",
             "Content-Type": "application/json",
         },
     }
@@ -122,7 +137,7 @@ intercropping) based on the signals above. Do not use any markdown formatting, b
 points, or headers — plain spoken sentences only."""
 
     payload = {
-        "model": GROK_TEXT_MODEL,
+        "model": client.get("text_model", GROK_TEXT_MODEL),
         "messages": [
             {
                 "role": "system",
@@ -216,7 +231,7 @@ All text VALUES must be written in {language}. JSON keys must stay in English ex
 as given above."""
 
     payload = {
-        "model": GROK_TEXT_MODEL,
+        "model": client.get("text_model", GROK_TEXT_MODEL),
         "messages": [
             {
                 "role": "system",
@@ -366,7 +381,7 @@ Keep the entire report under 150 words."""
         mime_type = f"image/{save_format.lower()}"
 
         payload = {
-            "model": GROK_VISION_MODEL,
+            "model": client.get("vision_model", GROK_VISION_MODEL),
             "messages": [
                 {
                     "role": "user",
