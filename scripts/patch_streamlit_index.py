@@ -24,7 +24,7 @@ LOADER_CSS = """
           overflow: hidden;
           pointer-events: auto;
           will-change: opacity;
-          animation: faslynContainerFlow 3.0s forwards;
+          animation: faslynContainerFlow 5.0s forwards;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       }
 
@@ -46,7 +46,7 @@ LOADER_CSS = """
           width: 90%;
           box-sizing: border-box;
           will-change: transform, opacity;
-          animation: faslynCardFlow 2.0s forwards;
+          animation: faslynCardFlow 5.0s forwards;
       }
 
       .faslyn-spinner-wrapper {
@@ -107,7 +107,7 @@ LOADER_CSS = """
           height: 100%;
           background: linear-gradient(90deg, #10B981 0%, #0284C7 50%, #34D399 100%);
           border-radius: 9999px;
-          animation: faslynProgressFill 1.35s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+          animation: faslynProgressFill 4.5s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
       }
 
       .faslyn-loader-status {
@@ -141,12 +141,12 @@ LOADER_CSS = """
               opacity: 0;
               animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
           }
-          18% {
+          10% {
               transform: scale(1);
               opacity: 1;
               animation-timing-function: linear;
           }
-          67% {
+          85% {
               transform: scale(1);
               opacity: 1;
               animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
@@ -165,7 +165,7 @@ LOADER_CSS = """
               pointer-events: auto;
               animation-timing-function: linear;
           }
-          67% {
+          85% {
               opacity: 1;
               visibility: visible;
               pointer-events: auto;
@@ -199,7 +199,7 @@ LOADER_HTML = """
       setTimeout(function() {
         var el = document.getElementById('faslyn-loader-overlay');
         if (el) { el.style.display = 'none'; }
-      }, 3100);
+      }, 5100);
     </script>
 """
 
