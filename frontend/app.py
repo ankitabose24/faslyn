@@ -264,10 +264,31 @@ render_html(
         color: #111827 !important;
     }
 
-    /* Top Streamlit App Header bar */
+    /* Top Streamlit App Header bar - Zero height to eliminate empty blank space */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        overflow: visible !important;
         z-index: 99999 !important;
+    }
+
+    /* Collapse dead height from script/style injections and empty containers */
+    div[data-testid="stElementContainer"]:has(style),
+    div[data-testid="element-container"]:has(style),
+    div[data-testid="stElementContainer"]:has(script),
+    div[data-testid="element-container"]:has(script),
+    div[data-testid="stElementContainer"]:empty,
+    div[data-testid="element-container"]:empty {
+        display: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
     }
 
     /* Hide Deploy button, 3-dots Menu, Streamlit Cloud Toolbar Actions, Badges, and Footer */
@@ -1062,9 +1083,15 @@ render_html(
             transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         .main .block-container,
-        div[data-testid="stMain"] .block-container {
+        div[data-testid="stMain"] .block-container,
+        div[data-testid="stMainBlockContainer"],
+        .block-container {
             max-width: 1400px !important;
-            padding: 2.2rem 2.8rem 3.5rem 2.8rem !important;
+            padding-top: 0.75rem !important;
+            padding-bottom: 3.5rem !important;
+            padding-left: 2.8rem !important;
+            padding-right: 2.8rem !important;
+            margin-top: 0 !important;
             margin-left: auto !important;
             margin-right: auto !important;
         }
@@ -1182,11 +1209,17 @@ render_html(
        3. TABLET LAYOUT (769px to 1024px) - iPads & Tablets
        ======================================================================= */
     @media (min-width: 769px) and (max-width: 1024px) {
-        /* Tablet Padding */
+        /* Tablet Padding - Zero Top Blank Space */
         .main .block-container,
-        div[data-testid="stMain"] .block-container {
+        div[data-testid="stMain"] .block-container,
+        div[data-testid="stMainBlockContainer"],
+        .block-container {
             max-width: 100% !important;
-            padding: 1.8rem 1.6rem 3rem 1.6rem !important;
+            padding-top: 0.75rem !important;
+            padding-bottom: 3rem !important;
+            padding-left: 1.6rem !important;
+            padding-right: 1.6rem !important;
+            margin-top: 0 !important;
         }
 
         /* Tablet Sidebar - Off-canvas drawer with smooth slide & backdrop dimming */
@@ -1357,13 +1390,16 @@ render_html(
             overflow-x: hidden !important;
         }
 
-        /* Mobile Main Container Padding with Top Clearance for Toggle Button */
+        /* Mobile Main Container Padding with Zero Top Blank Space */
         .main .block-container,
-        div[data-testid="stMain"] .block-container {
-            padding-top: 4.2rem !important;
+        div[data-testid="stMain"] .block-container,
+        div[data-testid="stMainBlockContainer"],
+        .block-container {
+            padding-top: 0.75rem !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
             padding-bottom: 2.8rem !important;
+            margin-top: 0 !important;
             max-width: 100% !important;
             width: 100% !important;
             box-sizing: border-box !important;
@@ -1873,13 +1909,16 @@ render_html(
        5. SMALL MOBILE LAYOUT (320px to 480px) - iPhone SE, Mini Phones
        ======================================================================= */
     @media (max-width: 480px) {
-        /* Ultra-Compact Block Container Padding */
+        /* Ultra-Compact Block Container Padding - Zero Top Blank Space */
         .main .block-container,
-        div[data-testid="stMain"] .block-container {
-            padding-top: 4.0rem !important;
+        div[data-testid="stMain"] .block-container,
+        div[data-testid="stMainBlockContainer"],
+        .block-container {
+            padding-top: 0.6rem !important;
             padding-left: 0.65rem !important;
             padding-right: 0.65rem !important;
             padding-bottom: 2.5rem !important;
+            margin-top: 0 !important;
         }
 
         /* Fluid Typography Clamps for Small Screens */
@@ -2121,17 +2160,22 @@ hero_css = f"""
     div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
     .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
         background-image: 
-            linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.40) 45%, rgba(240, 248, 242, 0.65) 100%),
+            linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.92) 0%, 
+                rgba(255, 255, 255, 0.78) 32%, 
+                rgba(255, 255, 255, 0.35) 55%, 
+                rgba(255, 255, 255, 0.08) 75%, 
+                rgba(255, 255, 255, 0.0) 100%
+            ),
             url('{hero_bg_data_uri}') !important;
         background-size: cover !important;
-        background-position: center 30% !important;
+        background-position: right 30% !important;
         background-repeat: no-repeat !important;
         border-radius: 24px !important;
-        padding: 22px 24px 20px 24px !important;
+        padding: 24px 26px 22px 26px !important;
         margin: 0 !important;
-        border: 1.5px solid rgba(200, 225, 210, 0.95) !important;
-        border-bottom: 3.5px solid rgba(160, 205, 180, 0.95) !important;
-        box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(220, 235, 225, 0.9) !important;
+        box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.10) !important;
         position: relative !important;
         width: 100% !important;
         max-width: 100% !important;
@@ -2148,7 +2192,7 @@ hero_css = f"""
         background-image: none !important;
     }}
 
-    /* Hero Section Header Title & Subtitle with high-contrast text shadows */
+    /* Hero Section Header Title & Subtitle with high-contrast text shadows (FONT UNCHANGED) */
     .st-key-dashboard_hero_section .greeting-title {{
         color: #0b291b !important;
         font-weight: 800 !important;
@@ -2172,23 +2216,83 @@ hero_css = f"""
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
     }}
 
+    /* Spacing between Hero Header and KPI Cards */
+    .st-key-dashboard_hero_section .st-key-hero_kpi_metrics_row {{
+        margin-top: 36px !important;
+    }}
+
     /* Frosted Glass 4 KPI Cards inside Hero Section floating over background */
     .st-key-dashboard_hero_section .kpi-card {{
-        background: rgba(255, 255, 255, 0.90) !important;
+        background: rgba(255, 255, 255, 0.94) !important;
         backdrop-filter: blur(12px) !important;
         -webkit-backdrop-filter: blur(12px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.95) !important;
-        border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
-        box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        border: 1px solid rgba(255, 255, 255, 0.92) !important;
+        border-radius: 20px !important;
+        padding: 16px 18px !important;
+        box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.08), 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
         min-width: 0 !important;
         max-width: 100% !important;
+        box-sizing: border-box !important;
         overflow: hidden !important;
+        transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }}
     .st-key-dashboard_hero_section .kpi-card:hover {{
-        background: rgba(255, 255, 255, 0.98) !important;
-        transform: translateY(-3px) scale(1.006) !important;
-        border-bottom-color: rgba(181, 131, 90, 0.7) !important;
-        box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.18), inset 0 1px 1px #FFFFFF !important;
+        background: #FFFFFF !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 28px -4px rgba(15, 45, 35, 0.14), 0 4px 10px rgba(0, 0, 0, 0.04) !important;
+    }}
+    .st-key-dashboard_hero_section .kpi-icon-box {{
+        width: 48px !important;
+        height: 48px !important;
+        min-width: 48px !important;
+        border-radius: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 22px !important;
+        flex-shrink: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }}
+    .st-key-dashboard_hero_section .icon-green {{
+        background: #E8F5E9 !important;
+    }}
+    .st-key-dashboard_hero_section .icon-orange {{
+        background: #FEF3C7 !important;
+    }}
+    .st-key-dashboard_hero_section .icon-teal {{
+        background: #E6F4F1 !important;
+    }}
+    .st-key-dashboard_hero_section .kpi-label {{
+        font-size: 0.82rem !important;
+        font-weight: 500 !important;
+        color: #4B5563 !important;
+        margin-bottom: 2px !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }}
+    .st-key-dashboard_hero_section .kpi-val {{
+        font-size: clamp(1.5rem, 2.5vw, 1.95rem) !important;
+        font-weight: 800 !important;
+        color: #0F172A !important;
+        line-height: 1.1 !important;
+        margin: 0 !important;
+        letter-spacing: -0.02em !important;
+    }}
+    .st-key-dashboard_hero_section .kpi-subtext {{
+        font-size: 0.72rem !important;
+        font-weight: 500 !important;
+        color: #64748B !important;
+        margin-top: 3px !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }}
 
     /* Tablet & Mobile Hero Responsiveness */
@@ -3448,10 +3552,16 @@ if st.session_state.active_tab_id == "home":
                 div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
                 .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
                     background-image: 
-                        linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.40) 45%, rgba(240, 248, 242, 0.65) 100%),
+                        linear-gradient(90deg, 
+                            rgba(255, 255, 255, 0.92) 0%, 
+                            rgba(255, 255, 255, 0.78) 32%, 
+                            rgba(255, 255, 255, 0.35) 55%, 
+                            rgba(255, 255, 255, 0.08) 75%, 
+                            rgba(255, 255, 255, 0.0) 100%
+                        ),
                         url('{hero_bg_data_uri}') !important;
                     background-size: cover !important;
-                    background-position: center 30% !important;
+                    background-position: right 30% !important;
                     background-repeat: no-repeat !important;
                 }}
                 </style>
@@ -3473,16 +3583,17 @@ if st.session_state.active_tab_id == "home":
 
             render_html(
                 f"""
-                <div class="top-header">
+                <div class="top-header" style="padding-bottom: 0;">
                     <div style="max-width: 100%; overflow: hidden;">
-                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; max-width: 100%;">
-                            <h1 class="greeting-title" style="word-break: break-word;">{greeting_text}</h1>
-                            <span style="background: rgba(236, 253, 245, 0.95); color: #047857; font-size: 0.70rem; font-weight: 700; padding: 3px 8px; border-radius: 9999px; border: 1px solid #A7F3D0; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); max-width: 100%; white-space: nowrap;">
-                                <span style="display:inline-block; width:6px; height:6px; background:#10B981; border-radius:50%;"></span>
-                                LIVE NASA & SENSOR FEEDS
-                            </span>
+                        <div style="display:inline-flex; align-items:center; gap:7px; background:#FFFFFF; border:1.2px solid #10B981; color:#047857; font-size:0.72rem; font-weight:700; padding:5px 14px; border-radius:9999px; margin-bottom:12px; box-shadow:0 2px 5px rgba(0,0,0,0.04); letter-spacing:0.04em;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="2"/>
+                                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>
+                            </svg>
+                            NASA & SENSOR FEEDS
                         </div>
-                        <p class="greeting-subtitle">{_('subtitle')}</p>
+                        <h1 class="greeting-title" style="word-break: break-word; margin: 0 0 6px 0;">{greeting_text}</h1>
+                        <p class="greeting-subtitle" style="margin: 0;">{_('subtitle')}</p>
                     </div>
                 </div>
                 """
@@ -3500,11 +3611,11 @@ if st.session_state.active_tab_id == "home":
             render_html(
                 f"""
                 <div class="kpi-card">
-                    <div class="kpi-icon-box icon-green">🏡</div>
+                    <div class="kpi-icon-box icon-green">🌱</div>
                     <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('total_fields')}</div>
                         <div class="kpi-val">{total_fields}</div>
-                        <div class="kpi-subtext">📍 {active_hub_clean}</div>
+                        <div class="kpi-subtext">Your registered fields</div>
                     </div>
                 </div>
                 """
@@ -3514,7 +3625,7 @@ if st.session_state.active_tab_id == "home":
             render_html(
                 f"""
                 <div class="kpi-card">
-                    <div class="kpi-icon-box icon-green">🍃</div>
+                    <div class="kpi-icon-box icon-green">🌿</div>
                     <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
                         <div class="kpi-label">{_('healthy_fields')}</div>
                         <div class="kpi-val">{healthy_fields}</div>
@@ -3542,11 +3653,11 @@ if st.session_state.active_tab_id == "home":
             render_html(
                 f"""
                 <div class="kpi-card">
-                    <div class="kpi-icon-box icon-teal">🪴</div>
+                    <div class="kpi-icon-box icon-teal">📊</div>
                     <div style="min-width: 0; flex: 1 1 auto; overflow: hidden;">
-                        <div class="kpi-label">{_('overall_health')}</div>
-                        <div class="kpi-val">{overall_health}<span style="font-size:1.1rem; color:#6B7280; font-weight:600;">/100</span></div>
-                        <div class="kpi-subtext" style="color:{trend_color}; font-weight:700;">↑ {trend_sign}{trend_val}% {_('vs_last_month')}</div>
+                        <div class="kpi-label">Overall Health</div>
+                        <div class="kpi-val">{overall_health}</div>
+                        <div class="kpi-subtext">Soil health index / 100</div>
                     </div>
                 </div>
                 """
