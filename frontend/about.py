@@ -1,5 +1,5 @@
 """
-FASLYN Farmer-Centric About Page & Login Modal
+Faslyn Farmer-Centric About Page & Login Modal
 ==============================================
 Designed specifically for small and marginal farmers, agricultural producers,
 and rural cooperatives. Warm, trustworthy, visual, clear, and easy to understand.
@@ -15,6 +15,24 @@ from backend.database import upsert_farmer
 
 
 @st.cache_data
+@st.cache_data
+def get_faslyn_logo_base64() -> str:
+    """Load base64 data URI of official circular Faslyn logo."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    png_path = os.path.join(current_dir, "assets", "faslyn_logo.png")
+    webp_path = os.path.join(current_dir, "assets", "faslyn_logo.webp")
+    target = png_path if os.path.exists(png_path) else webp_path
+    if os.path.exists(target):
+        ext = "png" if target.endswith(".png") else "webp"
+        try:
+            with open(target, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode("utf-8")
+            return f"data:image/{ext};base64,{b64}"
+        except Exception:
+            return ""
+    return ""
+
+
 def get_about_hero_image_base64() -> str:
     """Load base64 data URI of existing agricultural image asset for zero-delay rendering."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -37,7 +55,7 @@ def get_about_css() -> str:
     return """
     <style>
     /* =======================================================================
-       FASLYN ABOUT PAGE - WARM, FARMER-FRIENDLY & RESPONSIVE DESIGN
+       Faslyn ABOUT PAGE - WARM, FARMER-FRIENDLY & RESPONSIVE DESIGN
        ======================================================================= */
     
     /* Viewport Enforcements: Zero Horizontal Scrolling */
@@ -399,7 +417,7 @@ def get_about_css() -> str:
         margin: 0;
     }
 
-    /* What is FASLYN 2-Column Container */
+    /* What is Faslyn 2-Column Container */
     .what-is-grid {
         display: grid;
         grid-template-columns: 1.15fr 0.85fr;
@@ -797,12 +815,16 @@ def get_about_css() -> str:
 # ---------------------------------------------------------------------------
 # LOGIN MODAL DIALOG (ROBUST ZERO-CLIPPING AUTHENTICATION)
 # ---------------------------------------------------------------------------
-@st.dialog("Welcome to FASLYN")
+@st.dialog("Welcome to Faslyn")
 def show_login_modal():
     """Render clean, responsive authentication modal dialog connected to SQLite backend."""
+    logo_b64 = get_faslyn_logo_base64()
+    logo_modal_tag = f'<img src="{logo_b64}" alt="Faslyn Logo" style="width: 52px; height: 52px; border-radius: 50%; object-fit: contain; margin-bottom: 6px; box-shadow: 0 4px 12px rgba(27,77,62,0.12);" />' if logo_b64 else '<span>🌿</span>'
     st.markdown(
-        """
-        <div style="text-align: center; margin-top: -10px; margin-bottom: 10px;">
+        f"""
+        <div style="text-align: center; margin-top: -10px; margin-bottom: 12px;">
+            {logo_modal_tag}
+            <div style="font-weight: 800; font-size: 1.25rem; color: #1B4D3E;">Faslyn</div>
             <div style="font-size: 0.82rem; color: #4B5563;">Access your agricultural intelligence dashboard.</div>
         </div>
         """,
@@ -926,7 +948,7 @@ def show_login_modal():
             st.info("ℹ️ Password recovery is linked to your regional agricultural cooperative SMS gateway.")
     with col_ca:
         if st.button("Create Account", key="modal_ca_btn", use_container_width=True):
-            st.info("ℹ️ Enter your details above and click Login to provision your FASLYN profile.")
+            st.info("ℹ️ Enter your details above and click Login to provision your Faslyn profile.")
 
 
 # ---------------------------------------------------------------------------
@@ -945,10 +967,10 @@ def show_about_hero():
                 <div class="hero-pill-tag">
                     <span>●</span> Agricultural Intelligence Platform
                 </div>
-                <h1 class="hero-main-title">FASLYN</h1>
+                <h1 class="hero-main-title">Faslyn</h1>
                 <div class="hero-tagline-text">"Smarter Insights. Better Decisions. Stronger Growth."</div>
                 <p class="hero-body-text">
-                    FASLYN helps turn agricultural information into simple, useful insights so farmers can better understand their crops, conditions and opportunities.
+                    Faslyn helps turn agricultural information into simple, useful insights so farmers can better understand their crops, conditions and opportunities.
                 </p>
             </div>
             <div class="hero-image-card">
@@ -964,7 +986,7 @@ def show_about_hero():
 
     c_btn1, c_btn2, c_btn3 = st.columns([1, 1.4, 1])
     with c_btn2:
-        if st.button("🌱 Login to FASLYN", key="about_hero_login_btn", use_container_width=True, type="primary"):
+        if st.button("🌱 Login to Faslyn", key="about_hero_login_btn", use_container_width=True, type="primary"):
             show_login_modal()
         st.markdown(
             """
@@ -985,7 +1007,7 @@ def show_farmer_first_section():
                 <h2 class="about-section-title">Built Around the Needs of Farmers</h2>
                 <div class="about-section-subtext">
                     Farming decisions depend on many things — crops, weather, soil, resources and changing conditions.
-                    FASLYN brings relevant information together and presents it in a simpler way, helping users understand what the data is saying.
+                    Faslyn brings relevant information together and presents it in a simpler way, helping users understand what the data is saying.
                 </div>
             </div>
             <div class="about-grid-3">
@@ -1012,7 +1034,7 @@ def show_farmer_first_section():
                 </div>
             </div>
             <div style="text-align: center; color: #6B7280; font-size: 0.74rem; margin-top: 14px; font-style: italic;">
-                Note: FASLYN provides decision support to assist farming choices. It does not replace local farming experience or professional agricultural advice.
+                Note: Faslyn provides decision support to assist farming choices. It does not replace local farming experience or professional agricultural advice.
             </div>
         </div>
         """,
@@ -1021,21 +1043,21 @@ def show_farmer_first_section():
 
 
 def show_what_is_faslyn():
-    """Render Section 3: What is FASLYN? (Balanced 2-column layout with visual flow diagram)."""
+    """Render Section 3: What is Faslyn? (Balanced 2-column layout with visual flow diagram)."""
     st.markdown(
         """
         <div class="about-section-container" id="about-what-is-faslyn">
             <div class="about-section-header">
-                <h2 class="about-section-title">What is FASLYN?</h2>
+                <h2 class="about-section-title">What is Faslyn?</h2>
             </div>
             <div class="what-is-grid">
                 <div>
                     <div class="what-is-lead">"Agriculture needs more than data — it needs usable insights."</div>
                     <p class="what-is-body">
-                        FASLYN is designed to bring relevant agricultural information together and present it in a simple, understandable and actionable way.
+                        Faslyn is designed to bring relevant agricultural information together and present it in a simple, understandable and actionable way.
                     </p>
                     <p class="what-is-body">
-                        Instead of making users go through scattered sources, FASLYN provides a centralized platform where data can be explored, analyzed and converted into meaningful insights for your land.
+                        Instead of making users go through scattered sources, Faslyn provides a centralized platform where data can be explored, analyzed and converted into meaningful insights for your land.
                     </p>
                 </div>
                 <div class="flow-diagram-box">
@@ -1130,7 +1152,7 @@ def show_visual_solution():
                 <div class="solution-pipeline-arrow">→</div>
                 <div class="solution-pipeline-node" style="border-color: #10B981; background: #F0FDF4;">
                     <div class="solution-node-tag" style="color: #047857;">STEP 02</div>
-                    <div class="solution-node-title" style="color: #047857;">FASLYN</div>
+                    <div class="solution-node-title" style="color: #047857;">Faslyn</div>
                 </div>
                 <div class="solution-pipeline-arrow">→</div>
                 <div class="solution-pipeline-node">
@@ -1155,12 +1177,12 @@ def show_visual_solution():
 
 
 def show_how_it_helps():
-    """Render Section 6: How FASLYN Can Help (5 Farmer-Friendly Action Cards)."""
+    """Render Section 6: How Faslyn Can Help (5 Farmer-Friendly Action Cards)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">How FASLYN Can Help</h2>
+                <h2 class="about-section-title">How Faslyn Can Help</h2>
                 <div class="about-section-subtext">
                     Practical, farmer-friendly tools designed to assist and support your daily farming operations.
                 </div>
@@ -1193,7 +1215,7 @@ def show_how_it_helps():
                 </div>
             </div>
             <div style="text-align: center; color: #6B7280; font-size: 0.74rem; margin-top: 12px; font-style: italic;">
-                FASLYN provides guidance and decision support to assist farmers; individual outcomes depend on local conditions, practices, and inputs.
+                Faslyn provides guidance and decision support to assist farmers; individual outcomes depend on local conditions, practices, and inputs.
             </div>
         </div>
         """,
@@ -1202,12 +1224,12 @@ def show_how_it_helps():
 
 
 def show_trust_section():
-    """Render Section 7: Why FASLYN? (Trust Building Pillars)."""
+    """Render Section 7: Why Faslyn? (Trust Building Pillars)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">Why FASLYN?</h2>
+                <h2 class="about-section-title">Why Faslyn?</h2>
                 <div class="about-section-subtext">
                     Built for simplicity, dependable guidance, and practical everyday use on the farm.
                 </div>
@@ -1249,12 +1271,12 @@ def show_trust_section():
 
 
 def show_who_is_it_for():
-    """Render Section 8: Who is FASLYN For? (Clear Audience Cards)."""
+    """Render Section 8: Who is Faslyn For? (Clear Audience Cards)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">Who is FASLYN For?</h2>
+                <h2 class="about-section-title">Who is Faslyn For?</h2>
                 <div class="about-section-subtext">
                     Built for people working directly with land, crops, and agricultural planning.
                 </div>
@@ -1302,7 +1324,7 @@ def show_vision_section():
                         We want agricultural information to be easier to understand, easier to explore and more useful for the people who depend on it every day.
                     </p>
                     <p class="what-is-body">
-                        FASLYN aims to bridge the gap between data and practical decision-making through a clean, accessible digital experience.
+                        Faslyn aims to bridge the gap between data and practical decision-making through a clean, accessible digital experience.
                     </p>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px; background: #FFFFFF; border-radius: 16px; border: 1px solid rgba(181, 128, 77, 0.3);">
@@ -1318,12 +1340,12 @@ def show_vision_section():
 
 
 def show_journey_section():
-    """Render Section 10: FASLYN Journey."""
+    """Render Section 10: Faslyn Journey."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">The FASLYN Journey</h2>
+                <h2 class="about-section-title">The Faslyn Journey</h2>
             </div>
             <div class="journey-sequence-wrap">
                 <div class="journey-steps-row">
@@ -1338,7 +1360,7 @@ def show_journey_section():
                     <div class="journey-step-chip" style="background: #1B4D3E; color: #FFFFFF; border-color: #1B4D3E;">ACTION</div>
                 </div>
                 <div style="font-weight: 800; font-size: 1.08rem; color: #1B4D3E; margin-top: 14px;">
-                    "FASLYN connects the journey."
+                    "Faslyn connects the journey."
                 </div>
             </div>
         </div>
@@ -1352,7 +1374,7 @@ def show_final_cta():
     st.markdown(
         """
         <div class="about-final-cta-card">
-            <h2 class="about-final-cta-title">Ready to Explore FASLYN?</h2>
+            <h2 class="about-final-cta-title">Ready to Explore Faslyn?</h2>
             <div class="about-final-cta-sub">Discover your agricultural insights in one simple platform.</div>
         </div>
         """,
@@ -1362,7 +1384,7 @@ def show_final_cta():
     st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
     c_cta1, c_cta2, c_cta3 = st.columns([1, 1.4, 1])
     with c_cta2:
-        if st.button("🌱 Login to FASLYN", key="about_bottom_login_btn", use_container_width=True, type="primary"):
+        if st.button("🌱 Login to Faslyn", key="about_bottom_login_btn", use_container_width=True, type="primary"):
             show_login_modal()
         st.markdown(
             """
@@ -1381,12 +1403,16 @@ def show_about_page():
     """Master coordinator function rendering the full farmer-centric About page."""
     st.markdown(get_about_css(), unsafe_allow_html=True)
 
+    logo_b64 = get_faslyn_logo_base64()
+    logo_img_tag = f'<img src="{logo_b64}" alt="Faslyn Logo" style="width: 38px; height: 38px; border-radius: 50%; object-fit: contain; box-shadow: 0 2px 6px rgba(0,0,0,0.08);" />' if logo_b64 else '<span>🌿</span>'
+
     # Top Navbar Bar with Brand and Instant Login Action
     st.markdown(
-        """
+        f"""
         <div class="about-top-nav">
-            <div class="about-nav-brand">
-                <span>🌿</span> FASLYN
+            <div class="about-nav-brand" style="display: flex; align-items: center; gap: 10px;">
+                {logo_img_tag}
+                <span style="font-weight: 800; font-size: 1.35rem; color: #1B4D3E; letter-spacing: -0.02em;">Faslyn</span>
             </div>
             <div class="about-nav-badge">
                 <span>●</span> Agricultural Intelligence Platform
@@ -1413,7 +1439,7 @@ def show_about_page():
     st.markdown(
         """
         <div style="text-align: center; color: #9CA3AF; font-size: 0.76rem; padding-top: 36px; padding-bottom: 24px;">
-            &copy; 2026 FASLYN &bull; Open-Access Agricultural Intelligence &bull; Sovereign Agroclimatology
+            &copy; 2026 Faslyn &bull; Open-Access Agricultural Intelligence &bull; Sovereign Agroclimatology
         </div>
         """,
         unsafe_allow_html=True,

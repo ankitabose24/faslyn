@@ -84,6 +84,23 @@ def get_cached_geocoding(query: str):
 
 
 @st.cache_data
+def get_faslyn_logo_base64() -> str:
+    """Load base64 data URI of official circular Faslyn logo."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    png_path = os.path.join(current_dir, "assets", "faslyn_logo.png")
+    webp_path = os.path.join(current_dir, "assets", "faslyn_logo.webp")
+    target = png_path if os.path.exists(png_path) else webp_path
+    if os.path.exists(target):
+        ext = "png" if target.endswith(".png") else "webp"
+        try:
+            with open(target, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode("utf-8")
+            return f"data:image/{ext};base64,{b64}"
+        except Exception:
+            return ""
+    return ""
+
+
 def get_hero_bg_base64() -> str:
     """Return base64 data URI for the farmer hero section background image."""
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -140,8 +157,8 @@ _trigger_background_prewarm()
 # PAGE CONFIGURATION
 # ---------------------------------------------------------------------------
 st.set_page_config(
-    page_title="Faslyn",
-    page_icon="🌱",
+    page_title="Faslyn — Regenerative Agricultural Intelligence",
+    page_icon="frontend/assets/faslyn_logo.png",
     layout="wide",
     initial_sidebar_state="auto",
 )
@@ -2137,6 +2154,7 @@ render_html(
 # FARMER HERO SECTION STYLING WITH SMART AGRI BACKGROUND
 # ---------------------------------------------------------------------------
 hero_bg_data_uri = get_hero_bg_base64()
+faslyn_logo_data_uri = get_faslyn_logo_base64()
 
 hero_css = f"""
     <style>
@@ -2356,7 +2374,10 @@ def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
                     <div class="faslyn-spinner-ring"></div>
                     <div class="faslyn-spinner-icon">🌱</div>
                 </div>
-                <div class="faslyn-loader-brand">🌿 faslyn</div>
+                <div class="faslyn-loader-brand" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <img src="{faslyn_logo_data_uri}" alt="Faslyn" style="width:36px; height:36px; border-radius:50%; object-fit:contain;" />
+                    <span>Faslyn</span>
+                </div>
                 <div class="faslyn-loader-subtitle">Smart Agriculture &bull; Stronger Communities</div>
                 <div class="faslyn-loader-track">
                     <div class="faslyn-loader-bar"></div>
@@ -2713,7 +2734,7 @@ def render_login_page():
         <div id="faslyn-login-bridge">
             <div style="display:flex; flex-direction:column; align-items:center; text-align:center; animation: bridgeZoomIn 0.38s cubic-bezier(0.16,1,0.3,1) both;">
                 <div style="font-size:3.2rem; margin-bottom:10px; animation: bridgeSproutGlow 1.2s ease-in-out infinite alternate;">🌱</div>
-                <div style="font-size:2.3rem; font-weight:800; color:#FFFFFF; letter-spacing:-0.03em; margin-bottom:6px;">🌿 faslyn</div>
+                <div style="font-size:2.3rem; font-weight:800; color:#FFFFFF; letter-spacing:-0.03em; margin-bottom:6px;">🌿 Faslyn</div>
                 <div style="font-size:0.95rem; font-weight:600; color:#A7F3D0; letter-spacing:0.02em; margin-bottom:18px;">Entering Sovereign Farm Workspace...</div>
                 <div style="width:120px; height:3px; background:linear-gradient(90deg, transparent, #10B981, transparent); border-radius:9999px;"></div>
             </div>
@@ -2725,7 +2746,7 @@ def render_login_page():
         """
         <div class="login-header-wrapper">
             <div class="login-brand-title">
-                🌿 faslyn
+                🌿 Faslyn
             </div>
             <div class="login-pill-badge">
                 <span class="login-pill-dot"></span>
@@ -3186,8 +3207,9 @@ label_to_id = {v: k for k, v in nav_items}
 with st.sidebar:
     render_html(
         f"""
-        <div class="sidebar-brand">
-            🌿 faslyn
+        <div class="sidebar-brand" style="display: flex; align-items: center; gap: 10px;">
+            <img src="{faslyn_logo_data_uri}" alt="Faslyn Logo" style="width: 32px; height: 32px; border-radius: 50%; object-fit: contain; box-shadow: 0 2px 5px rgba(0,0,0,0.06);" />
+            <span>Faslyn</span>
         </div>
         <div style="background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 9px 12px; margin: 6px 0 12px 0; display: flex; align-items: center; gap: 10px;">
             <div style="width: 34px; height: 34px; border-radius: 50%; background: #10B981; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; box-shadow: 0 2px 6px rgba(16,185,129,0.25);">
@@ -3585,12 +3607,18 @@ if st.session_state.active_tab_id == "home":
                 f"""
                 <div class="top-header" style="padding-bottom: 0;">
                     <div style="max-width: 100%; overflow: hidden;">
-                        <div style="display:inline-flex; align-items:center; gap:7px; background:#FFFFFF; border:1.2px solid #10B981; color:#047857; font-size:0.72rem; font-weight:700; padding:5px 14px; border-radius:9999px; margin-bottom:12px; box-shadow:0 2px 5px rgba(0,0,0,0.04); letter-spacing:0.04em;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="2"/>
-                                <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>
-                            </svg>
-                            NASA & SENSOR FEEDS
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.95); padding: 4px 12px 4px 6px; border-radius: 9999px; border: 1.2px solid rgba(220, 235, 225, 0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                                <img src="{faslyn_logo_data_uri}" alt="Faslyn Logo" style="width: 26px; height: 26px; border-radius: 50%; object-fit: contain;" />
+                                <span style="font-weight: 800; font-size: 0.92rem; color: #1B4D3E; letter-spacing: -0.01em;">Faslyn</span>
+                            </div>
+                            <div style="display:inline-flex; align-items:center; gap:7px; background:#FFFFFF; border:1.2px solid #10B981; color:#047857; font-size:0.72rem; font-weight:700; padding:5px 14px; border-radius:9999px; box-shadow:0 2px 5px rgba(0,0,0,0.04); letter-spacing:0.04em;">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="2"/>
+                                    <path d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14"/>
+                                </svg>
+                                NASA & SENSOR FEEDS
+                            </div>
                         </div>
                         <h1 class="greeting-title" style="word-break: break-word; margin: 0 0 6px 0;">{greeting_text}</h1>
                         <p class="greeting-subtitle" style="margin: 0;">{_('subtitle')}</p>
