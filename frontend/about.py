@@ -52,6 +52,39 @@ def get_about_css() -> str:
         overflow-x: hidden !important;
     }
 
+    /* Hide Streamlit default top header bar completely on the About page */
+    header[data-testid="stHeader"] {
+        display: none !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        max-height: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Reset Streamlit default 6rem top padding on main block container */
+    .main .block-container, 
+    div[data-testid="stMain"] .block-container, 
+    div[data-testid="stMainBlockContainer"],
+    .block-container {
+        padding-top: 0.75rem !important;
+        padding-bottom: 2.5rem !important;
+        margin-top: 0 !important;
+    }
+
+    /* Remove dead height from style/script injection containers */
+    div[data-testid="stElementContainer"]:has(style),
+    div[data-testid="element-container"]:has(style),
+    div[data-testid="stElementContainer"]:empty,
+    div[data-testid="element-container"]:empty {
+        display: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+    }
+
     /* Hide sidebar and toggle buttons completely on the About page */
     section[data-testid="stSidebar"],
     div[data-testid="stSidebarCollapsedControl"],
