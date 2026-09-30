@@ -2093,158 +2093,147 @@ render_html(
 )
 
 # ---------------------------------------------------------------------------
-# FARMER HERO SECTION STYLING WITH SMART AGRI BANNER & CARD ELEVATION
+# FARMER HERO SECTION STYLING WITH SMART AGRI BACKGROUND
 # ---------------------------------------------------------------------------
 hero_bg_data_uri = get_hero_bg_base64()
 
-hero_css = """
+hero_css = f"""
     <style>
     /* Dashboard Hero Section - Outer container stays clean, zero padding blowout */
-    .st-key-dashboard_hero_section:not([data-testid="stVerticalBlockBorderWrapper"]) {
+    .st-key-dashboard_hero_section:not([data-testid="stVerticalBlockBorderWrapper"]) {{
         background: transparent !important;
         background-image: none !important;
         border: none !important;
         padding: 0 !important;
-        margin: 0 0 16px 0 !important;
+        margin: 0 0 18px 0 !important;
         box-shadow: none !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
-    }
+    }}
 
-    /* Inner border wrapper gets the soft tactile card style enclosing the banner + greeting + 4 keys */
-    div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section,
-    .st-key-dashboard_hero_section > div[data-testid="stVerticalBlockBorderWrapper"] {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
-        border-radius: 22px !important;
-        padding: 18px 20px 20px 20px !important;
+    /* Inner border wrapper gets the smart agriculture photo background enclosing greeting + 4 keys */
+    .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+    .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+        background-image: 
+            linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.40) 45%, rgba(240, 248, 242, 0.65) 100%),
+            url('{hero_bg_data_uri}') !important;
+        background-size: cover !important;
+        background-position: center 30% !important;
+        background-repeat: no-repeat !important;
+        border-radius: 24px !important;
+        padding: 22px 24px 20px 24px !important;
         margin: 0 !important;
-        border: 1.5px solid rgba(220, 235, 226, 0.95) !important;
-        border-bottom: 3.5px solid rgba(185, 215, 195, 0.95) !important;
-        box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.08), 0 3px 8px -2px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+        border: 1.5px solid rgba(200, 225, 210, 0.95) !important;
+        border-bottom: 3.5px solid rgba(160, 205, 180, 0.95) !important;
+        box-shadow: 0 10px 30px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
         position: relative !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
         overflow: hidden !important;
-    }
+    }}
 
-    /* Hero Agriculture Banner Image */
-    .hero-agri-banner-wrap {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 18px !important;
-        overflow: hidden !important;
-        margin-bottom: 16px !important;
-        border: 1.5px solid rgba(215, 232, 222, 0.95) !important;
-        border-bottom: 3.5px solid rgba(175, 208, 188, 0.95) !important;
-        box-shadow: 0 8px 22px -4px rgba(27, 77, 62, 0.10), 0 3px 8px -2px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
-        position: relative !important;
-        box-sizing: border-box !important;
-    }
-    .hero-agri-banner-img {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: 240px !important;
-        object-fit: cover !important;
-        object-position: center 30% !important;
-        display: block !important;
-        border-radius: 16px !important;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    .hero-agri-banner-wrap:hover .hero-agri-banner-img {
-        transform: scale(1.018) !important;
-    }
+    /* Ensure other page containers NEVER inherit or leak this background */
+    .main,
+    .stApp,
+    div[data-testid="stMainBlockContainer"],
+    div[data-testid="stMainBlockContainer"] > div[data-testid="stVerticalBlock"]:not([class*="st-key-dashboard_hero_section"]),
+    div[data-testid="stVerticalBlock"]:not([class*="st-key-dashboard_hero_section"]):not(:has(.st-key-hero_top_header_row)) {{
+        background-image: none !important;
+    }}
 
-    /* Hero Section Header Title & Subtitle */
-    .st-key-dashboard_hero_section .greeting-title {
-        color: #111827 !important;
+    /* Hero Section Header Title & Subtitle with high-contrast text shadows */
+    .st-key-dashboard_hero_section .greeting-title {{
+        color: #0b291b !important;
         font-weight: 800 !important;
         letter-spacing: -0.02em !important;
-    }
-    .st-key-dashboard_hero_section .greeting-subtitle {
-        color: #4B5563 !important;
-        font-weight: 500 !important;
-    }
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.95), 0 2px 10px rgba(255, 255, 255, 0.9) !important;
+    }}
+    .st-key-dashboard_hero_section .greeting-subtitle {{
+        color: #17382a !important;
+        font-weight: 600 !important;
+        text-shadow: 0 1px 3px rgba(255, 255, 255, 0.9) !important;
+    }}
 
-    /* Header Action Widgets (Bell, Language, Profile) */
+    /* Header Action Widgets (Bell, Language, Profile) Frosted Glass */
     .st-key-dashboard_hero_section div[data-testid="stPopover"] > button,
-    .st-key-dashboard_hero_section div[data-baseweb="select"] > div {
-        background: #FFFFFF !important;
-        border: 1px solid rgba(220, 235, 225, 0.95) !important;
-        border-bottom: 2.5px solid rgba(195, 215, 205, 0.95) !important;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
-    }
+    .st-key-dashboard_hero_section div[data-baseweb="select"] > div {{
+        background: rgba(255, 255, 255, 0.92) !important;
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(220, 235, 225, 0.9) !important;
+        border-bottom: 2.5px solid rgba(185, 215, 200, 0.9) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
+    }}
 
-    /* 4 KPI Cards inside Hero Section */
-    .st-key-dashboard_hero_section .kpi-card {
-        background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
-        border: 1px solid rgba(228, 236, 231, 0.95) !important;
-        border-bottom: 3.5px solid rgba(195, 218, 205, 0.9) !important;
-        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.07), 0 2px 6px rgba(0, 0, 0, 0.03), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
+    /* Frosted Glass 4 KPI Cards inside Hero Section floating over background */
+    .st-key-dashboard_hero_section .kpi-card {{
+        background: rgba(255, 255, 255, 0.90) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.95) !important;
+        border-bottom: 3.5px solid rgba(160, 200, 180, 0.9) !important;
+        box-shadow: 0 8px 24px -4px rgba(15, 45, 35, 0.12), 0 2px 6px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.95) !important;
         min-width: 0 !important;
         max-width: 100% !important;
         overflow: hidden !important;
-    }
-    .st-key-dashboard_hero_section .kpi-card:hover {
-        background: #FFFFFF !important;
+    }}
+    .st-key-dashboard_hero_section .kpi-card:hover {{
+        background: rgba(255, 255, 255, 0.98) !important;
         transform: translateY(-3px) scale(1.006) !important;
         border-bottom-color: rgba(181, 131, 90, 0.7) !important;
-        box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.14), inset 0 1px 1px #FFFFFF !important;
-    }
+        box-shadow: 0 14px 28px -4px rgba(15, 45, 35, 0.18), inset 0 1px 1px #FFFFFF !important;
+    }}
 
     /* Tablet & Mobile Hero Responsiveness */
-    @media screen and (max-width: 991px) {
-        div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section,
-        .st-key-dashboard_hero_section > div[data-testid="stVerticalBlockBorderWrapper"] {
-            padding: 14px 14px 16px 14px !important;
+    @media screen and (max-width: 991px) {{
+        .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+        .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+            padding: 16px 16px 16px 16px !important;
             border-radius: 18px !important;
             margin-bottom: 0 !important;
-        }
-        .hero-agri-banner-wrap {
-            border-radius: 14px !important;
-            margin-bottom: 12px !important;
-        }
-        .hero-agri-banner-img {
-            height: 190px !important;
-            object-position: center 25% !important;
-        }
-    }
+            background-position: center 25% !important;
+        }}
+    }}
 
-    @media screen and (max-width: 768px) {
-        .hero-agri-banner-wrap {
-            border-radius: 14px !important;
-            margin-bottom: 12px !important;
-        }
-        .hero-agri-banner-img {
-            height: 165px !important;
-            object-position: center 25% !important;
-        }
-    }
+    @media screen and (max-width: 768px) {{
+        .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+        .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+            padding: 14px 12px 14px 12px !important;
+            border-radius: 18px !important;
+            margin-bottom: 0 !important;
+            background-position: center 20% !important;
+        }}
+    }}
 
-    @media screen and (max-width: 480px) {
-        div[data-testid="stVerticalBlockBorderWrapper"].st-key-dashboard_hero_section,
-        .st-key-dashboard_hero_section > div[data-testid="stVerticalBlockBorderWrapper"] {
-            padding: 10px 8px 12px 8px !important;
+    @media screen and (max-width: 480px) {{
+        .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+        .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+            padding: 12px 10px 12px 10px !important;
             border-radius: 16px !important;
             margin-bottom: 0 !important;
-        }
-        .hero-agri-banner-wrap {
-            border-radius: 12px !important;
-            margin-bottom: 10px !important;
-        }
-        .hero-agri-banner-img {
-            height: 135px !important;
-            object-position: center 20% !important;
-        }
-    }
+            background-position: center 20% !important;
+        }}
+    }}
 
-    @media screen and (max-width: 360px) {
-        .hero-agri-banner-img {
-            height: 120px !important;
-        }
-    }
+    @media screen and (max-width: 360px) {{
+        .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+        .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+            padding: 10px 8px 10px 8px !important;
+        }}
+    }}
     </style>
 """
 render_html(hero_css)
@@ -3445,18 +3434,25 @@ if st.session_state.active_tab_id == "home":
 
     # -----------------------------------------------------------------------
     # DASHBOARD HERO SECTION: TOP GREETING & HEADER + 4 KPI METRIC CARDS
-    # Framed with smart agriculture precision agtech photo banner
+    # Framed with smart agriculture farmer photo background (upto 4 keys only)
     # -----------------------------------------------------------------------
     with st.container(key="dashboard_hero_section", border=True):
-        # -------------------------------------------------------------------
-        # TOP HERO BANNER: AGRICULTURE IMAGE (FARMER & PRECISION INTELLIGENCE)
-        # -------------------------------------------------------------------
         if hero_bg_data_uri:
             render_html(
                 f"""
-                <div class="hero-agri-banner-wrap">
-                    <img src="{hero_bg_data_uri}" class="hero-agri-banner-img" alt="Faslyn Smart Agriculture & Precision Agtech" />
-                </div>
+                <style>
+                .st-key-dashboard_hero_section [data-testid="stVerticalBlockBorderWrapper"],
+                div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_top_header_row),
+                div[data-testid="stVerticalBlockBorderWrapper"]:has(.st-key-hero_kpi_metrics_row),
+                .st-key-dashboard_hero_section:not(:has([data-testid="stVerticalBlockBorderWrapper"])) {{
+                    background-image: 
+                        linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0%, rgba(255, 255, 255, 0.40) 45%, rgba(240, 248, 242, 0.65) 100%),
+                        url('{hero_bg_data_uri}') !important;
+                    background-size: cover !important;
+                    background-position: center 30% !important;
+                    background-repeat: no-repeat !important;
+                }}
+                </style>
                 """
             )
 
