@@ -1,26 +1,46 @@
 """
-FASLYN About Page & Login Modal Flow
-====================================
-Comprehensive introductory presentation explaining FASLYN prior to authentication.
-Includes all 11 user-specified sections, responsive 3D tactile card layouts,
-and a clean Streamlit modal dialog for authentication.
+FASLYN Farmer-Centric About Page & Login Modal
+==============================================
+Designed specifically for small and marginal farmers, agricultural producers,
+and rural cooperatives. Warm, trustworthy, visual, clear, and easy to understand.
+Includes authentic field photography, structured visual workflows, and zero
+horizontal overflow across all mobile, tablet, and desktop viewports.
 """
 
+import base64
 import os
 import streamlit as st
 from backend.config import BRICS_HUBS, DEMO_PROFILES, FIRST_HUB, LANGUAGES
 from backend.database import upsert_farmer
 
 
+@st.cache_data
+def get_about_hero_image_base64() -> str:
+    """Load base64 data URI of existing agricultural image asset for zero-delay rendering."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    webp_path = os.path.join(current_dir, "assets", "hero_farmer_bg.webp")
+    png_path = os.path.join(current_dir, "assets", "hero_farmer_bg.png")
+    target = webp_path if os.path.exists(webp_path) else png_path
+    if os.path.exists(target):
+        ext = "webp" if target.endswith(".webp") else "png"
+        try:
+            with open(target, "rb") as f:
+                b64 = base64.b64encode(f.read()).decode("utf-8")
+            return f"data:image/{ext};base64,{b64}"
+        except Exception:
+            return ""
+    return ""
+
+
 def get_about_css() -> str:
-    """Return mobile-first, zero-overflow CSS rules for the About page and modal."""
+    """Return warm, farmer-friendly, mobile-first CSS with zero horizontal overflow."""
     return """
     <style>
     /* =======================================================================
-       ABOUT PAGE - MODERN 3D TACTILE STYLING (ZERO HORIZONTAL OVERFLOW)
+       FASLYN ABOUT PAGE - WARM, FARMER-FRIENDLY & RESPONSIVE DESIGN
        ======================================================================= */
     
-    /* Root Viewport and Container Enforcements */
+    /* Viewport Enforcements: Zero Horizontal Scrolling */
     html, body, .stApp, 
     div[data-testid="stAppViewContainer"], 
     div[data-testid="stMain"], 
@@ -32,7 +52,7 @@ def get_about_css() -> str:
         overflow-x: hidden !important;
     }
 
-    /* Hide sidebar and toggle buttons entirely on the unauthenticated About page */
+    /* Hide sidebar and toggle buttons completely on the About page */
     section[data-testid="stSidebar"],
     div[data-testid="stSidebarCollapsedControl"],
     button[data-testid="stExpandSidebarButton"] {
@@ -44,26 +64,27 @@ def get_about_css() -> str:
         pointer-events: none !important;
     }
 
+    /* Page Container */
     .about-page-wrapper {
         width: 100%;
-        max-width: 1140px;
+        max-width: 1120px;
         margin: 0 auto;
         padding: 0 0 3.5rem 0;
         box-sizing: border-box;
         overflow-x: hidden;
     }
 
-    /* Top Navigation Header Bar */
+    /* Top Brand Navigation Pill Bar */
     .about-top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 18px;
-        background: rgba(255, 255, 255, 0.95);
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.96);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(220, 235, 226, 0.9);
-        border-bottom: 3px solid rgba(185, 215, 195, 0.9);
+        border: 1.5px solid rgba(215, 230, 222, 0.9);
+        border-bottom: 3.5px solid rgba(180, 210, 192, 0.9);
         border-radius: 9999px;
         margin-bottom: 24px;
         box-shadow: 0 4px 14px rgba(27, 77, 62, 0.05);
@@ -81,30 +102,40 @@ def get_about_css() -> str:
     .about-nav-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 6px;
         background: #ECFDF5;
         border: 1px solid #A7F3D0;
         color: #047857;
-        font-size: 0.70rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        padding: 3px 10px;
+        padding: 4px 12px;
         border-radius: 9999px;
     }
 
-    /* Hero Section Card */
-    .about-hero-card {
-        background: linear-gradient(145deg, #FFFFFF 0%, #F5FAF7 100%);
-        border: 1.5px solid rgba(200, 225, 210, 0.95);
+    /* =======================================================================
+       HERO SECTION (2 COLUMNS: BRAND + AGRICULTURAL VISUAL)
+       ======================================================================= */
+    .about-hero-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 28px;
+        align-items: center;
+        background: linear-gradient(150deg, #FFFFFF 0%, #F5FAF7 60%, #F3F7F4 100%);
+        border: 1.5px solid rgba(200, 225, 212, 0.95);
         border-bottom: 4px solid rgba(160, 205, 180, 0.95);
-        border-radius: 24px;
-        padding: 38px 32px 34px 32px;
-        text-align: center;
-        margin-bottom: 32px;
-        box-shadow: 0 12px 35px -6px rgba(27, 77, 62, 0.10), inset 0 1px 1px #FFFFFF;
+        border-radius: 26px;
+        padding: 36px 34px;
+        margin-bottom: 30px;
+        box-shadow: 0 12px 35px -8px rgba(27, 77, 62, 0.09), inset 0 1px 1px #FFFFFF;
         box-sizing: border-box;
-        overflow: hidden;
     }
-    .about-hero-pill {
+    .hero-content-col {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    .hero-pill-tag {
         display: inline-flex;
         align-items: center;
         gap: 6px;
@@ -113,39 +144,81 @@ def get_about_css() -> str:
         color: #1B4D3E;
         font-size: 0.75rem;
         font-weight: 700;
-        padding: 5px 14px;
+        padding: 4px 12px;
         border-radius: 9999px;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
+        width: fit-content;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.04em;
     }
-    .about-hero-title {
-        font-size: clamp(2.4rem, 6vw, 3.8rem);
+    .hero-main-title {
+        font-size: clamp(2.3rem, 5.5vw, 3.6rem);
         font-weight: 900;
         color: #1B4D3E;
         letter-spacing: -0.04em;
         line-height: 1.08;
-        margin: 0 0 12px 0;
+        margin: 0 0 10px 0;
     }
-    .about-hero-tagline {
-        font-size: clamp(1.15rem, 3vw, 1.65rem);
+    .hero-tagline-text {
+        font-size: clamp(1.1rem, 2.5vw, 1.45rem);
         font-weight: 800;
         color: #B5804D;
-        line-height: 1.25;
-        margin: 0 0 18px 0;
+        line-height: 1.3;
+        margin: 0 0 14px 0;
         letter-spacing: -0.01em;
     }
-    .about-hero-desc {
-        font-size: clamp(0.92rem, 2vw, 1.05rem);
+    .hero-body-text {
+        font-size: clamp(0.92rem, 1.9vw, 1.05rem);
         color: #4B5563;
-        line-height: 1.65;
-        max-width: 760px;
-        margin: 0 auto 24px auto;
+        line-height: 1.62;
+        margin: 0 0 20px 0;
+    }
+    .hero-image-card {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 1.5px solid rgba(180, 215, 195, 0.8);
+        border-bottom: 3.5px solid rgba(140, 190, 160, 0.9);
+        box-shadow: 0 10px 25px -5px rgba(27, 77, 62, 0.15);
+        height: 100%;
+        min-height: 280px;
+        max-height: 380px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #E8F5E9;
+        box-sizing: border-box;
+    }
+    .hero-image-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .hero-image-badge {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        background: rgba(15, 45, 34, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #FFFFFF;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 8px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 6px;
     }
 
-    /* Common Section Containers */
+    /* =======================================================================
+       SECTION CONTAINERS & HEADERS
+       ======================================================================= */
     .about-section-container {
-        margin-bottom: 34px;
+        margin-bottom: 36px;
         box-sizing: border-box;
         width: 100%;
     }
@@ -157,37 +230,39 @@ def get_about_css() -> str:
     .about-section-title {
         font-size: clamp(1.4rem, 3.8vw, 2.1rem);
         font-weight: 800;
-        color: #111827;
+        color: #1B4D3E;
         letter-spacing: -0.02em;
         margin: 0 0 8px 0;
     }
     .about-section-subtext {
         font-size: clamp(0.88rem, 2vw, 1.02rem);
         color: #4B5563;
-        max-width: 700px;
+        max-width: 720px;
         margin: 0 auto;
         line-height: 1.55;
     }
 
-    /* Card Grids */
+    /* =======================================================================
+       CARDS & GRIDS (TACTILE, WARM & BREATHING)
+       ======================================================================= */
     .about-grid-3 {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 16px;
+        gap: 18px;
         width: 100%;
         box-sizing: border-box;
     }
     .about-grid-2 {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        gap: 18px;
         width: 100%;
         box-sizing: border-box;
     }
     .about-grid-4 {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 14px;
+        gap: 16px;
         width: 100%;
         box-sizing: border-box;
     }
@@ -199,42 +274,86 @@ def get_about_css() -> str:
         box-sizing: border-box;
     }
 
-    /* Generic 3D Tactile Card */
+    /* Farmer Highlight 3-Pillar Card */
+    .farmer-pillar-card {
+        background: linear-gradient(160deg, #FFFFFF 0%, #FAFAF7 100%);
+        border: 1.5px solid rgba(215, 230, 222, 0.95);
+        border-bottom: 3.5px solid #10B981;
+        border-radius: 20px;
+        padding: 24px 20px;
+        box-shadow: 0 6px 16px -3px rgba(27, 77, 62, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-sizing: border-box;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .farmer-pillar-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px -4px rgba(27, 77, 62, 0.12);
+    }
+    .farmer-pillar-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
+        border: 1px solid #A7F3D0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        margin-bottom: 12px;
+    }
+    .farmer-pillar-title {
+        font-size: 1.12rem;
+        font-weight: 800;
+        color: #1B4D3E;
+        margin: 0 0 6px 0;
+    }
+    .farmer-pillar-desc {
+        font-size: 0.86rem;
+        color: #4B5563;
+        line-height: 1.52;
+        margin: 0;
+    }
+
+    /* Standard Tactile Feature Card */
     .about-card {
         background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%);
         border: 1.5px solid rgba(220, 235, 226, 0.95);
         border-bottom: 3.5px solid rgba(185, 215, 195, 0.95);
         border-radius: 18px;
         padding: 20px 18px;
-        box-shadow: 0 6px 18px -3px rgba(27, 77, 62, 0.06), 0 2px 5px rgba(0, 0, 0, 0.02), inset 0 1px 1px #FFFFFF;
+        box-shadow: 0 6px 16px -3px rgba(27, 77, 62, 0.05), inset 0 1px 1px #FFFFFF;
         box-sizing: border-box;
-        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         overflow: hidden;
     }
     .about-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 28px -4px rgba(27, 77, 62, 0.12), inset 0 1px 1px #FFFFFF;
-        border-bottom-color: rgba(181, 131, 90, 0.65);
+        transform: translateY(-2.5px);
+        box-shadow: 0 12px 26px -4px rgba(27, 77, 62, 0.10);
+        border-bottom-color: rgba(181, 131, 90, 0.7);
     }
     .about-card-icon {
-        font-size: 26px;
-        width: 48px;
-        height: 48px;
-        border-radius: 14px;
+        font-size: 24px;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
         background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
         border: 1px solid rgba(167, 243, 208, 0.8);
         border-bottom: 2.5px solid #10B981;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         flex-shrink: 0;
     }
     .about-card-title {
-        font-size: 1.05rem;
+        font-size: 1.02rem;
         font-weight: 700;
         color: #111827;
         margin: 0 0 6px 0;
@@ -247,136 +366,162 @@ def get_about_css() -> str:
         margin: 0;
     }
 
-    /* What is FASLYN Highlight Box */
-    .what-is-highlight-card {
-        background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
-        border: 1.5px solid #C8E6C9;
-        border-bottom: 4px solid #A5D6A7;
-        border-radius: 20px;
-        padding: 26px 28px;
-        box-shadow: 0 8px 24px -4px rgba(27, 77, 62, 0.08), inset 0 1px 1px #FFFFFF;
-        margin-bottom: 16px;
+    /* What is FASLYN 2-Column Container */
+    .what-is-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 24px;
+        align-items: center;
+        background: linear-gradient(145deg, #FFFFFF 0%, #FAFBF9 100%);
+        border: 1.5px solid rgba(215, 230, 222, 0.9);
+        border-bottom: 3.5px solid rgba(180, 210, 192, 0.9);
+        border-radius: 22px;
+        padding: 30px 28px;
+        box-shadow: 0 8px 22px -4px rgba(27, 77, 62, 0.06);
         box-sizing: border-box;
     }
-    .what-is-highlight-lead {
-        font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    .what-is-lead {
+        font-size: 1.15rem;
         font-weight: 800;
         color: #1B4D3E;
-        margin: 0 0 12px 0;
         line-height: 1.4;
+        margin-bottom: 12px;
     }
-    .what-is-highlight-text {
-        font-size: 0.95rem;
-        color: #374151;
-        line-height: 1.65;
+    .what-is-body {
+        font-size: 0.92rem;
+        color: #4B5563;
+        line-height: 1.6;
         margin: 0 0 10px 0;
     }
 
-    /* How FASLYN Works 4-Step Flow */
-    .how-flow-desktop {
+    /* Visual Flow Diagram on Right Side */
+    .flow-diagram-box {
+        background: linear-gradient(135deg, #F3F8F5 0%, #EDF5F0 100%);
+        border: 1.5px solid rgba(167, 243, 208, 0.8);
+        border-radius: 18px;
+        padding: 20px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        box-sizing: border-box;
+    }
+    .flow-diagram-step {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #FFFFFF;
+        border: 1px solid rgba(180, 215, 195, 0.8);
+        border-radius: 12px;
+        padding: 8px 14px;
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: #1B4D3E;
+        box-shadow: 0 2px 6px rgba(27, 77, 62, 0.04);
+    }
+    .flow-diagram-arrow {
+        text-align: center;
+        color: #10B981;
+        font-weight: 900;
+        font-size: 0.95rem;
+        line-height: 1;
+    }
+
+    /* Solution Timeline Pipeline */
+    .solution-pipeline-desktop {
         display: flex;
         justify-content: space-between;
-        align-items: stretch;
-        gap: 12px;
-        width: 100%;
+        align-items: center;
+        gap: 8px;
+        background: linear-gradient(145deg, #FAF4EF 0%, #F5EBE1 100%);
+        border: 1.5px solid rgba(212, 163, 115, 0.45);
+        border-bottom: 3.5px solid #B5804D;
+        border-radius: 20px;
+        padding: 22px 18px;
         box-sizing: border-box;
     }
-    .how-step-card {
-        flex: 1 1 0;
+    .solution-pipeline-node {
+        flex: 1;
         background: #FFFFFF;
-        border: 1.5px solid #E5EBE7;
-        border-bottom: 3.5px solid #D4A373;
-        border-radius: 16px;
-        padding: 18px 14px;
+        border: 1.5px solid rgba(181, 128, 77, 0.3);
+        border-radius: 14px;
+        padding: 14px 10px;
         text-align: center;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 10px rgba(181, 131, 90, 0.08);
         box-sizing: border-box;
-        position: relative;
     }
-    .how-step-num {
-        display: inline-block;
-        font-size: 0.72rem;
+    .solution-node-tag {
+        font-size: 0.68rem;
         font-weight: 800;
         color: #B5804D;
-        background: #FAF4EF;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        margin-bottom: 8px;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
     }
-    .how-step-name {
-        font-size: 0.95rem;
+    .solution-node-title {
+        font-size: 0.86rem;
         font-weight: 800;
-        color: #111827;
-        margin-bottom: 6px;
+        color: #1B4D3E;
     }
-    .how-step-desc {
-        font-size: 0.80rem;
+    .solution-pipeline-arrow {
+        color: #B5804D;
+        font-weight: 800;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+    }
+
+    /* Trust 4-Grid */
+    .trust-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        background: linear-gradient(150deg, #F0FDF4 0%, #ECFDF5 100%);
+        border: 1.5px solid #A7F3D0;
+        border-bottom: 3.5px solid #10B981;
+        border-radius: 22px;
+        padding: 26px 24px;
+        box-sizing: border-box;
+    }
+    .trust-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        background: #FFFFFF;
+        border: 1px solid rgba(167, 243, 208, 0.9);
+        border-radius: 14px;
+        padding: 14px 16px;
+        box-sizing: border-box;
+    }
+    .trust-check {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #10B981;
+        color: #FFFFFF;
+        font-size: 14px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .trust-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #1B4D3E;
+        margin-bottom: 2px;
+    }
+    .trust-desc {
+        font-size: 0.82rem;
         color: #4B5563;
         line-height: 1.45;
     }
-    .how-flow-ribbon {
-        background: #FAF4EF;
-        border: 1px solid rgba(212, 163, 115, 0.4);
-        border-radius: 9999px;
-        padding: 8px 16px;
-        text-align: center;
-        font-weight: 800;
-        color: #7D4E27;
-        font-size: 0.86rem;
-        margin-top: 14px;
-        box-sizing: border-box;
-    }
 
-    /* Visual Comparison: Traditional vs FASLYN */
-    .comparison-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-    .comp-col-trad {
-        background: #FFFBFB;
-        border: 1.5px solid #FEE2E2;
-        border-bottom: 3.5px solid #FCA5A5;
-        border-radius: 18px;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    .comp-col-faslyn {
-        background: #F0FDF4;
-        border: 1.5px solid #BBF7D0;
-        border-bottom: 3.5px solid #86EFAC;
-        border-radius: 18px;
-        padding: 20px;
-        box-sizing: border-box;
-    }
-    .comp-col-title {
-        font-size: 1.08rem;
-        font-weight: 800;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .comp-list-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.88rem;
-        padding: 6px 0;
-        color: #374151;
-        border-bottom: 1px solid rgba(0,0,0,0.04);
-    }
-
-    /* Journey Sequence */
+    /* Journey Ribbon */
     .journey-sequence-wrap {
         background: linear-gradient(135deg, #FAF4EF 0%, #F5EBE1 100%);
         border: 1.5px solid rgba(212, 163, 115, 0.4);
         border-bottom: 3.5px solid #B5804D;
         border-radius: 20px;
-        padding: 22px 24px;
+        padding: 24px 20px;
         text-align: center;
         box-sizing: border-box;
     }
@@ -419,27 +564,28 @@ def get_about_css() -> str:
         font-size: clamp(1.6rem, 4vw, 2.3rem);
         font-weight: 800;
         color: #FFFFFF;
-        margin: 0 0 10px 0;
+        margin: 0 0 8px 0;
     }
     .about-final-cta-sub {
-        font-size: clamp(0.95rem, 2.2vw, 1.12rem);
+        font-size: clamp(0.92rem, 2.2vw, 1.08rem);
         color: #D1FAE5;
-        margin: 0 auto 22px auto;
-        max-width: 620px;
+        margin: 0 auto 20px auto;
+        max-width: 580px;
         line-height: 1.5;
     }
 
-    /* Primary Gold/Brown CTA Buttons */
+    /* Primary Gold/Harvest CTA Buttons */
     .stButton > button,
     button[data-testid="baseButton-primary"] {
         background: linear-gradient(180deg, #DEAE7F 0%, #D4A373 50%, #C4925E 100%) !important;
         border: 1px solid #B5804D !important;
         border-bottom: 3.5px solid #9C683E !important;
         border-radius: 9999px !important;
-        padding: 0.60rem 2.0rem !important;
+        padding: 0.65rem 2.0rem !important;
         min-height: 48px !important;
         box-shadow: 0 6px 14px rgba(181, 131, 90, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        cursor: pointer !important;
     }
     .stButton > button *,
     button[data-testid="baseButton-primary"] * {
@@ -455,7 +601,9 @@ def get_about_css() -> str:
         box-shadow: 0 9px 20px rgba(181, 131, 90, 0.42), inset 0 1px 1px rgba(255, 255, 255, 0.6) !important;
     }
 
-    /* Modal / Dialog Backdrop & Outer Overlay */
+    /* =======================================================================
+       MODAL DIALOG STYLING (ZERO CLIPPING & SMOOTH SCROLL)
+       ======================================================================= */
     div[data-testid="stDialog"] {
         display: flex !important;
         align-items: center !important;
@@ -464,7 +612,6 @@ def get_about_css() -> str:
         box-sizing: border-box !important;
         overflow-y: auto !important;
     }
-    /* Modal Dialog Window */
     div[data-testid="stDialog"] div[role="dialog"] {
         background: linear-gradient(170deg, #FFFFFF 0%, #FAFCF9 100%) !important;
         border: 1.5px solid rgba(200, 225, 210, 0.95) !important;
@@ -498,21 +645,6 @@ def get_about_css() -> str:
         font-weight: 800 !important;
         color: #1B4D3E !important;
     }
-    div[data-testid="stDialog"] .stButton > button {
-        min-height: 42px !important;
-        padding: 0.45rem 1.2rem !important;
-        font-size: 0.92rem !important;
-    }
-    /* Custom sleek scrollbar for dialog */
-    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar,
-    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar {
-        width: 5px;
-    }
-    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar-thumb,
-    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar-thumb {
-        background: #A7F3D0;
-        border-radius: 9999px;
-    }
     div[data-testid="stDialog"] div[data-testid="stForm"] {
         border: none !important;
         padding: 0 !important;
@@ -524,10 +656,23 @@ def get_about_css() -> str:
         margin-top: -4px !important;
         margin-bottom: 4px !important;
     }
-
+    div[data-testid="stDialog"] .stButton > button {
+        min-height: 42px !important;
+        padding: 0.45rem 1.2rem !important;
+        font-size: 0.92rem !important;
+    }
+    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar,
+    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar {
+        width: 5px;
+    }
+    div[data-testid="stDialog"] div[role="dialog"]::-webkit-scrollbar-thumb,
+    div[data-testid="stDialog"] div[role="dialog"] > div::-webkit-scrollbar-thumb {
+        background: #A7F3D0;
+        border-radius: 9999px;
+    }
 
     /* =======================================================================
-       RESPONSIVE MEDIA QUERIES (TABLETS & MOBILE PHONES)
+       RESPONSIVE BREAKPOINTS (TABLETS & MOBILE)
        ======================================================================= */
     @media (max-width: 1024px) {
         .about-grid-4 {
@@ -539,28 +684,34 @@ def get_about_css() -> str:
     }
 
     @media (max-width: 768px) {
-        .about-top-nav {
-            padding: 10px 14px !important;
-            margin-bottom: 18px !important;
+        .about-hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+            padding: 24px 18px !important;
         }
-        .about-hero-card {
-            padding: 26px 18px 24px 18px !important;
-            border-radius: 20px !important;
+        .hero-image-card {
+            min-height: 220px !important;
+            max-height: 280px !important;
+        }
+        .what-is-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+            padding: 22px 18px !important;
         }
         .about-grid-3,
         .about-grid-2,
         .about-grid-4,
-        .about-grid-5 {
+        .about-grid-5,
+        .trust-grid {
             grid-template-columns: 1fr !important;
             gap: 12px !important;
         }
-        .how-flow-desktop {
+        .solution-pipeline-desktop {
             flex-direction: column !important;
-            gap: 10px !important;
+            gap: 8px !important;
         }
-        .comparison-container {
-            grid-template-columns: 1fr !important;
-            gap: 12px !important;
+        .solution-pipeline-arrow {
+            transform: rotate(90deg) !important;
         }
         .journey-steps-row {
             flex-direction: column !important;
@@ -572,20 +723,19 @@ def get_about_css() -> str:
     }
 
     @media (max-width: 480px) {
-        .about-hero-card {
-            padding: 20px 14px !important;
-            border-radius: 16px !important;
+        .about-hero-grid {
+            padding: 18px 14px !important;
+            border-radius: 18px !important;
         }
-        .about-card {
-            padding: 16px 14px !important;
+        .hero-image-card {
+            min-height: 180px !important;
+            max-height: 220px !important;
             border-radius: 14px !important;
         }
-        .about-card-icon {
-            width: 40px !important;
-            height: 40px !important;
-            font-size: 22px !important;
-            border-radius: 10px !important;
-            margin-bottom: 10px !important;
+        .about-card,
+        .farmer-pillar-card {
+            padding: 16px 14px !important;
+            border-radius: 14px !important;
         }
         .about-final-cta-card {
             padding: 24px 16px !important;
@@ -612,7 +762,7 @@ def get_about_css() -> str:
 
 
 # ---------------------------------------------------------------------------
-# LOGIN MODAL DIALOG
+# LOGIN MODAL DIALOG (ROBUST ZERO-CLIPPING AUTHENTICATION)
 # ---------------------------------------------------------------------------
 @st.dialog("Welcome to FASLYN")
 def show_login_modal():
@@ -626,7 +776,7 @@ def show_login_modal():
         unsafe_allow_html=True,
     )
 
-    # 1-Click Demo Profile for quick testing
+    # 1-Click Demo Profile for instant demonstration
     ramesh_profile = [p for p in DEMO_PROFILES if "Ramesh" in p.get("name", "")][:1]
     demo_prof = ramesh_profile[0] if ramesh_profile else DEMO_PROFILES[0]
 
@@ -746,25 +896,34 @@ def show_login_modal():
             st.info("ℹ️ Enter your details above and click Login to provision your FASLYN profile.")
 
 
-
 # ---------------------------------------------------------------------------
-# 11 MODULAR ABOUT SECTIONS
+# FARMER-FIRST MODULAR ABOUT SECTIONS
 # ---------------------------------------------------------------------------
 
 def show_about_hero():
-    """Render Section 1: Hero."""
+    """Render Section 1: Hero Section (Balanced 2 columns with authentic agricultural visual)."""
+    hero_b64 = get_about_hero_image_base64()
+    img_html = f'<img class="hero-image-img" src="{hero_b64}" alt="Farmer in Agricultural Field" />' if hero_b64 else '<div style="font-size: 4rem; text-align: center;">🌾</div>'
+
     st.markdown(
-        """
-        <div class="about-hero-card">
-            <div class="about-hero-pill">
-                <span>●</span> Intelligent Agricultural Intelligence Platform
+        f"""
+        <div class="about-hero-grid">
+            <div class="hero-content-col">
+                <div class="hero-pill-tag">
+                    <span>●</span> Agricultural Intelligence Platform
+                </div>
+                <h1 class="hero-main-title">FASLYN</h1>
+                <div class="hero-tagline-text">"Smarter Insights. Better Decisions. Stronger Growth."</div>
+                <p class="hero-body-text">
+                    FASLYN helps turn agricultural information into simple, useful insights so farmers can better understand their crops, conditions and opportunities.
+                </p>
             </div>
-            <h1 class="about-hero-title">FASLYN</h1>
-            <div class="about-hero-tagline">"Smarter Insights. Better Decisions. Stronger Growth."</div>
-            <p class="about-hero-desc">
-                FASLYN is an intelligent agricultural platform designed to turn agricultural data into clear, useful insights.
-                From understanding current conditions to identifying problems and exploring suitable solutions, FASLYN brings important information together in one simple dashboard.
-            </p>
+            <div class="hero-image-card">
+                {img_html}
+                <div class="hero-image-badge">
+                    <span>🌾</span> Real-Time Insights for Smallholder Farming
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -774,24 +933,95 @@ def show_about_hero():
     with c_btn2:
         if st.button("🌱 Login to FASLYN", key="about_hero_login_btn", use_container_width=True, type="primary"):
             show_login_modal()
+        st.markdown(
+            """
+            <div style="text-align: center; font-size: 0.76rem; color: #4B5563; margin-top: 6px;">
+                ✓ Simple &bull; Trustworthy &bull; Built for Daily Farm Decisions
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+
+def show_farmer_first_section():
+    """Render Section 2: Farmer-First Message (Built Around the Needs of Farmers)."""
+    st.markdown(
+        """
+        <div class="about-section-container">
+            <div class="about-section-header">
+                <h2 class="about-section-title">Built Around the Needs of Farmers</h2>
+                <div class="about-section-subtext">
+                    Farming decisions depend on many things — crops, weather, soil, resources and changing conditions.
+                    FASLYN brings relevant information together and presents it in a simpler way, helping users understand what the data is saying.
+                </div>
+            </div>
+            <div class="about-grid-3">
+                <div class="farmer-pillar-card">
+                    <div class="farmer-pillar-icon">🌱</div>
+                    <div class="farmer-pillar-title">Understand</div>
+                    <div class="farmer-pillar-desc">
+                        Understand important agricultural information and current farm conditions without confusing technical jargon.
+                    </div>
+                </div>
+                <div class="farmer-pillar-card">
+                    <div class="farmer-pillar-icon">📊</div>
+                    <div class="farmer-pillar-title">See</div>
+                    <div class="farmer-pillar-desc">
+                        See vital information through clear visuals, simple charts, and localized field indicators.
+                    </div>
+                </div>
+                <div class="farmer-pillar-card">
+                    <div class="farmer-pillar-icon">💡</div>
+                    <div class="farmer-pillar-title">Act</div>
+                    <div class="farmer-pillar-desc">
+                        Use practical insights to support your daily decisions, from irrigation timing to nutrient management.
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; color: #6B7280; font-size: 0.74rem; margin-top: 14px; font-style: italic;">
+                Note: FASLYN provides decision support to assist farming choices. It does not replace local farming experience or professional agricultural advice.
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_what_is_faslyn():
-    """Render Section 2: What is FASLYN?"""
+    """Render Section 3: What is FASLYN? (Balanced 2-column layout with visual flow diagram)."""
     st.markdown(
         """
         <div class="about-section-container" id="about-what-is-faslyn">
             <div class="about-section-header">
                 <h2 class="about-section-title">What is FASLYN?</h2>
             </div>
-            <div class="what-is-highlight-card">
-                <div class="what-is-highlight-lead">"Agriculture needs more than data — it needs usable insights."</div>
-                <p class="what-is-highlight-text">
-                    FASLYN is designed to bring relevant agricultural information together and present it in a simple, understandable and actionable way.
-                </p>
-                <p class="what-is-highlight-text">
-                    Instead of making users go through scattered information, FASLYN provides a centralized platform where data can be explored, analyzed and converted into meaningful insights.
-                </p>
+            <div class="what-is-grid">
+                <div>
+                    <div class="what-is-lead">"Agriculture needs more than data — it needs usable insights."</div>
+                    <p class="what-is-body">
+                        FASLYN is designed to bring relevant agricultural information together and present it in a simple, understandable and actionable way.
+                    </p>
+                    <p class="what-is-body">
+                        Instead of making users go through scattered sources, FASLYN provides a centralized platform where data can be explored, analyzed and converted into meaningful insights for your land.
+                    </p>
+                </div>
+                <div class="flow-diagram-box">
+                    <div class="flow-diagram-step">
+                        <span style="font-size: 1.2rem;">👨‍🌾</span> Farmer & Farm Field
+                    </div>
+                    <div class="flow-diagram-arrow">↓</div>
+                    <div class="flow-diagram-step">
+                        <span style="font-size: 1.2rem;">🛰️</span> Agricultural Data Feeds
+                    </div>
+                    <div class="flow-diagram-arrow">↓</div>
+                    <div class="flow-diagram-step">
+                        <span style="font-size: 1.2rem;">💡</span> Clear, Practical Insights
+                    </div>
+                    <div class="flow-diagram-arrow">↓</div>
+                    <div class="flow-diagram-step" style="background: #1B4D3E; color: #FFFFFF; border-color: #1B4D3E;">
+                        <span style="font-size: 1.2rem;">🚜</span> Confident Farming Decisions
+                    </div>
+                </div>
             </div>
         </div>
         """,
@@ -800,44 +1030,46 @@ def show_what_is_faslyn():
 
 
 def show_problem_section():
-    """Render Section 3: The Challenge We Address (All 6 cards)."""
+    """Render Section 4: The Challenge We Address (Every Farming Decision Matters)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">The Challenge We Address</h2>
-                <div class="about-section-subtext">Agricultural information is often scattered and difficult to interpret.</div>
+                <h2 class="about-section-title">Every Farming Decision Matters</h2>
+                <div class="about-section-subtext">
+                    Farmers often have to make decisions while dealing with changing weather, crop conditions, resources and limited access to timely information.
+                </div>
             </div>
             <div class="about-grid-3">
                 <div class="about-card">
                     <div class="about-card-icon">🗂️</div>
-                    <div class="about-card-title">1. Scattered Information</div>
-                    <div class="about-card-desc">Important agricultural information can exist across different sources.</div>
+                    <div class="about-card-title">Scattered Information</div>
+                    <div class="about-card-desc">Important agricultural information can exist across different disconnected sources.</div>
                 </div>
                 <div class="about-card">
                     <div class="about-card-icon">📉</div>
-                    <div class="about-card-title">2. Difficult Data Interpretation</div>
-                    <div class="about-card-desc">Raw data does not always provide an immediate picture of what is happening.</div>
+                    <div class="about-card-title">Difficult Data Interpretation</div>
+                    <div class="about-card-desc">Raw numbers do not always provide an immediate picture of what is actually happening in the field.</div>
                 </div>
                 <div class="about-card">
                     <div class="about-card-icon">❓</div>
-                    <div class="about-card-title">3. Agricultural Uncertainty</div>
-                    <div class="about-card-desc">Identifying potential issues at the right time can be difficult.</div>
+                    <div class="about-card-title">Agricultural Uncertainty</div>
+                    <div class="about-card-desc">Identifying potential crop issues and moisture stress at the right time can be difficult.</div>
                 </div>
                 <div class="about-card">
                     <div class="about-card-icon">🌦️</div>
-                    <div class="about-card-title">4. Changing Conditions</div>
-                    <div class="about-card-desc">Weather and environmental conditions can affect agricultural outcomes.</div>
+                    <div class="about-card-title">Changing Conditions</div>
+                    <div class="about-card-desc">Weather fluctuations and soil moisture variations directly impact day-to-day farm choices.</div>
                 </div>
                 <div class="about-card">
                     <div class="about-card-icon">🧩</div>
-                    <div class="about-card-title">5. Lack of Centralized Insights</div>
-                    <div class="about-card-desc">Different indicators are often viewed separately rather than together.</div>
+                    <div class="about-card-title">Lack of Centralized Insights</div>
+                    <div class="about-card-desc">Different indicators are often viewed separately rather than together in one clear picture.</div>
                 </div>
                 <div class="about-card">
                     <div class="about-card-icon">⏳</div>
-                    <div class="about-card-title">6. Time-Consuming Analysis</div>
-                    <div class="about-card-desc">Manually comparing multiple factors can take valuable time.</div>
+                    <div class="about-card-title">Time-Consuming Analysis</div>
+                    <div class="about-card-desc">Manually comparing multiple weather and soil factors takes valuable time away from farming.</div>
                 </div>
             </div>
         </div>
@@ -846,40 +1078,41 @@ def show_problem_section():
     )
 
 
-def show_features_section():
-    """Render Section 4: What FASLYN Does (All 5 feature cards)."""
+def show_visual_solution():
+    """Render Section 5: From Information to Insight (Visual Process Pipeline)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
                 <h2 class="about-section-title">From Information to Insight</h2>
-                <div class="about-section-subtext">Comprehensive capabilities built to empower agricultural stewardship.</div>
+                <div class="about-section-subtext">
+                    A clear, reliable path connecting raw field data to practical understanding.
+                </div>
             </div>
-            <div class="about-grid-5">
-                <div class="about-card">
-                    <div class="about-card-icon">🌱</div>
-                    <div class="about-card-title">Analyze</div>
-                    <div class="about-card-desc">Understand agricultural data and identify important patterns.</div>
+            <div class="solution-pipeline-desktop">
+                <div class="solution-pipeline-node">
+                    <div class="solution-node-tag">STEP 01</div>
+                    <div class="solution-node-title">AGRICULTURAL INFORMATION</div>
                 </div>
-                <div class="about-card">
-                    <div class="about-card-icon">📊</div>
-                    <div class="about-card-title">Visualize</div>
-                    <div class="about-card-desc">Convert information into dashboards, charts and meaningful indicators.</div>
+                <div class="solution-pipeline-arrow">→</div>
+                <div class="solution-pipeline-node" style="border-color: #10B981; background: #F0FDF4;">
+                    <div class="solution-node-tag" style="color: #047857;">STEP 02</div>
+                    <div class="solution-node-title" style="color: #047857;">FASLYN</div>
                 </div>
-                <div class="about-card">
-                    <div class="about-card-icon">🔎</div>
-                    <div class="about-card-title">Identify</div>
-                    <div class="about-card-desc">Highlight potential issues and areas that may require attention.</div>
+                <div class="solution-pipeline-arrow">→</div>
+                <div class="solution-pipeline-node">
+                    <div class="solution-node-tag">STEP 03</div>
+                    <div class="solution-node-title">ANALYSIS</div>
                 </div>
-                <div class="about-card">
-                    <div class="about-card-icon">💡</div>
-                    <div class="about-card-title">Recommend</div>
-                    <div class="about-card-desc">Provide useful insights that can support better-informed decisions.</div>
+                <div class="solution-pipeline-arrow">→</div>
+                <div class="solution-pipeline-node">
+                    <div class="solution-node-tag">STEP 04</div>
+                    <div class="solution-node-title">INSIGHTS</div>
                 </div>
-                <div class="about-card">
-                    <div class="about-card-icon">📈</div>
-                    <div class="about-card-title">Monitor</div>
-                    <div class="about-card-desc">Keep track of important agricultural indicators through a centralized dashboard.</div>
+                <div class="solution-pipeline-arrow">→</div>
+                <div class="solution-pipeline-node" style="background: #1B4D3E; border-color: #1B4D3E;">
+                    <div class="solution-node-tag" style="color: #A7F3D0;">OUTCOME</div>
+                    <div class="solution-node-title" style="color: #FFFFFF;">BETTER UNDERSTANDING</div>
                 </div>
             </div>
         </div>
@@ -888,45 +1121,137 @@ def show_features_section():
     )
 
 
-def show_how_it_works():
-    """Render Section 5: How FASLYN Works (Visual 4-step process)."""
+def show_how_it_helps():
+    """Render Section 6: How FASLYN Can Help (5 Farmer-Friendly Action Cards)."""
     st.markdown(
         """
         <div class="about-section-container">
             <div class="about-section-header">
-                <h2 class="about-section-title">How FASLYN Works</h2>
-                <div class="about-section-subtext">A streamlined sequence transforming raw inputs into decisive action.</div>
-            </div>
-            <div class="how-flow-desktop">
-                <div class="how-step-card">
-                    <div class="how-step-num">01 — INPUT</div>
-                    <div class="how-step-name">Input</div>
-                    <div class="how-step-desc">Relevant agricultural information enters the system.</div>
-                </div>
-                <div class="how-step-card">
-                    <div class="how-step-num">02 — ANALYZE</div>
-                    <div class="how-step-name">Analyze</div>
-                    <div class="how-step-desc">FASLYN processes and examines the available information.</div>
-                </div>
-                <div class="how-step-card">
-                    <div class="how-step-num">03 — GENERATE INSIGHTS</div>
-                    <div class="how-step-name">Generate Insights</div>
-                    <div class="how-step-desc">The system identifies patterns, conditions and important indicators.</div>
-                </div>
-                <div class="how-step-card">
-                    <div class="how-step-num">04 — DASHBOARD</div>
-                    <div class="how-step-name">Dashboard</div>
-                    <div class="how-step-desc">The results are presented through a simple, visual dashboard.</div>
+                <h2 class="about-section-title">How FASLYN Can Help</h2>
+                <div class="about-section-subtext">
+                    Practical, farmer-friendly tools designed to assist and support your daily farming operations.
                 </div>
             </div>
-            <div class="how-flow-ribbon">
-                INPUT &nbsp;→&nbsp; ANALYSIS &nbsp;→&nbsp; INSIGHTS &nbsp;→&nbsp; DASHBOARD
+            <div class="about-grid-5">
+                <div class="about-card">
+                    <div class="about-card-icon">🌱</div>
+                    <div class="about-card-title">Understand Conditions</div>
+                    <div class="about-card-desc">Get a clearer view of relevant agricultural information and seasonal field factors.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">📊</div>
+                    <div class="about-card-title">Understand Data</div>
+                    <div class="about-card-desc">View important information through simple charts, indicators, and localized maps.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">🔍</div>
+                    <div class="about-card-title">Identify Concerns</div>
+                    <div class="about-card-desc">Bring attention to conditions and early signs that may require closer attention.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">💡</div>
+                    <div class="about-card-title">Explore Insights</div>
+                    <div class="about-card-desc">Understand patterns and available advisory guidance to support crop health.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">📈</div>
+                    <div class="about-card-title">Monitor</div>
+                    <div class="about-card-desc">Keep important farm information organized and accessible in one place.</div>
+                </div>
+            </div>
+            <div style="text-align: center; color: #6B7280; font-size: 0.74rem; margin-top: 12px; font-style: italic;">
+                FASLYN provides guidance and decision support to assist farmers; individual outcomes depend on local conditions, practices, and inputs.
             </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
+
+def show_trust_section():
+    """Render Section 7: Why FASLYN? (Trust Building Pillars)."""
+    st.markdown(
+        """
+        <div class="about-section-container">
+            <div class="about-section-header">
+                <h2 class="about-section-title">Why FASLYN?</h2>
+                <div class="about-section-subtext">
+                    Built for simplicity, dependable guidance, and practical everyday use on the farm.
+                </div>
+            </div>
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <div>
+                        <div class="trust-title">Simple to Understand</div>
+                        <div class="trust-desc">Presented in straightforward language without confusing technical jargon or overwhelming metrics.</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <div>
+                        <div class="trust-title">Information in One Place</div>
+                        <div class="trust-desc">Weather trends, satellite indices, and soil readings organized seamlessly in a single dashboard.</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <div>
+                        <div class="trust-title">Visual and Easy to Explore</div>
+                        <div class="trust-desc">Clear color-coded indicators, intuitive gauges, and localized map views make exploration natural.</div>
+                    </div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-check">✓</div>
+                    <div>
+                        <div class="trust-title">Designed to Support Informed Decisions</div>
+                        <div class="trust-desc">Empowers farmers with reliable contextual intelligence to assist daily agricultural choices.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def show_who_is_it_for():
+    """Render Section 8: Who is FASLYN For? (Clear Audience Cards)."""
+    st.markdown(
+        """
+        <div class="about-section-container">
+            <div class="about-section-header">
+                <h2 class="about-section-title">Who is FASLYN For?</h2>
+                <div class="about-section-subtext">
+                    Built for people working directly with land, crops, and agricultural planning.
+                </div>
+            </div>
+            <div class="about-grid-4">
+                <div class="about-card">
+                    <div class="about-card-icon">🌾</div>
+                    <div class="about-card-title">Small & Marginal Farmers</div>
+                    <div class="about-card-desc">Designed to make relevant agricultural information easier to understand, explore, and apply.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">👨‍🌾</div>
+                    <div class="about-card-title">Agricultural Professionals</div>
+                    <div class="about-card-desc">For analyzing field conditions, monitoring soil metrics, and evaluating crop health indicators.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">🎓</div>
+                    <div class="about-card-title">Students & Researchers</div>
+                    <div class="about-card-desc">For exploring regional agricultural trends, historical climate patterns, and satellite data.</div>
+                </div>
+                <div class="about-card">
+                    <div class="about-card-icon">🏢</div>
+                    <div class="about-card-title">Cooperatives & Stakeholders</div>
+                    <div class="about-card-desc">For bringing agricultural intelligence together to support community-wide resilience.</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_vision_section():
@@ -937,14 +1262,21 @@ def show_vision_section():
             <div class="about-section-header">
                 <h2 class="about-section-title">Our Vision</h2>
             </div>
-            <div class="what-is-highlight-card" style="background: linear-gradient(135deg, #FAF4EF 0%, #F5FAF7 100%); border-color: rgba(212, 163, 115, 0.4); border-bottom-color: #B5804D;">
-                <div class="what-is-highlight-lead" style="color: #7D4E27;">"Making agricultural intelligence more accessible."</div>
-                <p class="what-is-highlight-text">
-                    Our vision is to create a platform where agricultural information is not just collected, but understood and transformed into useful insights.
-                </p>
-                <p class="what-is-highlight-text">
-                    FASLYN aims to bridge the gap between data and decision-making through a simple, accessible and intelligent digital experience.
-                </p>
+            <div class="what-is-grid" style="background: linear-gradient(135deg, #FAF4EF 0%, #F5FAF7 100%); border-color: rgba(212, 163, 115, 0.4); border-bottom-color: #B5804D;">
+                <div>
+                    <div class="what-is-lead" style="color: #7D4E27;">"Making agricultural intelligence more accessible."</div>
+                    <p class="what-is-body">
+                        We want agricultural information to be easier to understand, easier to explore and more useful for the people who depend on it every day.
+                    </p>
+                    <p class="what-is-body">
+                        FASLYN aims to bridge the gap between data and practical decision-making through a clean, accessible digital experience.
+                    </p>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 18px; background: #FFFFFF; border-radius: 16px; border: 1px solid rgba(181, 128, 77, 0.3);">
+                    <div style="font-size: 2.8rem; margin-bottom: 6px;">🌍</div>
+                    <div style="font-weight: 800; font-size: 1.05rem; color: #1B4D3E;">Digital Public Good</div>
+                    <div style="font-size: 0.80rem; color: #6B7280; margin-top: 4px;">Open-Access Agro-Intelligence for Cooperative Growth</div>
+                </div>
             </div>
         </div>
         """,
@@ -970,9 +1302,9 @@ def show_journey_section():
                     <div class="journey-arrow">→</div>
                     <div class="journey-step-chip">INSIGHTS</div>
                     <div class="journey-arrow">→</div>
-                    <div class="journey-step-chip" style="background: #1B4D3E; color: #FFFFFF;">ACTION</div>
+                    <div class="journey-step-chip" style="background: #1B4D3E; color: #FFFFFF; border-color: #1B4D3E;">ACTION</div>
                 </div>
-                <div style="font-weight: 800; font-size: 1.05rem; color: #1B4D3E; margin-top: 12px;">
+                <div style="font-weight: 800; font-size: 1.08rem; color: #1B4D3E; margin-top: 14px;">
                     "FASLYN connects the journey."
                 </div>
             </div>
@@ -983,12 +1315,12 @@ def show_journey_section():
 
 
 def show_final_cta():
-    """Render Section 11: Final CTA."""
+    """Render Section 11: Final Call to Action."""
     st.markdown(
         """
         <div class="about-final-cta-card">
             <h2 class="about-final-cta-title">Ready to Explore FASLYN?</h2>
-            <div class="about-final-cta-sub">Your agricultural insights are just one step away.</div>
+            <div class="about-final-cta-sub">Discover your agricultural insights in one simple platform.</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1001,8 +1333,8 @@ def show_final_cta():
             show_login_modal()
         st.markdown(
             """
-            <div style="text-align: center; font-size: 0.76rem; color: #6B7280; margin-top: 8px;">
-                Sign in to access your personalized dashboard and explore the available insights.
+            <div style="text-align: center; font-size: 0.78rem; color: #4B5563; margin-top: 8px;">
+                Sign in to access your personalized dashboard and explore available insights.
             </div>
             """,
             unsafe_allow_html=True,
@@ -1013,7 +1345,7 @@ def show_final_cta():
 # MASTER ABOUT PAGE RENDERER
 # ---------------------------------------------------------------------------
 def show_about_page():
-    """Master coordinator function rendering the full About page."""
+    """Master coordinator function rendering the full farmer-centric About page."""
     st.markdown(get_about_css(), unsafe_allow_html=True)
 
     # Top Navbar Bar with Brand and Instant Login Action
@@ -1031,12 +1363,15 @@ def show_about_page():
         unsafe_allow_html=True,
     )
 
-    # Render About Sections sequentially
+    # Render All Farmer-First Sections Sequentially
     show_about_hero()
+    show_farmer_first_section()
     show_what_is_faslyn()
     show_problem_section()
-    show_features_section()
-    show_how_it_works()
+    show_visual_solution()
+    show_how_it_helps()
+    show_trust_section()
+    show_who_is_it_for()
     show_vision_section()
     show_journey_section()
     show_final_cta()
@@ -1044,7 +1379,7 @@ def show_about_page():
     # Footer
     st.markdown(
         """
-        <div style="text-align: center; color: #9CA3AF; font-size: 0.76rem; padding-top: 36px; padding-bottom: 20px;">
+        <div style="text-align: center; color: #9CA3AF; font-size: 0.76rem; padding-top: 36px; padding-bottom: 24px;">
             &copy; 2026 FASLYN &bull; Open-Access Agricultural Intelligence &bull; Sovereign Agroclimatology
         </div>
         """,
