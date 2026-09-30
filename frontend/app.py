@@ -49,6 +49,7 @@ from backend.telemetry_service import fetch_soil_telemetry
 from backend.translations import t
 from frontend.tts import speak_text
 from frontend.about import show_about_page, show_login_modal
+from frontend.splash import render_splash_loader
 
 
 # Dynamic port assignment (configurable via FASLYN_API_PORT env variable)
@@ -177,6 +178,12 @@ def render_html(html_str: str, unsafe_allow_javascript: bool = False):
             st.html(cleaned)
     else:
         st.markdown(cleaned, unsafe_allow_html=True)
+
+
+# ---------------------------------------------------------------------------
+# INSTANT 3D SPLASH PRELOADER ON STARTUP (2 SECONDS SMOOTH FLOW)
+# ---------------------------------------------------------------------------
+render_splash_loader("Initializing agro-intelligence feeds...")
 
 
 # ---------------------------------------------------------------------------
@@ -2495,50 +2502,6 @@ render_html(hero_css)
 
 
 
-def render_splash_loader(status_msg="Initializing agro-intelligence feeds..."):
-    """Render high-polish 3D green & blue splash loader that smoothly zooms in and fades out quickly."""
-    render_html(
-        f"""
-        <div id="faslyn-loader-overlay" class="faslyn-loader-container">
-            <div class="faslyn-loader-card">
-                <div class="faslyn-spinner-wrapper">
-                    <div class="faslyn-spinner-ring"></div>
-                    <div class="faslyn-spinner-icon">🌱</div>
-                </div>
-                <div class="faslyn-loader-brand" style="display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <img src="{faslyn_logo_data_uri}" alt="Faslyn" style="width:36px; height:36px; border-radius:50%; object-fit:contain;" />
-                    <span>Faslyn</span>
-                </div>
-                <div class="faslyn-loader-subtitle">Smart Agriculture &bull; Stronger Communities</div>
-                <div class="faslyn-loader-track">
-                    <div class="faslyn-loader-bar"></div>
-                </div>
-                <div class="faslyn-loader-status">{status_msg}</div>
-            </div>
-        </div>
-        <script>
-        (function() {{
-            try {{
-                var loader = document.getElementById("faslyn-loader-overlay");
-                if (loader) {{
-                    setTimeout(function() {{
-                        loader.style.opacity = "0";
-                        loader.style.pointerEvents = "none";
-                        setTimeout(function() {{
-                            loader.style.display = "none";
-                            if (loader.parentNode) {{
-                                loader.parentNode.removeChild(loader);
-                            }}
-                        }}, 200);
-                    }}, 2050);
-                }}
-            }} catch(e) {{}}
-        }})();
-        </script>
-        """
-    )
-
-
 # ---------------------------------------------------------------------------
 # SESSION STATE INITIALIZATION
 # ---------------------------------------------------------------------------
@@ -2548,10 +2511,6 @@ if "show_login_loader" not in st.session_state:
     st.session_state.show_login_loader = False
 if "just_logged_in" not in st.session_state:
     st.session_state.just_logged_in = False
-
-if not st.session_state.has_shown_initial_splash:
-    render_splash_loader("Initializing agro-intelligence feeds...")
-    st.session_state.has_shown_initial_splash = True
 
 if "is_authenticated" not in st.session_state:
     st.session_state.is_authenticated = False

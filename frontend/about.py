@@ -12,6 +12,7 @@ import os
 import streamlit as st
 from backend.config import BRICS_HUBS, DEMO_PROFILES, FIRST_HUB, LANGUAGES
 from backend.database import upsert_farmer
+from frontend.splash import render_splash_loader
 
 
 @st.cache_data
@@ -1471,6 +1472,7 @@ def show_final_cta():
 # ---------------------------------------------------------------------------
 def show_about_page():
     """Master coordinator function rendering the full farmer-centric About page."""
+    render_splash_loader("Initializing agro-intelligence feeds...")
     st.markdown(get_about_css(), unsafe_allow_html=True)
 
     logo_b64 = get_faslyn_logo_base64()
