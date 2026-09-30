@@ -48,6 +48,8 @@ from backend.soil_service import calculate_soil_health_score, fetch_soil_profile
 from backend.telemetry_service import fetch_soil_telemetry
 from backend.translations import t
 from frontend.tts import speak_text
+from frontend.about import show_about_page, show_login_modal
+
 
 # Dynamic port assignment (configurable via FASLYN_API_PORT env variable)
 API_PORT = int(os.environ.get("FASLYN_API_PORT", 8000))
@@ -2926,7 +2928,7 @@ auth_placeholder = st.empty()
 
 if not st.session_state.get("is_authenticated", False):
     with auth_placeholder.container():
-        render_login_page()
+        show_about_page()
     st.stop()
 else:
     auth_placeholder.empty()
