@@ -21,8 +21,8 @@ GROK_TEXT_MODEL = "grok-2-latest"
 GROK_VISION_MODEL = "grok-2-vision-1212"
 
 GROQ_API_BASE = "https://api.groq.com/openai/v1"
-GROQ_TEXT_MODEL = "llama-3.3-70b-versatile"
-GROQ_VISION_MODEL = "llama-3.2-11b-vision-preview"
+GROQ_TEXT_MODEL = "qwen/qwen3.8-27b"
+GROQ_VISION_MODEL = "qwen/qwen3.8-27b"
 
 # ---------------------------------------------------------------------------
 # DEMO & OFFLINE RESILIENCE FALLBACKS
