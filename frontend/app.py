@@ -202,26 +202,12 @@ render_html(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
-        /* =======================================================================
-       UNIVERSAL MOBILE RESPONSIVENESS INJECTION (<= 640px)
-       ======================================================================= */
-    @media (max-width: 640px) {
-        /* Force Streamlit blocks from side-by-side flex to pure vertical rows */
-        [data-testid="stHorizontalBlock"] {
-            flex-direction: column !important;
-            gap: 1rem !important;
-        }
-        /* Force every individual column inside rows to take full screen width */
-        [data-testid="stHorizontalBlock"] > div {
-            width: 100% !important;
-            min-width: 100% !important;
-        }
-        /* Dynamic image and element scaling */
+    /* Responsive image and metric value scaling */
+    @media (max-width: 768px) {
         img, .stImage {
             max-width: 100% !important;
             height: auto !important;
         }
-        /* Prevent metric value texts from overflowing */
         [data-testid="stMetricValue"] {
             font-size: 1.75rem !important;
             word-break: break-word !important;
@@ -1175,6 +1161,14 @@ render_html(
             margin-right: auto !important;
         }
 
+        /* Desktop Brand Visibility */
+        .mobile-top-brand {
+            display: none !important;
+        }
+        .desktop-only-brand {
+            display: inline-flex !important;
+        }
+
         /* Row 1: KPI Cards - 4 in a row */
         div[data-testid="stHorizontalBlock"]:has(.kpi-card) {
             display: flex !important;
@@ -1299,6 +1293,13 @@ render_html(
             padding-left: 1.6rem !important;
             padding-right: 1.6rem !important;
             margin-top: 0 !important;
+        }
+
+        .mobile-top-brand {
+            display: none !important;
+        }
+        .desktop-only-brand {
+            display: inline-flex !important;
         }
 
         /* Tablet Sidebar - Off-canvas drawer with smooth slide & backdrop dimming */
@@ -1542,25 +1543,43 @@ render_html(
             padding: 8px 12px !important;
         }
 
-        /* Hero Top Header Row: Stack greeting on top, action bar below on mobile */
+        /* Hero Top Header Row: Stack greeting and action bar cleanly on mobile */
         .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"],
         div[data-testid="stHorizontalBlock"]:has(.top-header) {
             display: flex !important;
             flex-direction: column !important;
             align-items: stretch !important;
-            gap: 10px !important;
+            gap: 8px !important;
             margin-bottom: 8px !important;
             width: 100% !important;
             max-width: 100% !important;
             box-sizing: border-box !important;
         }
-        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        div[data-testid="stHorizontalBlock"]:has(.top-header) > div[data-testid="column"] {
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            order: 1 !important;
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 0 !important;
             max-width: 100% !important;
             box-sizing: border-box !important;
+        }
+        .st-key-hero_top_header_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            order: -1 !important;
+            width: 100% !important;
+            flex: 1 1 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            margin-bottom: 6px !important;
+        }
+        .desktop-only-brand {
+            display: none !important;
+        }
+        .mobile-top-brand {
+            display: flex !important;
+            align-items: center !important;
+            gap: 7px !important;
+            flex-shrink: 0 !important;
         }
         .top-header {
             flex-direction: column !important;
@@ -1573,7 +1592,17 @@ render_html(
             overflow: hidden !important;
         }
 
-        /* Header Action Bar (Bell, Language, User profile) on Mobile */
+        /* Header Action Bar Container (Bell, Language, User profile) on Mobile */
+        .st-key-header_action_bar_container {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            gap: 6px !important;
+        }
         .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
@@ -1581,19 +1610,35 @@ render_html(
             gap: 6px !important;
             align-items: center !important;
             justify-content: flex-end !important;
-            width: 100% !important;
+            width: auto !important;
             max-width: 100% !important;
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
             box-sizing: border-box !important;
         }
         .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: auto !important;
-            flex: 1 1 auto !important;
+            flex: 0 1 auto !important;
             min-width: 0 !important;
+            max-width: none !important;
             box-sizing: border-box !important;
         }
+        /* Bell Column */
         .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
             flex: 0 0 auto !important;
             min-width: 44px !important;
+        }
+        /* Language Selector Column */
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2) {
+            flex: 1 1 auto !important;
+            min-width: 90px !important;
+            max-width: 140px !important;
+        }
+        /* User Profile Column */
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+            flex: 0 1 auto !important;
+            min-width: 80px !important;
+            max-width: 125px !important;
         }
         div[data-testid="stPopover"] > button {
             padding: 0.32rem 0.65rem !important;
@@ -1699,8 +1744,8 @@ render_html(
             text-overflow: ellipsis !important;
         }
 
-        /* Section Sub-Headers ("My Fields", "AI Insights", etc.) */
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) {
+        /* Section Sub-Headers ("My Fields", "AI Insights", etc.): Direct columns only */
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .card-header-title):not(.st-key-dashboard_row2_container > div):not(.st-key-dashboard_row3_container > div) {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
@@ -1709,13 +1754,16 @@ render_html(
             gap: 8px !important;
             margin-bottom: 6px !important;
             margin-top: 6px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:first-child {
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .card-header-title):not(.st-key-dashboard_row2_container > div):not(.st-key-dashboard_row3_container > div) > div[data-testid="column"]:first-child {
             flex: 1 1 auto !important;
             width: auto !important;
             min-width: 0 !important;
         }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:last-child {
+        div[data-testid="stHorizontalBlock"]:has(> div[data-testid="column"] .card-header-title):not(.st-key-dashboard_row2_container > div):not(.st-key-dashboard_row3_container > div) > div[data-testid="column"]:last-child {
             flex: 0 0 auto !important;
             width: auto !important;
             min-width: 0 !important;
@@ -1758,19 +1806,44 @@ render_html(
             text-overflow: ellipsis !important;
         }
 
-        /* Row 2 & Inner Map Box: Vertical Stack */
+        /* Row 2 & Inner Map Box: Strict Vertical Stack on Mobile */
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"],
         .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: column !important;
             width: 100% !important;
+            max-width: 100% !important;
             gap: 14px !important;
+            box-sizing: border-box !important;
         }
         .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            display: block !important;
             width: 100% !important;
             flex: 1 1 100% !important;
-            min-width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: auto !important;
+            box-sizing: border-box !important;
+        }
+        .home-ai-card {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
+            height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            box-sizing: border-box !important;
+        }
+        .home-ai-card * {
+            white-space: normal !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
         }
         iframe {
             min-height: 250px !important;
@@ -1780,21 +1853,39 @@ render_html(
             width: 100% !important;
         }
 
-        /* Row 3: Vertical Stack */
+        /* Row 3: Strict Vertical Stack of Farm Overview, Quick Actions, Upcoming & Alerts */
         .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: column !important;
             width: 100% !important;
+            max-width: 100% !important;
             gap: 14px !important;
+            box-sizing: border-box !important;
         }
         .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            display: block !important;
             width: 100% !important;
             flex: 1 1 100% !important;
-            min-width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            height: auto !important;
+            box-sizing: border-box !important;
         }
-        .home-row3-card,
+        .home-row3-card {
+            height: auto !important;
+            min-height: auto !important;
+            max-height: none !important;
+            overflow: visible !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
         .st-key-home_qa_card_box {
             min-height: auto !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         /* Quick Actions: 2x2 Action Tiles */
@@ -1804,21 +1895,31 @@ render_html(
             flex-wrap: nowrap !important;
             gap: 8px !important;
             width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
         .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             flex: 1 1 50% !important;
             width: 50% !important;
+            max-width: 50% !important;
             min-width: 0 !important;
             display: flex !important;
             flex-direction: column !important;
             gap: 8px !important;
+            box-sizing: border-box !important;
         }
         .st-key-home_qa_card_box .stButton > button {
-            min-height: 44px !important;
-            height: 44px !important;
+            min-height: 48px !important;
+            height: auto !important;
             font-size: 0.82rem !important;
-            padding: 4px 8px !important;
+            font-weight: 600 !important;
+            padding: 8px 6px !important;
             border-radius: 12px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            line-height: 1.25 !important;
+            text-overflow: clip !important;
+            box-sizing: border-box !important;
         }
 
         /* Farm Overview 2-Column Grid on Mobile */
@@ -1870,10 +1971,12 @@ render_html(
         }
 
         /* General Fallback for multi-column content blocks collapsing cleanly */
-        div[data-testid="stHorizontalBlock"]:not(.st-key-header_action_bar_container div):not(.st-key-hero_kpi_metrics_row div):not(:has(.kpi-card)):not(:has(.card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
+        div[data-testid="stHorizontalBlock"]:not(.st-key-header_action_bar_container div):not(.st-key-hero_kpi_metrics_row div):not(:has(.kpi-card)):not(:has(> div[data-testid="column"] .card-header-title)):not(:has(button[key="global_header_back"])):not(:has(form)):not(.st-key-home_qa_card_box div):not(.st-key-sat_quick_chips_container div) > div[data-testid="column"] {
             width: 100% !important;
             flex: 1 1 100% !important;
-            min-width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
         }
 
         /* Touch-Friendly Action Buttons */
@@ -2124,33 +2227,12 @@ render_html(
 )
 
 # ---------------------------------------------------------------------------
-# FINAL MOBILE RESPONSIVENESS OVERRIDE (<= 640px Strict Single Vertical Stack)
+# MOBILE RESPONSIVENESS REFINEMENTS (<= 640px)
 # ---------------------------------------------------------------------------
 render_html(
     """
     <style>
     @media (max-width: 640px) {
-        /* Force Streamlit blocks from side-by-side flex to pure vertical rows */
-        [data-testid="stHorizontalBlock"] {
-            flex-direction: column !important;
-            gap: 1rem !important;
-        }
-        /* Force every individual column inside rows to take full screen width */
-        [data-testid="stHorizontalBlock"] > div {
-            width: 100% !important;
-            min-width: 100% !important;
-        }
-        /* Dynamic image and element scaling */
-        img, .stImage {
-            max-width: 100% !important;
-            height: auto !important;
-        }
-        /* Prevent metric value texts from overflowing */
-        [data-testid="stMetricValue"] {
-            font-size: 1.75rem !important;
-            word-break: break-word !important;
-        }
-
         /* Collapse empty spacer columns so they do not produce blank vertical blocks */
         div[data-testid="column"]:empty {
             display: none !important;
@@ -2158,134 +2240,6 @@ render_html(
             padding: 0 !important;
             height: 0 !important;
             width: 0 !important;
-        }
-
-        html, body, .stApp, [data-testid="stAppViewContainer"],
-        [data-testid="stMain"], [data-testid="stMainBlockContainer"],
-        .main, .block-container {
-            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
-            box-sizing: border-box !important; overflow-x: hidden !important;
-        }
-        .main .block-container, [data-testid="stMainBlockContainer"] {
-            padding-left: 10px !important; padding-right: 10px !important;
-            padding-top: 0.6rem !important;
-            max-width: 100% !important;
-        }
-        div[data-testid="stHorizontalBlock"] {
-            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
-            box-sizing: border-box !important; overflow: visible !important;
-            flex-direction: column !important; gap: 12px !important;
-        }
-        div[data-testid="column"] {
-            width: 100% !important; max-width: 100% !important; min-width: 100% !important;
-            box-sizing: border-box !important; flex: 1 1 100% !important;
-        }
-
-        /* Header Action Bar: Keep Bell, Language, Profile side-by-side on mobile */
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            align-items: center !important;
-            justify-content: flex-end !important;
-            gap: 6px !important;
-            width: 100% !important;
-        }
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: auto !important;
-            min-width: 0 !important;
-            flex: 1 1 auto !important;
-        }
-        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
-            flex: 0 0 auto !important;
-            min-width: 44px !important;
-        }
-
-        /* Section Sub-Headers with Badges: Keep side-by-side */
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            justify-content: space-between !important;
-            align-items: center !important;
-            gap: 8px !important;
-            width: 100% !important;
-            margin-bottom: 4px !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:first-child {
-            flex: 1 1 auto !important;
-            width: auto !important;
-            min-width: 0 !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:last-child {
-            flex: 0 0 auto !important;
-            width: auto !important;
-            min-width: 0 !important;
-        }
-
-        /* Breadcrumb + Back Button Row on Mobile */
-        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            align-items: center !important;
-            gap: 8px !important;
-            width: 100% !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:first-child {
-            flex: 0 0 auto !important;
-            width: auto !important;
-            min-width: 85px !important;
-        }
-        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:last-child {
-            flex: 1 1 auto !important;
-            width: auto !important;
-            min-width: 0 !important;
-        }
-
-        /* In-popover alert action buttons: Keep side-by-side */
-        div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] {
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 6px !important;
-            width: 100% !important;
-        }
-        div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            flex: 1 1 auto !important;
-            width: auto !important;
-            min-width: 0 !important;
-        }
-
-        /* Strict Single Vertical Stack for all Dashboard Layout Blocks on Mobile */
-        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"],
-        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"],
-        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"],
-        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"],
-        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"],
-        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"],
-        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"],
-        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"],
-        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"],
-        .st-key-regen_cards_row1 > div[data-testid="stHorizontalBlock"],
-        .st-key-regen_cards_row2 > div[data-testid="stHorizontalBlock"],
-        .st-key-settings_inputs_container > div[data-testid="stHorizontalBlock"] {
-            flex-direction: column !important;
-            gap: 12px !important;
-            width: 100% !important;
-        }
-        .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-dashboard_row2_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-dashboard_row3_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-home_map_and_details_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-sat_telemetry_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-sat_soil_metrics_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-shc_inputs_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-ai_samples_row div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-regen_cards_row1 > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-regen_cards_row2 > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
-        .st-key-settings_inputs_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            min-width: 100% !important;
-            flex: 1 1 100% !important;
         }
 
         /* Fluid stretching for KPI Cards to fill exact screen width */
@@ -2297,43 +2251,30 @@ render_html(
             margin-bottom: 4px !important;
         }
 
-        /* Mobile Form Full-Width Inputs and Buttons */
-        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] {
-            width: 100% !important; max-width: 100% !important; min-width: 0 !important;
-            flex-direction: column !important; gap: 8px !important;
-        }
-        div[data-testid="stForm"] > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
-            flex: 1 1 100% !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important;
-        }
-        div[data-testid="stForm"] button { width: 100% !important; min-height: 44px !important; }
-
         .dashboard-card, .home-ai-card, .home-row3-card, .impact-banner,
         .impact-chip, .home-overview-grid {
             max-width: 100% !important; min-width: 0 !important; width: 100% !important; box-sizing: border-box !important;
         }
-        .home-overview-grid {
-            grid-template-columns: 1fr !important;
-            gap: 8px !important;
-        }
-        iframe { width: 100% !important; min-height: 250px !important; height: 260px !important; }
-        input, textarea, select, div[data-baseweb="select"], div[data-baseweb="input"] {
-            max-width: 100% !important; min-width: 0 !important; width: 100% !important; box-sizing: border-box !important;
-        }
+        
         .stButton > button, .stDownloadButton > button {
-            max-width: 100% !important; width: 100% !important; min-height: 44px !important; white-space: normal !important;
+            max-width: 100% !important; width: 100% !important; min-height: 46px !important; white-space: normal !important;
             overflow-wrap: anywhere !important; box-sizing: border-box !important;
         }
+        
         div[data-testid="stPopoverBody"] {
             width: min(380px, calc(100vw - 20px)) !important; max-width: calc(100vw - 20px) !important;
             min-width: 0 !important; box-sizing: border-box !important;
         }
-        section[data-testid="stSidebar"] { max-width: 85vw !important; min-width: 0 !important; overflow-x: hidden !important; }
     }
     @media (max-width: 360px) {
         .main .block-container, [data-testid="stMainBlockContainer"] { padding-left: 6px !important; padding-right: 6px !important; }
         .st-key-hero_kpi_metrics_row > div[data-testid="stHorizontalBlock"] > div[data-testid="column"],
         .st-key-home_qa_card_box > div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
             width: 100% !important; max-width: 100% !important; flex: 1 1 100% !important;
+        }
+        .home-overview-grid {
+            grid-template-columns: 1fr !important;
+            gap: 6px !important;
         }
     }
     </style>
@@ -3485,9 +3426,21 @@ with st.sidebar:
 # ===========================================================================
 # TOP HEADER BAR WITH LIVE LANGUAGE SWITCHER
 # ===========================================================================
-def render_header_actions():
+def render_header_actions(show_mobile_logo: bool = True):
     c_hdr_actions = st.container(key="header_action_bar_container")
-    c_bell, c_lang, c_user = c_hdr_actions.columns([1.1, 2.5, 3], vertical_alignment="center", wrap=True)
+    with c_hdr_actions:
+        if show_mobile_logo:
+            render_html(
+                f"""
+                <div class="mobile-top-brand">
+                    <div style="display:inline-flex; align-items:center; gap:8px;">
+                        <img src="{faslyn_logo_data_uri}" alt="Faslyn" style="width:26px; height:26px; border-radius:50%; object-fit:contain;" />
+                        <span style="font-weight:800; font-size:1.02rem; color:#1B4D3E; letter-spacing:-0.01em;">Faslyn</span>
+                    </div>
+                </div>
+                """
+            )
+        c_bell, c_lang, c_user = st.columns([1.1, 2.5, 3], vertical_alignment="center", wrap=False)
     with c_bell:
         unread_count = sum(1 for n in st.session_state.notifications if not n.get("read", False))
         bell_label = f"🔔 {unread_count}" if unread_count > 0 else "🔔"
@@ -3674,7 +3627,7 @@ if st.session_state.active_tab_id != "home":
                 """
             )
     with hdr_right:
-        render_header_actions()
+        render_header_actions(show_mobile_logo=False)
     render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
     render_mobile_navigation()
 
@@ -3859,7 +3812,7 @@ if st.session_state.active_tab_id == "home":
                 <div class="top-header" style="padding-bottom: 0;">
                     <div style="max-width: 100%; overflow: hidden;">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap;">
-                            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.95); padding: 4px 12px 4px 6px; border-radius: 9999px; border: 1.2px solid rgba(220, 235, 225, 0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
+                            <div class="desktop-only-brand" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.95); padding: 4px 12px 4px 6px; border-radius: 9999px; border: 1.2px solid rgba(220, 235, 225, 0.95); box-shadow: 0 2px 6px rgba(0,0,0,0.04);">
                                 <img src="{faslyn_logo_data_uri}" alt="Faslyn Logo" style="width: 26px; height: 26px; border-radius: 50%; object-fit: contain;" />
                                 <span style="font-weight: 800; font-size: 0.92rem; color: #1B4D3E; letter-spacing: -0.01em;">Faslyn</span>
                             </div>
