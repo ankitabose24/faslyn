@@ -172,6 +172,13 @@ def get_about_css() -> str:
             transform: rotate(90deg) !important;
             margin: 4px auto !important;
         }
+        div[data-testid="column"]:empty {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
         .about-card, .farmer-pillar-card, .trust-item {
             width: 100% !important;
             box-sizing: border-box !important;

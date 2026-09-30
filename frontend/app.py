@@ -228,6 +228,42 @@ render_html(
         }
     }
 
+        /* Mobile Navigation Pill Bar Styles */
+    .st-key-mobile_nav_pills_container,
+    div[class*="st-key-mobile_nav_pills_container"] {
+        display: none !important;
+    }
+    @media (max-width: 640px) {
+        .st-key-mobile_nav_pills_container,
+        div[class*="st-key-mobile_nav_pills_container"] {
+            display: block !important;
+            width: 100% !important;
+            margin: 6px 0 12px 0 !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+        .st-key-mobile_nav_pills_container [data-testid="stPills"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            gap: 6px !important;
+            padding-bottom: 4px !important;
+            scrollbar-width: none !important;
+        }
+        .st-key-mobile_nav_pills_container [data-testid="stPills"]::-webkit-scrollbar {
+            display: none !important;
+        }
+        .st-key-mobile_nav_pills_container button {
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+            border-radius: 9999px !important;
+            font-size: 0.82rem !important;
+            font-weight: 700 !important;
+            padding: 6px 14px !important;
+        }
+    }
+
     /* =======================================================================
        1. GLOBAL BASE STYLES (All Viewports & Screen Sizes)
        ======================================================================= */
@@ -1867,17 +1903,21 @@ render_html(
             border-radius: 16px !important;
         }
 
-        /* Login Form Container: 100% width on Mobile */
-        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child,
-        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:last-child {
+        /* Login Form Container: 100% width on Mobile, ZERO hidden elements */
+        .st-key-login_form_container > div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:empty {
             display: none !important;
+            width: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
-        .st-key-login_form_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:nth-child(2) {
+        .st-key-login_form_container div[data-testid="column"]:not(:empty) {
+            display: block !important;
             width: 100% !important;
             flex: 1 1 100% !important;
             min-width: 100% !important;
             max-width: 100% !important;
-            margin: 0 !important;
+            visibility: visible !important;
+            opacity: 1 !important;
         }
 
         /* Satellite View Quick Jump Chips Carousel */
@@ -2111,6 +2151,15 @@ render_html(
             word-break: break-word !important;
         }
 
+        /* Collapse empty spacer columns so they do not produce blank vertical blocks */
+        div[data-testid="column"]:empty {
+            display: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+
         html, body, .stApp, [data-testid="stAppViewContainer"],
         [data-testid="stMain"], [data-testid="stMainBlockContainer"],
         .main, .block-container {
@@ -2130,6 +2179,78 @@ render_html(
         div[data-testid="column"] {
             width: 100% !important; max-width: 100% !important; min-width: 100% !important;
             box-sizing: border-box !important; flex: 1 1 100% !important;
+        }
+
+        /* Header Action Bar: Keep Bell, Language, Profile side-by-side on mobile */
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            width: auto !important;
+            min-width: 0 !important;
+            flex: 1 1 auto !important;
+        }
+        .st-key-header_action_bar_container div[data-testid="stHorizontalBlock"] > div[data-testid="column"]:first-child {
+            flex: 0 0 auto !important;
+            min-width: 44px !important;
+        }
+
+        /* Section Sub-Headers with Badges: Keep side-by-side */
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 8px !important;
+            width: 100% !important;
+            margin-bottom: 4px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:first-child {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(.card-header-title) > div[data-testid="column"]:last-child {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+
+        /* Breadcrumb + Back Button Row on Mobile */
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: center !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:first-child {
+            flex: 0 0 auto !important;
+            width: auto !important;
+            min-width: 85px !important;
+        }
+        div[data-testid="stHorizontalBlock"]:has(button[key="global_header_back"]) > div[data-testid="column"]:last-child {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
+        }
+
+        /* In-popover alert action buttons: Keep side-by-side */
+        div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] {
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 6px !important;
+            width: 100% !important;
+        }
+        div[data-testid="stPopoverBody"] div[data-testid="stHorizontalBlock"] > div[data-testid="column"] {
+            flex: 1 1 auto !important;
+            width: auto !important;
+            min-width: 0 !important;
         }
 
         /* Strict Single Vertical Stack for all Dashboard Layout Blocks on Mobile */
@@ -3473,6 +3594,47 @@ def render_header_actions():
                 st.session_state.nav_stack = ["home"]
                 st.rerun()
 
+# ---------------------------------------------------------------------------
+# MOBILE NAVIGATION TAB BAR (VISIBLE ON MOBILE SCREENS <= 640px)
+# ---------------------------------------------------------------------------
+def render_mobile_navigation():
+    """Renders a responsive mobile pill bar so all 6 tabs are available on mobile without needing the sidebar."""
+    mobile_nav_items = [
+        ("home", "🌾 " + _("nav_home")),
+        ("sat", "🛰️ " + _("nav_sat")),
+        ("ai", "🔬 " + _("nav_ai")),
+        ("regen", "🧪 " + _("nav_regen")),
+        ("brics", "🌐 " + _("nav_brics")),
+        ("settings", "⚙️ " + _("nav_settings")),
+    ]
+    mob_labels = [label for _, label in mobile_nav_items]
+    mob_map = {label: tab_id for tab_id, label in mobile_nav_items}
+    
+    current_tab = st.session_state.active_tab_id
+    if current_tab == "farms":
+        current_tab = "sat"
+    elif current_tab == "impact":
+        current_tab = "brics"
+    
+    current_label = next((l for t, l in mobile_nav_items if t == current_tab), mob_labels[0])
+
+    with st.container(key="mobile_nav_pills_container"):
+        selected = st.pills(
+            "Navigation",
+            mob_labels,
+            default=current_label,
+            key=f"mob_pills_nav_{st.session_state.active_tab_id}",
+            label_visibility="collapsed",
+        )
+        if selected and selected != current_label:
+            target_id = mob_map.get(selected, "home")
+            if target_id == "home":
+                st.session_state.nav_stack = ["home"]
+                st.session_state.active_tab_id = "home"
+                st.rerun()
+            else:
+                navigate_to(target_id)
+
 if st.session_state.active_tab_id != "home":
     hdr_left, hdr_right = st.columns([3, 2], wrap=True)
     with hdr_left:
@@ -3496,6 +3658,7 @@ if st.session_state.active_tab_id != "home":
     with hdr_right:
         render_header_actions()
     render_html('<div style="height: 1px; background: #E5E7EB; margin: 10px 0 18px 0;"></div>')
+    render_mobile_navigation()
 
 # ---------------------------------------------------------------------------
 # FARMER ACTION CENTER
@@ -3661,6 +3824,7 @@ if st.session_state.active_tab_id == "home":
 
         # Top Header Greeting & Quick Actions Row
         c_hero_hdr = st.container(key="hero_top_header_row")
+        render_mobile_navigation()
         hdr_left, hdr_right = c_hero_hdr.columns([3, 2], wrap=True)
         with hdr_left:
             current_farmer = st.session_state.get("user_name", "Farmer")
